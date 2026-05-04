@@ -127,9 +127,12 @@
     .clock-bg { fill: var(--clock-bg); stroke: var(--clock-stroke); transition: fill 0.4s, stroke 0.4s; }
     .clock-inner { fill: var(--clock-inner); transition: fill 0.4s; }
     .clock-text { fill: var(--text-secondary); transition: fill 0.4s; }
+    
+    /* NEW: Ultra Minimal Timer Glide CSS */
     .clock-value { fill: var(--text-primary); cursor: pointer; transition: fill 0.4s, opacity 0.2s; }
-    .clock-value:hover { opacity: 0.7; }
     .clock-value.paused { opacity: 0.4; }
+    .time-part { transition: font-size 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease; }
+    .time-part.hidden { font-size: 0px; opacity: 0; }
 
     .drag-string { fill: none; stroke: rgba(120, 120, 120, 0.5); stroke-linecap: round; opacity: 0; transition: opacity 0.2s; }
     .ball-trail { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px rgba(120, 120, 120, 0.4)); }
@@ -195,7 +198,6 @@
       background: var(--accent); border-radius: 8px; z-index: 1;
       transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
-    /* In RTL mode, physical left becomes right */
     body[dir="rtl"] .slider-bg { left: auto; right: 3px; }
     
     .slider-opt {
@@ -204,7 +206,6 @@
     }
     .slider-opt.active { color: #ffffff; }
     
-    /* Transform to the second option */
     .slide-second { transform: translateX(100%); }
     body[dir="rtl"] .slide-second { transform: translateX(-100%); }
 
@@ -212,7 +213,6 @@
     .spotify-btn-brand { background: #1DB954; color: white !important; font-weight: bold; border-color: #1DB954; padding: 12px; }
     .spotify-btn-brand:hover { background: #1ed760 !important; border-color: #1ed760 !important; }
     
-    /* Spacing above playback device dropdown */
     #spotifyDeviceBlock { margin-top: 30px !important; border-top: 1px solid var(--input-border); padding-top: 15px; }
     .sp-device-select { margin-top: 8px; width: 100%; font-size: 0.85rem; padding: 8px; background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 8px; outline: none; }
   </style>
@@ -321,10 +321,14 @@
 
       <path id="sleepArc" fill="none" stroke="url(#dynamicGrad)" stroke-width="8" stroke-linecap="round" />
 
-      <text id="timeValueText" class="clock-value" x="200" y="195" text-anchor="middle" font-size="36" font-weight="bold" title="Click to Pause/Play">00:00:00</text>
+      <!-- UPDATED: The Ultra-Minimal Glide Timer Text -->
+      <text id="timeValueText" class="clock-value" x="200" y="195" text-anchor="middle" font-size="40" font-weight="bold" title="Click to Pause/Play">
+        <tspan id="timeH" class="time-part">00:</tspan><tspan id="timeM" class="time-part">00:</tspan><tspan id="timeS" class="time-part">00</tspan>
+      </text>
+      
       <text id="timeLabelText" class="clock-text" x="200" y="225" text-anchor="middle" font-size="11" letter-spacing="3" data-i18n="remaining">REMAINING</text>
       
-      <!-- NEW: Finish Time Display -->
+      <!-- Finish Time Display -->
       <text id="finishTimeText" class="clock-text" x="200" y="245" text-anchor="middle" font-size="12" fill="#888888" style="opacity: 0.6;">Finish at: --:--</text>
 
       <circle id="startHandle" cx="200" cy="40" r="6" fill="transparent" stroke="#ffffff" stroke-width="3" class="playhead" />
@@ -743,12 +747,10 @@
       let diffMs;
       if (isTimerRunning) {
         diffMs = timerEndTime - now;
-        
         if (diffMs <= 0) {
           isTimerRunning = false;
           timerDurationMs = originalDurationMs;
           diffMs = originalDurationMs;
-          
           triggerShootingStar();
           if (isSpotifyPlaying) spotifyPause(); 
         } else {
@@ -765,6 +767,47 @@
           timeLabelText.textContent = translations[lang].remaining;
           timeValueText.classList.remove('paused');
       }
+      
+      // NEW: Ultra-Minimal "Glide" Logic
+      const absDiff = Math.abs(diffMs);
+      const hNum = Math.floor(absDiff / 3600000);
+      const mNum = Math.floor((absDiff % 3600000) / 60000);
+      const sNum = Math.floor((absDiff % 60000) / 1000);
+
+      const hStr = hNum.toString().padStart(2, '0');
+      const mStr = mNum.toString().padStart(2, '0');
+      const sStr = sNum.toString().padStart(2, '0');
+
+      const elH = document.getElementById('timeH');
+      const elM = document.getElementById('timeM');
+      const elS = document.getElementById('timeS');
+
+      // Calculate Tab Title string based on what is visually shown
+      let tabTimeStr = '';
+
+      if (hNum === 0) {
+        elH.classList.add('hidden');
+        if (mNum === 0) {
+          elM.classList.add('hidden');
+          elS.textContent = toNum(sStr);
+          tabTimeStr = sStr;
+        } else {
+          elM.classList.remove('hidden');
+          elM.textContent = toNum(`${mStr}:`);
+          elS.textContent = toNum(sStr);
+          tabTimeStr = `${mStr}:${sStr}`;
+        }
+      } else {
+        elH.classList.remove('hidden');
+        elM.classList.remove('hidden');
+        elH.textContent = toNum(`${hStr}:`);
+        elM.textContent = toNum(`${mStr}:`);
+        elS.textContent = toNum(sStr);
+        tabTimeStr = `${hStr}:${mStr}:${sStr}`;
+      }
+
+      // Sync the Browser Tab
+      document.title = `${displayTitle.textContent} • ${toNum(tabTimeStr)}`;
       
       // Calculate Finish Time
       const finishTimeDate = new Date(now + diffMs);
@@ -793,15 +836,8 @@
       const sPos = polarToCartesian(cx, cy, radius, realSAng); startHandle.setAttribute("cx", sPos.x); startHandle.setAttribute("cy", sPos.y);
       const ePos = polarToCartesian(cx, cy, dragging ? dragRadius : radius, realEAng); endHandle.setAttribute("cx", ePos.x); endHandle.setAttribute("cy", ePos.y);
 
-      const absDiffMs = Math.abs(diffMs);
-      const timeString = `${Math.floor(absDiffMs / 3600000).toString().padStart(2, '0')}:${Math.floor((absDiffMs % 3600000) / 60000).toString().padStart(2, '0')}:${Math.floor((absDiffMs % 60000) / 1000).toString().padStart(2, '0')}`;
-
       sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcSAng, arcEAng)); 
       sleepArc.setAttribute("stroke", "url(#dynamicGrad)");
-      timeValueText.textContent = toNum(timeString);
-      
-      // Update Tab/Browser Title Dynamically
-      document.title = `${displayTitle.textContent} • ${toNum(timeString)}`;
     }
 
     timeValueText.addEventListener("click", () => {
