@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Ambient Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at top, rgba(255, 255, 255, 0.03), transparent 40%), #050505;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: white; overflow: hidden; user-select: none; transition: direction 0.3s ease;
+    }
+
+    body[dir="rtl"] { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    
+    body[dir="rtl"] .side-panel {
+      right: auto; left: 0; transform: translateX(calc(-100% + 40px));
+      border-left: none; border-right: 1px solid rgba(255, 255, 255, 0.08); padding: 40px 50px 30px 30px;
+    }
+    body[dir="rtl"] .side-panel:hover { transform: translateX(0); }
+    body[dir="rtl"] .panel-tab { left: auto; right: 15px; transform: translateY(-50%) rotate(180deg); }
+    body[dir="rtl"] .ambient-info { left: auto; right: 24px; text-align: right; }
+    body[dir="rtl"] .edit-btn { float: left; }
+
+    /* --- Shooting Star Layer --- */
+    .star-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; --star-color: #00c6ff; }
+    .ambient-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s linear; }
+    .shooting-star {
+      position: absolute; top: 50%; left: 50%; width: 0px; height: 3px;
+      background: linear-gradient(to right, transparent 0%, var(--star-color) 80%, #ffffff 100%);
+      border-radius: 50px; filter: drop-shadow(0 0 15px var(--star-color)) drop-shadow(0 0 30px var(--star-color));
+      opacity: 0; transform-origin: right center; 
+    }
+    .shooting-star::after {
+      content: ''; position: absolute; top: 50%; right: 0; transform: translateY(-50%);
+      width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px 4px var(--star-color);
+    }
+    .shooting-star.shoot { animation: starFly 2.5s ease-out forwards; }
+
+    @keyframes starFly {
+      0% { transform: rotate(135deg) translateX(-120vmax); width: 0px; opacity: 0; }
+      10% { opacity: 1; width: 100px; }
+      20% { width: 400px; }
+      80% { width: 400px; opacity: 1; }
+      100% { transform: rotate(135deg) translateX(120vmax); width: 0px; opacity: 0; }
+    }
+
+    /* --- Clock & Interface --- */
+    .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; position: relative; z-index: 10; }
+    .display-title { font-size: 1.15rem; letter-spacing: 0.14em; text-transform: uppercase; color: #ffffff; margin-bottom: 30px; opacity: 0.8; }
+    svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8)); }
+
+    .drag-string { fill: none; stroke: rgba(255, 255, 255, 0.5); stroke-linecap: round; opacity: 0; transition: opacity 0.2s; }
+    .ball-trail { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4)); }
+    .handle { cursor: grab; transform-box: fill-box; transform-origin: center; transition: stroke-width 0.2s, transform 0.2s; }
+    .handle:hover { stroke: rgba(255,255,255,0.3); stroke-width: 6px; }
+    .handle:active, .handle.dragging { cursor: grabbing; transform: scale(1.4); filter: drop-shadow(0 0 8px currentColor); }
+    .handle.snap-back { transition: stroke-width 0.2s, transform 0.2s, cx 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), cy 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .playhead { transition: all 0.1s linear; filter: drop-shadow(0 0 4px rgba(255,255,255,0.5)); }
+
+    /* --- Customization Side Panel --- */
+    .side-panel {
+      position: fixed; right: 0; top: 0; bottom: 0; transform: translateX(calc(100% - 40px));
+      background: rgba(15, 15, 18, 0.85); backdrop-filter: blur(16px); border-left: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 40px 30px 30px 50px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      z-index: 100; display: flex; flex-direction: column; gap: 24px; width: 320px; overflow-y: auto;
+    }
+    
+    .side-panel::-webkit-scrollbar { width: 6px; }
+    .side-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+    .side-panel:hover { transform: translateX(0); }
+    .panel-tab { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.4); font-size: 24px; font-weight: bold; pointer-events: none; transition: opacity 0.3s; }
+    .side-panel:hover .panel-tab { opacity: 0; }
+    
+    .panel-header { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: -10px; margin-top: 10px; }
+    .edit-btn { float: right; cursor: pointer; opacity: 0.4; font-size: 1rem; transition: opacity 0.2s; }
+    .edit-btn:hover { opacity: 1; color: white; }
+
+    .title-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; outline: none; font-size: 1rem; }
+    .title-input:focus { border-color: rgba(255,255,255,0.3); }
+
+    .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+    .theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; }
+    .theme-dot:hover { transform: scale(1.15); }
+    .theme-dot.active { border-color: white; transform: scale(1.15); }
+
+    .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; }
+    .quick-grid.tight { grid-template-columns: repeat(5, 1fr); }
+    
+    .quick-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #ccc; cursor: pointer; padding: 8px 4px; font-size: 0.8rem; transition: all 0.2s; }
+    .quick-btn:hover, .quick-btn.active-lang { background: rgba(255,255,255,0.15); color: white; border-color: rgba(255,255,255,0.3); }
+
+    /* Ambient Info Zone */
+    .ambient-info {
+      position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+      opacity: 0.3; font-size: 0.9rem; letter-spacing: 0.05em; transition: opacity 0.3s ease; pointer-events: none;
+    }
+    body:hover .ambient-info { opacity: 0.7; }
+    .prayer-info { color: #a3a3a3; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;}
+    .prayer-name { font-weight: bold; color: white; }
+    .prayer-countdown { color: var(--star-color, #00c6ff); }
+
+    .overdue-text { fill: #ff4757 !important; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <!-- Shooting Star & Ambient Glow -->
+  <div id="starLayer" class="star-layer">
+    <div id="ambientGlow" class="ambient-glow"></div>
+    <div id="shootingStar" class="shooting-star"></div>
+  </div>
+
+  <!-- Ambient Info (Bottom) -->
+  <div class="ambient-info">
+    <div id="ambientClock">00:00 AM</div>
+    <div id="ambientDate">Monday, Jan 1</div>
+    <div id="ambientWeather">📍 Jeddah</div>
+    <div class="prayer-info" id="prayerBlock">
+      <span class="prayer-name" id="prayerName">Loading...</span> 
+      <span id="prayerTime"></span> 
+      <span class="prayer-countdown" id="prayerCountdown"></span>
+    </div>
+  </div>
+
+  <!-- Interactive Side Panel -->
+  <div class="side-panel">
+    <div class="panel-tab">‹</div>
+    
+    <div class="panel-header" data-i18n="language">Language / اللغة</div>
+    <div class="quick-grid">
+      <button class="quick-btn active-lang" onclick="setLanguage('en')" id="langEnBtn">English</button>
+      <button class="quick-btn" onclick="setLanguage('ar')" id="langArBtn">العربية</button>
+    </div>
+
+    <div class="panel-header" data-i18n="location">Location</div>
+    <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City (e.g., Riyadh)" />
+
+    <div class="panel-header" data-i18n="displayTitle">Display Title</div>
+    <input type="text" class="title-input" id="titleInput" value="System Standby" />
+    
+    <div class="panel-header"><span data-i18n="quickTitles">Quick Titles</span> <span class="edit-btn" onclick="editQuickTitles()">✎</span></div>
+    <div class="quick-grid" id="titlesGrid"></div>
+
+    <div class="panel-header"><span data-i18n="quickTimers">Quick Timers</span> <span class="edit-btn" onclick="editQuickTimers()">✎</span></div>
+    <div class="quick-grid tight" id="timersGrid"></div>
+
+    <div class="panel-header" data-i18n="accentColor">Accent Color</div>
+    <div class="theme-grid" id="themeGrid"></div>
+  </div>
+
+  <!-- Clock Interface -->
+  <div class="container">
+    <div class="display-title" id="displayTitle">System Standby</div>
+    
+    <svg id="clock" viewBox="0 0 400 400">
+      <defs>
+        <linearGradient id="dynamicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop id="gradStart" offset="0%" stop-color="#00c6ff" />
+          <stop id="gradEnd" offset="100%" stop-color="#0072ff" />
+        </linearGradient>
+      </defs>
+
+      <circle cx="200" cy="200" r="170" fill="#0a0a0c" stroke="#111" stroke-width="4" />
+      <circle cx="200" cy="200" r="154" fill="#0f0f13" />
+      <g id="ticks"></g>
+
+      <text id="lbl12" x="200" y="62" text-anchor="middle" fill="#666" font-size="14" font-weight="bold">12</text>
+      <text id="lbl3" x="342" y="205" text-anchor="middle" fill="#666" font-size="14" font-weight="bold">3</text>
+      <text id="lbl6" x="200" y="348" text-anchor="middle" fill="#666" font-size="14" font-weight="bold">6</text>
+      <text id="lbl9" x="58" y="205" text-anchor="middle" fill="#666" font-size="14" font-weight="bold">9</text>
+
+      <path id="sleepArc" fill="none" stroke="url(#dynamicGrad)" stroke-width="8" stroke-linecap="round" />
+
+      <text id="timeValueText" x="200" y="195" text-anchor="middle" fill="white" font-size="36" font-weight="bold">00:00:00</text>
+      <text id="timeLabelText" x="200" y="225" text-anchor="middle" fill="#666" font-size="11" letter-spacing="3" data-i18n="remaining">REMAINING</text>
+
+      <circle id="startHandle" cx="200" cy="40" r="6" fill="transparent" stroke="#ffffff" stroke-width="3" class="playhead" />
+      <path id="dragString" class="drag-string" d="" />
+      <line id="ballTrail" class="ball-trail" stroke="url(#dynamicGrad)" stroke-width="6" stroke-linecap="round" x1="0" y1="0" x2="0" y2="0" />
+      <circle id="endHandle" cx="200" cy="40" r="8" fill="#ffffff" class="handle snap-back" />
+    </svg>
+  </div>
+
+  <script>
+    const cx = 200, cy = 200, radius = 162;
+    let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = false; 
+    let exactTargetMs = 0, targetDate = new Date();
+    targetDate.setSeconds(targetDate.getSeconds() + 15); 
+    let wasOverdue = false; 
+
+    // Localization Data
+    let lang = localStorage.getItem('idleLang') || 'en';
+    const translations = {
+      en: {
+        language: "Language / اللغة", location: "Location", displayTitle: "Display Title",
+        quickTitles: "Quick Titles", quickTimers: "Quick Timers", accentColor: "Accent Color",
+        remaining: "REMAINING", overdue: "OVERDUE", resting: "RESTING",
+        prayerNames: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", None: "None" }
+      },
+      ar: {
+        language: "اللغة / Language", location: "الموقع", displayTitle: "العنوان",
+        quickTitles: "عناوين سريعة", quickTimers: "مؤقتات سريعة", accentColor: "لون المظهر",
+        remaining: "المتبقي", overdue: "انتهى الوقت", resting: "راحة",
+        prayerNames: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", None: "لا يوجد" }
+      }
+    };
+
+    const toNum = (str) => {
+      if (lang === 'en') return str.toString();
+      return str.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+    };
+
+    let quickTitles = ['Standby', 'Sleeping', 'Working'];
+    let quickTimers = [10, 15, 30, 120, 180];
+    const themes = {
+      blue: { name: 'blue', start: "#00c6ff", end: "#0072ff", handle: "#00c6ff" },
+      pink: { name: 'pink', start: "#ff758c", end: "#ff7eb3", handle: "#ff758c" },
+      white: { name: 'white', start: "#ffffff", end: "#888888", handle: "#ffffff" },
+      red: { name: 'red', start: "#ff0844", end: "#ffb199", handle: "#ff0844" },
+      purple: { name: 'purple', start: "#8E2DE2", end: "#4A00E0", handle: "#8E2DE2" },
+      green: { name: 'green', start: "#0ba360", end: "#3cba92", handle: "#0ba360" },
+      orange: { name: 'orange', start: "#f12711", end: "#f5af19", handle: "#f12711" },
+      neon: { name: 'neon', start: "#00F260", end: "#0575E6", handle: "#00F260" }
+    };
+    
+    // API & Data State
+    let prayerTimes = {};
+    let nextPrayer = null;
+    let currentCity = localStorage.getItem('idleCity') || "Jeddah";
+    let currentTheme = themes[localStorage.getItem('idleTheme')] || themes.blue;
+
+    // DOM Elements
+    const clockSvg = document.getElementById("clock"), ticksGroup = document.getElementById("ticks"), sleepArc = document.getElementById("sleepArc");
+    const startHandle = document.getElementById("startHandle"), endHandle = document.getElementById("endHandle");
+    const dragString = document.getElementById("dragString"), ballTrail = document.getElementById("ballTrail");
+    const timeValueText = document.getElementById("timeValueText"), timeLabelText = document.getElementById("timeLabelText");
+    const ambientClock = document.getElementById("ambientClock"), ambientDate = document.getElementById("ambientDate"), ambientWeather = document.getElementById("ambientWeather");
+    const prayerNameEl = document.getElementById("prayerName"), prayerTimeEl = document.getElementById("prayerTime"), prayerCountdownEl = document.getElementById("prayerCountdown");
+    const titleInput = document.getElementById("titleInput"), displayTitle = document.getElementById("displayTitle");
+    const themeGrid = document.getElementById("themeGrid"), cityInput = document.getElementById("cityInput");
+    const starLayer = document.getElementById("starLayer"), ambientGlow = document.getElementById("ambientGlow"), shootingStar = document.getElementById("shootingStar");
+    
+    // --- INITIALIZE SAVED SETTINGS ---
+    titleInput.value = localStorage.getItem('idleTitle') || "System Standby";
+    displayTitle.textContent = titleInput.value;
+    cityInput.value = currentCity;
+
+    // Save inputs on change
+    titleInput.addEventListener("input", (e) => { 
+      displayTitle.textContent = e.target.value || " "; 
+      localStorage.setItem('idleTitle', e.target.value);
+    });
+
+    // --- Translation Logic ---
+    function setLanguage(selectedLang) {
+      lang = selectedLang;
+      localStorage.setItem('idleLang', lang);
+      document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        el.textContent = translations[lang][key];
+      });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+        el.placeholder = translations[lang][el.getAttribute('data-i18n-ph')];
+      });
+
+      document.getElementById('langEnBtn').classList.toggle('active-lang', lang === 'en');
+      document.getElementById('langArBtn').classList.toggle('active-lang', lang === 'ar');
+      
+      document.getElementById("lbl12").textContent = toNum("12");
+      document.getElementById("lbl3").textContent = toNum("3");
+      document.getElementById("lbl6").textContent = toNum("6");
+      document.getElementById("lbl9").textContent = toNum("9");
+
+      renderQuickActions();
+      const tempUnit = lang === 'en' ? 'C' : 'م';
+      ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`);
+      if (nextPrayer) updatePrayerUI(); 
+      updateLiveTimer(); 
+    }
+
+    // --- Prayer API Logic ---
+    async function fetchPrayerTimes(city) {
+      try {
+        currentCity = city;
+        localStorage.setItem('idleCity', city);
+        const tempUnit = lang === 'en' ? 'C' : 'م';
+        ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`);
+        
+        const date = new Date();
+        const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+        const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${city}&country=Saudi Arabia&method=4`);
+        const data = await res.json();
+        
+        const allTimes = data.data.timings;
+        prayerTimes = { Fajr: allTimes.Fajr, Dhuhr: allTimes.Dhuhr, Asr: allTimes.Asr, Maghrib: allTimes.Maghrib, Isha: allTimes.Isha };
+        calculateNextPrayer();
+      } catch (err) {
+        console.error("Prayer API Error", err);
+        prayerNameEl.textContent = lang === 'en' ? "Offline" : "غير متصل";
+      }
+    }
+
+    cityInput.addEventListener("keydown", (e) => {
+      if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim());
+    });
+
+    if ("geolocation" in navigator && !localStorage.getItem('idleCity')) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
+          const data = await res.json();
+          cityInput.value = data.city || data.locality || "Jeddah";
+          fetchPrayerTimes(cityInput.value);
+        } catch (e) { fetchPrayerTimes("Jeddah"); }
+      }, () => fetchPrayerTimes("Jeddah")); 
+    } else {
+      fetchPrayerTimes(currentCity);
+    }
+
+    function calculateNextPrayer() {
+      const now = new Date();
+      let upcoming = null, minDiff = Infinity;
+
+      for (const [name, timeStr] of Object.entries(prayerTimes)) {
+        const [hours, mins] = timeStr.split(':');
+        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(mins), 0);
+        const diffMs = pDate.getTime() - now.getTime();
+        if (diffMs > 0 && diffMs < minDiff) { minDiff = diffMs; upcoming = { name, date: pDate, timeStr }; }
+      }
+
+      if (!upcoming && prayerTimes.Fajr) {
+        const [hours, mins] = prayerTimes.Fajr.split(':');
+        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, parseInt(hours), parseInt(mins), 0);
+        upcoming = { name: "Fajr", date: pDate, timeStr: prayerTimes.Fajr };
+      }
+      
+      nextPrayer = upcoming; updatePrayerUI();
+    }
+
+    function updatePrayerUI() {
+      if (!nextPrayer) return;
+
+      const pName = translations[lang].prayerNames[nextPrayer.name];
+      const [h, m] = nextPrayer.timeStr.split(':');
+      let h12 = parseInt(h) % 12 || 12;
+      const ampm = parseInt(h) >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
+      
+      prayerNameEl.textContent = pName;
+      prayerTimeEl.textContent = toNum(`- ${h12}:${m} ${ampm}`);
+
+      const diffMs = nextPrayer.date.getTime() - new Date().getTime();
+      
+      if (diffMs <= 0) { calculateNextPrayer(); return; }
+
+      const hrs = Math.floor(diffMs / 3600000).toString().padStart(2, '0');
+      const mins = Math.floor((diffMs % 3600000) / 60000).toString().padStart(2, '0');
+      const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
+      
+      prayerCountdownEl.textContent = toNum(`(${lang === 'en' ? 'in' : 'خلال'} ${hrs}:${mins}:${secs})`);
+      prayerCountdownEl.style.color = currentTheme.handle; 
+    }
+
+    // --- Core UI Logic ---
+    function renderQuickActions() {
+      const tGrid = document.getElementById('titlesGrid'); tGrid.innerHTML = '';
+      quickTitles.forEach(t => {
+        const btn = document.createElement('button'); btn.className = 'quick-btn'; btn.textContent = t;
+        btn.onclick = () => { titleInput.value = t; displayTitle.textContent = t; localStorage.setItem('idleTitle', t); }; 
+        tGrid.appendChild(btn);
+      });
+
+      const tmGrid = document.getElementById('timersGrid'); tmGrid.innerHTML = '';
+      const hLabel = lang === 'en' ? 'h' : 'س', mLabel = lang === 'en' ? 'm' : 'د';
+      
+      quickTimers.forEach(m => {
+        const btn = document.createElement('button'); btn.className = 'quick-btn';
+        btn.textContent = m >= 60 ? (m % 60 === 0 ? toNum(m/60) + hLabel : toNum((m/60).toFixed(1)) + hLabel) : toNum(m) + mLabel;
+        btn.onclick = () => { targetDate = new Date(Date.now() + (m * 60000)); exactTargetMs = targetDate.getTime(); wasOverdue = false; updateLiveTimer(); }; 
+        tmGrid.appendChild(btn);
+      });
+    }
+
+    function editQuickTitles() {
+      const input = prompt(lang === 'en' ? "Edit Quick Titles (comma separated):" : "تعديل العناوين السريعة (مفصول بفاصلة):", quickTitles.join(", "));
+      if (input !== null) { quickTitles = input.split(',').map(s => s.trim()).filter(s => s); renderQuickActions(); }
+    }
+
+    function editQuickTimers() {
+      const input = prompt(lang === 'en' ? "Edit Quick Timers in minutes (comma separated):" : "تعديل المؤقتات بالدقائق (مفصول بفاصلة):", quickTimers.join(", "));
+      if (input !== null) { quickTimers = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)); renderQuickActions(); }
+    }
+
+    function applyTheme(themeObj) {
+      currentTheme = themeObj;
+      localStorage.setItem('idleTheme', themeObj.name);
+      
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active')); 
+      document.querySelector(`.theme-dot[data-key="${themeObj.name}"]`).classList.add('active');
+      
+      gradStart.setAttribute('stop-color', currentTheme.start); gradEnd.setAttribute('stop-color', currentTheme.end);
+      endHandle.setAttribute('fill', currentTheme.handle);
+      ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`;
+      
+      starLayer.style.setProperty('--star-color', currentTheme.handle);
+      if(nextPrayer) prayerCountdownEl.style.color = currentTheme.handle; 
+    }
+
+    Object.entries(themes).forEach(([key, colors]) => {
+      const dot = document.createElement("div");
+      dot.className = `theme-dot`;
+      dot.dataset.key = key;
+      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`;
+      dot.addEventListener('click', () => applyTheme(colors));
+      themeGrid.appendChild(dot);
+    });
+
+    const minsToAngle = (m) => ((m % 720) / 720) * 360;
+    const getNowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
+    const getTargetMins = () => targetDate.getHours() * 60 + targetDate.getMinutes() + targetDate.getSeconds() / 60;
+
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+      return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
+    }
+
+    function describeArc(x, y, r, startAngle, endAngle) {
+      let diff = endAngle - startAngle; if (diff < 0) diff += 360; if (diff === 0) diff = 359.9; 
+      const start = polarToCartesian(x, y, r, startAngle); const end = polarToCartesian(x, y, r, endAngle);
+      const largeArcFlag = diff > 180 ? "1" : "0";
+      return ["M", start.x, start.y, "A", r, r, 0, largeArcFlag, 1, end.x, end.y].join(" ");
+    }
+
+    function drawTicks() {
+      for (let i = 0; i < 72; i++) {
+        if (i % 18 === 0) continue; 
+        const angle = i * 5, isHour = i % 3 === 0, r1 = isHour ? radius - 14 : radius - 20;
+        const p1 = polarToCartesian(cx, cy, r1, angle), p2 = polarToCartesian(cx, cy, radius - 4, angle);
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y); line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
+        line.setAttribute("stroke", isHour ? "#444" : "#222"); line.setAttribute("stroke-width", isHour ? "2" : "1");
+        ticksGroup.appendChild(line);
+      }
+    }
+
+    function triggerShootingStar() {
+      starLayer.style.setProperty('--star-color', currentTheme.handle);
+      shootingStar.classList.remove("shoot"); void shootingStar.offsetWidth; shootingStar.classList.add("shoot");
+      ambientGlow.style.transition = "opacity 0.2s"; ambientGlow.style.opacity = "0.7";
+      setTimeout(() => { ambientGlow.style.transition = "opacity 2s linear"; ambientGlow.style.opacity = "0"; }, 200);
+    }
+
+    function triggerSnapEasterEgg() {
+      isBroken = true; dragging = false; prevMouseAngle = null;
+      endHandle.classList.remove("dragging", "snap-back"); dragString.style.opacity = "0";
+      const hx = parseFloat(endHandle.getAttribute("cx")), hy = parseFloat(endHandle.getAttribute("cy"));
+      const dx = hx - cx, dy = hy - cy, flingX = cx + dx * 6, flingY = cy + dy * 6;
+      const throwCurve = "cubic-bezier(0.2, 0.8, 0.2, 1)", throwDuration = "2.5s";
+
+      ballTrail.style.transition = "none"; ballTrail.setAttribute("x1", hx); ballTrail.setAttribute("y1", hy); ballTrail.setAttribute("x2", hx); ballTrail.setAttribute("y2", hy); ballTrail.style.opacity = "0.8"; void ballTrail.offsetWidth;
+      endHandle.style.transition = `cx ${throwDuration} ${throwCurve}, cy ${throwDuration} ${throwCurve}`; endHandle.setAttribute("cx", flingX); endHandle.setAttribute("cy", flingY);
+      ballTrail.style.transition = `x2 ${throwDuration} ${throwCurve}, y2 ${throwDuration} ${throwCurve}, x1 ${throwDuration} 0.15s ${throwCurve}, y1 ${throwDuration} 0.15s ${throwCurve}, opacity 1s 1.5s ease-out`;
+      ballTrail.setAttribute("x2", flingX); ballTrail.setAttribute("y2", flingY); ballTrail.setAttribute("x1", flingX); ballTrail.setAttribute("y1", flingY); ballTrail.style.opacity = "0";
+
+      setTimeout(() => {
+        endHandle.style.transition = "none"; endHandle.style.opacity = "0"; dragRadius = radius; updateLiveTimer(); 
+        setTimeout(() => {
+          endHandle.style.transition = "opacity 1.5s ease"; endHandle.style.opacity = "1";
+          setTimeout(() => { endHandle.style.transition = ""; endHandle.classList.add("snap-back"); isBroken = false; }, 1500);
+        }, 50);
+      }, 5000); 
+    }
+
+    function animateWobblyString() {
+      requestAnimationFrame(animateWobblyString);
+      if (isBroken) return; 
+
+      const base = polarToCartesian(cx, cy, radius, minsToAngle(getTargetMins()));
+      const hx = parseFloat(endHandle.getAttribute("cx")) || base.x, hy = parseFloat(endHandle.getAttribute("cy")) || base.y;
+      const dist = Math.hypot(hx - base.x, hy - base.y), centerDist = Math.hypot(hx - cx, hy - cy);
+
+      if (dist < 1) return; 
+
+      if (centerDist < radius - 5) {
+        dragString.style.strokeDasharray = "4 6"; dragString.style.strokeWidth = "2.5";
+        dragString.setAttribute("d", `M ${base.x} ${base.y} L ${hx} ${hy}`);
+      } else {
+        dragString.style.strokeDasharray = "none";
+        const stretch = Math.max(0, centerDist - radius);
+        dragString.style.strokeWidth = Math.max(0.5, 3 - stretch / 50).toString(); 
+        const wobble = Math.max(0, 20 - stretch * 0.15); 
+        
+        const pt1x = base.x + (hx - base.x) * 0.33, pt1y = base.y + (hy - base.y) * 0.33;
+        const pt2x = base.x + (hx - base.x) * 0.66, pt2y = base.y + (hy - base.y) * 0.66;
+        const nx = -(hy - base.y) / dist, ny = (hx - base.x) / dist, time = Date.now();
+        const activeWobble = dragging ? wobble : 0; 
+        const w1 = Math.sin(time / 250) * activeWobble, w2 = Math.sin((time / 250) + Math.PI/2) * activeWobble;
+
+        dragString.setAttribute("d", `M ${base.x} ${base.y} C ${pt1x + nx * w1} ${pt1y + ny * w1}, ${pt2x + nx * w2} ${pt2y + ny * w2}, ${hx} ${hy}`);
+      }
+    }
+
+    function updateLiveTimer() {
+      const now = new Date();
+      
+      let h = now.getHours(), m = now.getMinutes().toString().padStart(2, '0');
+      ambientClock.textContent = toNum(`${h % 12 || 12}:${m} ${h >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص')}`);
+      ambientDate.textContent = toNum(now.toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
+
+      updatePrayerUI();
+
+      if (isBroken) return; 
+
+      const diffMs = targetDate.getTime() - now.getTime();
+      const isResting = diffMs < 0 && diffMs >= -300000; 
+      const isOverdue = diffMs < -300000; 
+      
+      if (diffMs > 0 && diffMs <= 60000) {
+        ambientGlow.style.transition = "opacity 1s linear";
+        ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`;
+        ambientGlow.style.opacity = ((1 - (diffMs / 60000)) * 0.4).toString(); 
+      } else if (diffMs > 60000 && !dragging) { ambientGlow.style.opacity = "0"; }
+
+      if (diffMs < 0 && !wasOverdue) triggerShootingStar();
+      wasOverdue = diffMs < 0;
+
+      const nowMins = getNowMins(), targetMins = getTargetMins();
+      const realSAng = minsToAngle(nowMins), realEAng = minsToAngle(targetMins);
+      let arcSAng = realSAng, arcEAng = realEAng;
+
+      if (diffMs >= 43200000) { arcEAng = arcSAng + 359.9; } else if (diffMs <= -43200000) { arcSAng = arcEAng + 359.9; }
+
+      const sPos = polarToCartesian(cx, cy, radius, realSAng); startHandle.setAttribute("cx", sPos.x); startHandle.setAttribute("cy", sPos.y);
+      const ePos = polarToCartesian(cx, cy, dragging ? dragRadius : radius, realEAng); endHandle.setAttribute("cx", ePos.x); endHandle.setAttribute("cy", ePos.y);
+
+      const absDiffMs = Math.abs(diffMs);
+      const timeString = `${Math.floor(absDiffMs / 3600000).toString().padStart(2, '0')}:${Math.floor((absDiffMs % 3600000) / 60000).toString().padStart(2, '0')}:${Math.floor((absDiffMs % 60000) / 1000).toString().padStart(2, '0')}`;
+
+      if (isOverdue) {
+        sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcEAng, arcSAng)); sleepArc.setAttribute("stroke", "#ff4757");
+        timeValueText.setAttribute("fill", "#ff4757"); timeValueText.className.baseVal = "overdue-text"; timeValueText.textContent = toNum(`-${timeString}`);
+        timeLabelText.textContent = translations[lang].overdue; timeLabelText.setAttribute("fill", "#ff4757");
+      } else if (isResting) {
+        sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcEAng, arcSAng)); sleepArc.setAttribute("stroke", "#555");
+        timeValueText.setAttribute("fill", "#aaa"); timeValueText.className.baseVal = ""; timeValueText.textContent = toNum(`-${timeString}`);
+        timeLabelText.textContent = translations[lang].resting; timeLabelText.setAttribute("fill", "#888");
+      } else {
+        sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcSAng, arcEAng)); sleepArc.setAttribute("stroke", "url(#dynamicGrad)");
+        timeValueText.setAttribute("fill", "white"); timeValueText.className.baseVal = ""; timeValueText.textContent = toNum(timeString);
+        timeLabelText.textContent = translations[lang].remaining; timeLabelText.setAttribute("fill", "#666");
+      }
+    }
+
+    function getMouseData(e) {
+      const rect = clockSvg.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      const x = clientX - rect.left - rect.width / 2, y = clientY - rect.top - rect.height / 2;
+      let ang = Math.atan2(y, x) * (180 / Math.PI) + 90; if (ang < 0) ang += 360;
+      return { ang, dist: Math.hypot(x, y) * (400 / rect.width) };
+    }
+
+    function onPointerDown(e) {
+      if (e.target === endHandle && !isBroken) {
+        dragging = true; prevMouseAngle = null; exactTargetMs = targetDate.getTime(); 
+        endHandle.classList.remove("snap-back"); dragString.style.opacity = "1"; e.target.classList.add("dragging");
+      }
+    }
+
+    function onPointerMove(e) {
+      if (!dragging || isBroken) return;
+      e.preventDefault();
+      const { ang, dist } = getMouseData(e);
+
+      if (dist > 330) { triggerSnapEasterEgg(); return; }
+
+      dragRadius = Math.max(120, dist);
+
+      if (prevMouseAngle === null) { prevMouseAngle = ang; return; }
+      let deltaAngle = ang - prevMouseAngle; if (deltaAngle > 180) deltaAngle -= 360; if (deltaAngle < -180) deltaAngle += 360;
+
+      exactTargetMs += deltaAngle * 2 * 60 * 1000; prevMouseAngle = ang;
+
+      if (dist < radius - 5) {
+        const snapMs = 5 * 60 * 1000; targetDate = new Date(Math.round(exactTargetMs / snapMs) * snapMs);
+      } else { targetDate = new Date(exactTargetMs); }
+      updateLiveTimer(); 
+    }
+
+    function onPointerUp() {
+      if (dragging && !isBroken) {
+        dragging = false; prevMouseAngle = null; dragRadius = radius; 
+        endHandle.classList.add("snap-back"); endHandle.classList.remove("dragging"); dragString.style.opacity = "0"; 
+        updateLiveTimer(); 
+      }
+    }
+
+    clockSvg.addEventListener("mousedown", onPointerDown); window.addEventListener("mousemove", onPointerMove); window.addEventListener("mouseup", onPointerUp);
+    clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); window.addEventListener("touchmove", onPointerMove, {passive: false}); window.addEventListener("touchend", onPointerUp);
+
+    // Initial setups
+    applyTheme(currentTheme);
+    setLanguage(lang);
+    drawTicks(); updateLiveTimer(); animateWobblyString();
+    setInterval(updateLiveTimer, 1000);
+  </script>
+</body>
+</html>
