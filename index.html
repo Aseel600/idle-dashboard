@@ -20,6 +20,7 @@
       --clock-inner: #0f0f13;
       --now-playing-bg: rgba(15, 15, 18, 0.6);
       --sp-btn-color: #aaaaaa;
+      --accent: #00c6ff;
     }
 
     body.light-mode {
@@ -57,7 +58,7 @@
     body[dir="rtl"] .spotify-controls { flex-direction: row-reverse; }
 
     /* --- Shooting Star Layer & Holy Glow --- */
-    .star-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; --star-color: #00c6ff; }
+    .star-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; --star-color: var(--accent); }
     .ambient-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s linear; }
     
     @keyframes holyPulse {
@@ -183,13 +184,33 @@
     /* Prayer Highlight State */
     .prayer-text-highlight { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); font-size: 0.95rem; }
     
-    /* Spotify Specific UI */
+    /* --- NEW: Animated Sliders --- */
+    .slider-container {
+      display: flex; background: var(--input-bg); border-radius: 10px;
+      padding: 3px; position: relative; margin-top: 10px; border: 1px solid var(--input-border);
+      height: 38px; cursor: pointer;
+    }
+    .slider-bg {
+      position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px);
+      background: var(--accent); border-radius: 8px; z-index: 1;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+    .slider-opt {
+      flex: 1; text-align: center; z-index: 2; color: var(--text-secondary); font-size: 0.8rem;
+      font-weight: bold; display: flex; align-items: center; justify-content: center; transition: color 0.3s;
+    }
+    .slider-opt.active { color: #ffffff; }
+    /* Transform overrides based on direction and state */
+    .slide-right { transform: translateX(100%); }
+    body[dir="rtl"] .slide-right { transform: translateX(-100%); }
+
+    /* --- Spotify Specific UI Fix --- */
     .spotify-btn-brand { background: #1DB954; color: white !important; font-weight: bold; border-color: #1DB954; padding: 12px; }
     .spotify-btn-brand:hover { background: #1ed760 !important; border-color: #1ed760 !important; }
     
-    /* Fix for image_a7c43f.png - Spacing for Playback Device select */
+    /* Spacing above playback device dropdown */
     #spotifyDeviceBlock { margin-top: 30px !important; border-top: 1px solid var(--input-border); padding-top: 15px; }
-    .sp-device-select { margin-top: 8px; width: 100%; font-size: 0.85rem; padding: 8px; }
+    .sp-device-select { margin-top: 8px; width: 100%; font-size: 0.85rem; padding: 8px; background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 8px; outline: none; }
   </style>
 </head>
 <body>
@@ -233,15 +254,17 @@
     <div class="panel-tab">‹</div>
     
     <div class="panel-header" data-i18n="language">Language / اللغة</div>
-    <div class="quick-grid">
-      <button class="quick-btn active-lang" onclick="setLanguage('en')" id="langEnBtn">English</button>
-      <button class="quick-btn" onclick="setLanguage('ar')" id="langArBtn">العربية</button>
+    <div class="slider-container" onclick="toggleLang()">
+      <div id="langSliderBg" class="slider-bg"></div>
+      <div id="langEnOpt" class="slider-opt active">English</div>
+      <div id="langArOpt" class="slider-opt">العربية</div>
     </div>
 
     <div class="panel-header" data-i18n="displayMode">Display Mode</div>
-    <div class="quick-grid">
-      <button class="quick-btn active-lang" onclick="setMode('dark')" id="modeDarkBtn" data-i18n="dark">Dark</button>
-      <button class="quick-btn" onclick="setMode('light')" id="modeLightBtn" data-i18n="light">Light</button>
+    <div class="slider-container" onclick="toggleMode()">
+      <div id="modeSliderBg" class="slider-bg"></div>
+      <div id="modeDarkOpt" class="slider-opt active" data-i18n="dark">Dark</div>
+      <div id="modeLightOpt" class="slider-opt" data-i18n="light">Light</div>
     </div>
 
     <div class="panel-header" data-i18n="location">Location</div>
@@ -265,8 +288,8 @@
     </div>
     
     <div id="spotifyDeviceBlock" style="display: none;">
-      <div class="panel-header" style="font-size: 0.7rem; margin-top: 15px;" data-i18n="devices">Playback Device</div>
-      <select class="title-input sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
+      <div class="panel-header" style="font-size: 0.7rem;" data-i18n="devices">Playback Device</div>
+      <select class="sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
         <option>Loading devices...</option>
       </select>
     </div>
@@ -297,7 +320,7 @@
       <text id="timeValueText" class="clock-value" x="200" y="195" text-anchor="middle" font-size="36" font-weight="bold" title="Click to Pause/Play">00:00:00</text>
       <text id="timeLabelText" class="clock-text" x="200" y="225" text-anchor="middle" font-size="11" letter-spacing="3" data-i18n="remaining">REMAINING</text>
       
-      <!-- ADDED: The Finish Time element -->
+      <!-- NEW: Finish Time Display -->
       <text id="finishTimeText" class="clock-text" x="200" y="245" text-anchor="middle" font-size="12" fill="#888888" style="opacity: 0.6;">Finish at: --:--</text>
 
       <circle id="startHandle" cx="200" cy="40" r="6" fill="transparent" stroke="#ffffff" stroke-width="3" class="playhead" />
@@ -394,13 +417,28 @@
     const nowPlayingDiv = document.getElementById("nowPlaying"), npArt = document.getElementById("npArt"), npTrack = document.getElementById("npTrack"), npArtist = document.getElementById("npArtist");
 
     // ==========================================
-    // 3. UI FUNCTIONS (Translations, Themes, Mode)
+    // 3. UI FUNCTIONS (Translations, Themes, Mode, Sliders)
     // ==========================================
+    function toggleLang() {
+      setLanguage(lang === 'en' ? 'ar' : 'en');
+    }
+
     function setLanguage(selectedLang) {
       lang = selectedLang;
       localStorage.setItem('idleLang', lang);
       document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
       
+      const langBg = document.getElementById('langSliderBg');
+      if (lang === 'ar') {
+        langBg.classList.add('slide-right');
+        document.getElementById('langArOpt').classList.add('active');
+        document.getElementById('langEnOpt').classList.remove('active');
+      } else {
+        langBg.classList.remove('slide-right');
+        document.getElementById('langEnOpt').classList.add('active');
+        document.getElementById('langArOpt').classList.remove('active');
+      }
+
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang][key]) el.textContent = translations[lang][key];
@@ -409,9 +447,6 @@
         const key = el.getAttribute('data-i18n-ph');
         if (translations[lang][key]) el.placeholder = translations[lang][key];
       });
-
-      document.getElementById('langEnBtn').classList.toggle('active-lang', lang === 'en');
-      document.getElementById('langArBtn').classList.toggle('active-lang', lang === 'ar');
       
       document.getElementById("lbl12").textContent = toNum("12");
       document.getElementById("lbl3").textContent = toNum("3");
@@ -428,18 +463,25 @@
       updateLiveTimer(); 
     }
 
+    function toggleMode() {
+      setMode(currentMode === 'dark' ? 'light' : 'dark');
+    }
+
     function setMode(mode) {
       currentMode = mode;
       localStorage.setItem('idleMode', mode);
       
+      const modeBg = document.getElementById('modeSliderBg');
       if (mode === 'light') {
         document.body.classList.add('light-mode');
-        document.getElementById('modeLightBtn').classList.add('active-lang');
-        document.getElementById('modeDarkBtn').classList.remove('active-lang');
+        modeBg.classList.add('slide-right');
+        document.getElementById('modeLightOpt').classList.add('active');
+        document.getElementById('modeDarkOpt').classList.remove('active');
       } else {
         document.body.classList.remove('light-mode');
-        document.getElementById('modeDarkBtn').classList.add('active-lang');
-        document.getElementById('modeLightBtn').classList.remove('active-lang');
+        modeBg.classList.remove('slide-right');
+        document.getElementById('modeDarkOpt').classList.add('active');
+        document.getElementById('modeLightOpt').classList.remove('active');
       }
     }
 
@@ -504,11 +546,13 @@
       const iqamaMs = nextPrayer.iqamaDate.getTime();
 
       if (nowMs >= iqamaMs) {
+          // Iqamah just passed, fetch the next prayer
           calculateNextPrayer();
           return;
       }
 
       if (nowMs >= azanMs && nowMs < iqamaMs) {
+          // PHASE 2: Azan happened. Show Holy Glow and count down to Iqamah.
           ambientGlow.classList.add("prayer-glow-active");
           prayerNameEl.classList.add("prayer-text-highlight");
           
@@ -522,6 +566,7 @@
           prayerCountdownEl.textContent = toNum(`(${mins}:${secs})`);
           prayerCountdownEl.style.color = "#FFD700"; 
       } else {
+          // PHASE 1: Waiting for Azan. Standard tracking.
           ambientGlow.classList.remove("prayer-glow-active");
           prayerNameEl.classList.remove("prayer-text-highlight");
           
@@ -719,10 +764,12 @@
       
       // Calculate Finish Time
       const finishTimeDate = new Date(now + diffMs);
-      const fH = finishTimeDate.getHours() % 12 || 12;
+      let fH = finishTimeDate.getHours();
       const fM = finishTimeDate.getMinutes().toString().padStart(2, '0');
-      const fAMPM = finishTimeDate.getHours() >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
-      document.getElementById('finishTimeText').textContent = toNum(translations[lang].finishAt + `${fH}:${fM} ${fAMPM}`);
+      const fAMPM = fH >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
+      fH = fH % 12 || 12;
+      const finishStr = toNum(`${fH}:${fM} ${fAMPM}`);
+      document.getElementById('finishTimeText').textContent = translations[lang].finishAt + finishStr;
 
       if (!ambientGlow.classList.contains("prayer-glow-active")) {
           if (diffMs > 0 && diffMs <= 60000 && isTimerRunning) {
