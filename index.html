@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ambient OS | Idle</title>
+  <title>Ambient OS | V2.5</title>
   <style>
     :root {
       --bg-main: #050505;
@@ -13,409 +13,253 @@
       --accent: #00c6ff;
       --glass: rgba(255, 255, 255, 0.05);
       --border: rgba(255, 255, 255, 0.1);
-      --gold: #FFD700;
+      --clock-inner: #0f0f13;
     }
 
     body.light-mode {
       --bg-main: #f4f4f5;
-      --bg-panel: rgba(240, 240, 240, 0.9);
+      --bg-panel: rgba(245, 245, 245, 0.95);
       --text-p: #111111;
       --text-s: #666666;
-      --glass: rgba(0, 0, 0, 0.03);
+      --glass: rgba(0, 0, 0, 0.04);
       --border: rgba(0, 0, 0, 0.1);
+      --clock-inner: #ffffff;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.3s, color 0.3s; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh; background: var(--bg-main); color: var(--text-p);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica;
-      overflow: hidden; user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
+      overflow: hidden; user-select: none; transition: background 0.4s;
     }
 
-    /* --- Cinema Mode Dimmer --- */
-    #cinemaOverlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: black; opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.8s;
-    }
-    body.cinema-active #cinemaOverlay { opacity: 0.85; }
-
-    /* --- Draggable Containers --- */
-    .draggable { position: fixed; z-index: 100; cursor: grab; }
-    .draggable:active { cursor: grabbing; }
-
-    /* --- Settings Accordion --- */
+    /* --- Side Panels & Tabs --- */
     .side-panel {
       position: fixed; top: 0; height: 100%; width: 320px; 
-      background: var(--bg-panel); backdrop-filter: blur(20px);
-      z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
-      padding: 20px; overflow-y: auto;
+      background: var(--bg-panel); backdrop-filter: blur(25px);
+      z-index: 1000; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      padding: 30px; overflow-y: auto;
     }
     .panel-right { right: 0; transform: translateX(calc(100% - 40px)); border-left: 1px solid var(--border); }
     .panel-left { left: 0; transform: translateX(calc(-100% + 40px)); border-right: 1px solid var(--border); }
     .side-panel:hover { transform: translateX(0); }
 
-    .accordion-item { border-bottom: 1px solid var(--border); margin-bottom: 10px; }
-    .acc-header { 
-      padding: 12px 0; cursor: pointer; color: var(--text-s); font-size: 0.8rem; 
-      text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between;
+    .panel-tab {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-size: 20px; color: var(--text-s); opacity: 0.6; pointer-events: none;
     }
-    .acc-header:hover { color: var(--text-p); }
-    .acc-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-    .acc-content.open { max-height: 500px; padding-bottom: 15px; }
+    .panel-right .panel-tab { left: 12px; }
+    .panel-left .panel-tab { right: 12px; }
+    .side-panel:hover .panel-tab { opacity: 0; }
 
-    /* --- Clock Hybrid System --- */
-    .clock-container {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      text-align: center; pointer-events: auto; z-index: 10;
+    /* --- Toggle Sliders --- */
+    .toggle-container {
+      display: flex; background: var(--glass); border-radius: 20px;
+      padding: 4px; position: relative; margin-top: 10px; border: 1px solid var(--border);
     }
-    #clockSvg { width: 420px; height: 420px; overflow: visible; }
-    .analog-hand { stroke-linecap: round; transform-origin: 200px 200px; transition: transform 0.5s cubic-bezier(0.4, 2.08, 0.55, 0.44); }
+    .toggle-btn {
+      flex: 1; text-align: center; padding: 6px; font-size: 0.75rem;
+      cursor: pointer; z-index: 2; transition: color 0.3s; color: var(--text-s);
+    }
+    .toggle-btn.active { color: white; }
+    .slider {
+      position: absolute; top: 4px; left: 4px; width: calc(50% - 4px); height: calc(100% - 8px);
+      background: var(--accent); border-radius: 18px; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1;
+    }
+    .rtl-slide { transform: translateX(100%); }
+
+    /* --- Clock Design (Original Refined) --- */
+    .clock-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10; }
+    #clockSvg { width: 400px; height: 400px; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.5)); }
+    .analog-hand { stroke-linecap: round; transform-origin: 200px 200px; }
     
-    .hover-reveal { opacity: 0; transition: opacity 0.4s; }
-    .clock-container:hover .hover-reveal { opacity: 1; }
-    .clock-container:hover .idle-hide { opacity: 0; }
+    .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 10px; }
+    .theme-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .theme-dot.active { border-color: var(--text-p); transform: scale(1.1); }
 
-    /* --- Universal Media Player --- */
-    #mediaWidget {
-      top: 50px; left: 50px; min-width: 300px; padding: 15px;
-      background: var(--now-playing-bg, rgba(15, 15, 18, 0.6));
-      backdrop-filter: blur(15px); border: 1px solid var(--border); border-radius: 16px;
-    }
-    #ytPlayerContainer { width: 100%; aspect-ratio: 16/9; display: none; margin-top: 10px; border-radius: 8px; overflow: hidden; }
-    
-    /* Cinema Mode Positioning */
-    body.cinema-active #mediaWidget {
-      top: 50% !important; left: 50% !important; transform: translate(-50%, -50%) scale(1.5) !important;
-      width: 60vw !important; box-shadow: 0 0 50px rgba(0,0,0,1); z-index: 2000;
-    }
-    body.cinema-active .container, body.cinema-active .star-layer { filter: blur(5px); }
+    /* --- Media Player --- */
+    #mediaWidget { top: 40px; left: 40px; width: 300px; padding: 15px; border-radius: 12px; background: var(--bg-panel); border: 1px solid var(--border); }
+    #npArt { width: 50px; height: 50px; border-radius: 6px; background: #222; }
 
-    /* --- Task List --- */
-    .task-input-row { display: flex; gap: 5px; margin-bottom: 10px; }
-    .task-list { list-style: none; }
-    .task-item { 
-      background: var(--glass); padding: 10px; border-radius: 8px; margin-bottom: 8px; 
-      display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent);
-    }
-    .priority-high { border-left-color: #ff4757; }
-    .priority-med { border-left-color: #ffa502; }
-
-    /* --- Ambient Bar & Pin --- */
-    #ambientBar { bottom: 20px; left: 20px; padding: 10px; border-radius: 8px; }
-    #ambientBar.unpinned { border: 1px dashed var(--accent); background: var(--glass); }
-    .pin-btn { cursor: pointer; font-size: 0.8rem; margin-left: 10px; opacity: 0.5; }
-    .pin-btn.active { opacity: 1; color: var(--accent); }
-
-    /* --- Common UI --- */
-    input, select, button { 
-      background: var(--glass); border: 1px solid var(--border); color: var(--text-p); 
-      padding: 8px; border-radius: 6px; outline: none; width: 100%;
-    }
-    button:active { transform: scale(0.98); }
-    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
+    /* Accordion */
+    .acc-header { padding: 15px 0; border-top: 1px solid var(--border); cursor: pointer; display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-s); }
+    .acc-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+    .acc-content.open { max-height: 400px; padding-bottom: 20px; }
 
   </style>
 </head>
 <body id="mainBody">
 
-  <div id="cinemaOverlay"></div>
-
-  <!-- Background Layer -->
-  <div class="star-layer" id="starLayer">
-    <div id="ambientGlow" style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;"></div>
-  </div>
-
-  <!-- Left Panel: Tasks -->
+  <!-- Left Panel -->
   <div class="side-panel panel-left">
-    <div style="font-weight:bold; margin-bottom:20px; display:flex; justify-content:space-between;">
-      TASKS <span id="taskStats" style="font-size:0.7rem; color:var(--text-s);">0/0</span>
+    <div class="panel-tab">›</div>
+    <h3 style="margin-bottom:20px; font-size:0.9rem; letter-spacing:1px;">SCHEDULE</h3>
+    <input type="text" id="taskName" placeholder="New task..." style="margin-bottom:10px;">
+    <div style="display:flex; gap:5px; margin-bottom:20px;">
+        <input type="time" id="taskTime">
+        <button onclick="addTask()" style="width:60px;">ADD</button>
     </div>
-    <div class="task-input-row">
-      <input type="text" id="taskName" placeholder="Task name...">
-      <select id="taskPriority" style="width:70px;">
-        <option value="low">Low</option>
-        <option value="med">Med</option>
-        <option value="high">High</option>
-      </select>
-    </div>
-    <div class="task-input-row">
-      <input type="time" id="taskTime">
-      <button onclick="addTask()" style="width:50px;">+</button>
-    </div>
-    <ul id="taskList" class="task-list"></ul>
+    <ul id="taskList" style="list-style:none;"></ul>
   </div>
 
-  <!-- Right Panel: Settings -->
+  <!-- Right Panel -->
   <div class="side-panel panel-right">
-    <div class="accordion-item">
-      <div class="acc-header" onclick="toggleAcc(this)">General <span>▾</span></div>
-      <div class="acc-content open">
-        <label style="font-size:0.7rem; color:var(--text-s);">Language / المظهر</label>
-        <div class="quick-grid">
-          <button onclick="setLang('en')">English</button>
-          <button onclick="setLang('ar')">العربية</button>
-        </div>
-        <div class="quick-grid" style="margin-top:10px;">
-          <button onclick="setMode('dark')">Dark</button>
-          <button onclick="setMode('light')">Light</button>
-        </div>
+    <div class="panel-tab">‹</div>
+    
+    <div class="acc-header" onclick="toggleAcc(this)">SYSTEM <span>▾</span></div>
+    <div class="acc-content open">
+      <label style="font-size:0.7rem;">LANGUAGE</label>
+      <div class="toggle-container">
+        <div id="langSlider" class="slider"></div>
+        <div class="toggle-btn" onclick="setLang('en')">EN</div>
+        <div class="toggle-btn" onclick="setLang('ar')">AR</div>
+      </div>
+
+      <label style="font-size:0.7rem; display:block; margin-top:15px;">DISPLAY MODE</label>
+      <div class="toggle-container">
+        <div id="modeSlider" class="slider"></div>
+        <div class="toggle-btn" onclick="setMode('dark')">DARK</div>
+        <div class="toggle-btn" onclick="setMode('light')">LIGHT</div>
       </div>
     </div>
 
-    <div class="accordion-item">
-      <div class="acc-header" onclick="toggleAcc(this)">Media <span>▾</span></div>
-      <div class="acc-content">
-        <button id="spLoginBtn" onclick="loginSpotify()" class="spotify-btn-brand">Spotify Login</button>
-        <div id="spDeviceSection" style="display:none; margin-top:10px;">
-          <select id="spDeviceSelect" onchange="transferPlayback(this.value)"></select>
-        </div>
-        <hr style="margin:15px 0; opacity:0.1;">
-        <input type="text" id="ytUrl" placeholder="Paste YouTube Link" onchange="loadYT(this.value)">
-        <button onclick="toggleCinema()" style="margin-top:10px; background:var(--accent);">Cinema Mode</button>
-      </div>
+    <div class="acc-header" onclick="toggleAcc(this)">APPEARANCE <span>▾</span></div>
+    <div class="acc-content">
+      <div class="theme-grid" id="themeGrid"></div>
     </div>
 
-    <div class="accordion-item">
-      <div class="acc-header" onclick="toggleAcc(this)">Appearance <span>▾</span></div>
-      <div class="acc-content">
-        <div class="theme-grid" id="themeGrid"></div>
-      </div>
+    <div class="acc-header" onclick="toggleAcc(this)">MEDIA <span>▾</span></div>
+    <div class="acc-content">
+        <button onclick="loginSpotify()" style="background:#1DB954; color:white; border:none; margin-bottom:10px;">SPOTIFY LOGIN</button>
+        <input type="text" id="ytUrl" placeholder="YouTube Link..." onchange="loadYT(this.value)">
     </div>
   </div>
 
-  <!-- Media Widget -->
-  <div id="mediaWidget" class="draggable">
-    <div id="spWidget">
-       <div style="display:flex; gap:10px; align-items:center;">
-          <img id="npArt" style="width:50px;height:50px;border-radius:4px;background:#222;">
-          <div>
-            <div id="npTrack" style="font-weight:bold; font-size:0.9rem;">Not Listening</div>
-            <div id="npArtist" style="font-size:0.7rem; color:var(--text-s);">Spotify</div>
-          </div>
-       </div>
-       <div class="quick-grid" style="margin-top:10px;">
-          <button onclick="spAction('previous')">⏮</button>
-          <button onclick="spToggle()" id="spPlayBtn">▶</button>
-          <button onclick="spAction('next')">⏭</button>
-       </div>
-    </div>
-    <div id="ytPlayerContainer">
-      <div id="player"></div>
-    </div>
-  </div>
-
-  <!-- Hybrid Clock -->
+  <!-- Clock Container -->
   <div class="clock-container">
-    <div class="display-title" id="displayTitle">Standby</div>
     <svg id="clockSvg" viewBox="0 0 400 400">
-      <circle cx="200" cy="200" r="170" fill="var(--glass)" stroke="var(--border)" stroke-width="2" />
-      <g id="taskArcs"></g>
-      
-      <!-- Analog Hands -->
-      <line id="hourHand" class="analog-hand idle-hide" x1="200" y1="200" x2="200" y2="120" stroke="var(--text-p)" stroke-width="6" />
-      <line id="minHand" class="analog-hand idle-hide" x1="200" y1="200" x2="200" y2="80" stroke="var(--text-p)" stroke-width="4" />
-      <line id="secHand" class="analog-hand idle-hide" x1="200" y1="200" x2="200" y2="70" stroke="var(--accent)" stroke-width="2" />
-
-      <!-- Timer Elements -->
-      <path id="timerArc" class="hover-reveal" fill="none" stroke="url(#timerGrad)" stroke-width="8" stroke-linecap="round" />
-      <text id="mainTime" x="200" y="210" text-anchor="middle" font-size="42" font-weight="bold" fill="var(--text-p)">00:00</text>
-      <circle id="timerHandle" class="handle hover-reveal" cx="200" cy="30" r="8" fill="white" />
-      
       <defs>
         <linearGradient id="timerGrad"><stop offset="0%" stop-color="var(--accent)"/><stop offset="100%" stop-color="white"/></linearGradient>
       </defs>
+      <!-- Original Clock Face -->
+      <circle cx="200" cy="200" r="170" fill="var(--glass)" stroke="var(--border)" stroke-width="4" />
+      <circle cx="200" cy="200" r="154" fill="var(--clock-inner)" />
+      
+      <!-- Ticks -->
+      <g id="ticks"></g>
+
+      <!-- Analog Hands -->
+      <line id="hourHand" class="analog-hand" x1="200" y1="200" x2="200" y2="120" stroke="var(--text-p)" stroke-width="5" />
+      <line id="minHand" class="analog-hand" x1="200" y1="200" x2="200" y2="80" stroke="var(--text-p)" stroke-width="3" />
+      <line id="secHand" class="analog-hand" x1="200" y1="200" x2="200" y2="70" stroke="var(--accent)" stroke-width="1.5" />
+
+      <!-- Timer Ring (Hover) -->
+      <path id="timerArc" style="opacity:0;" fill="none" stroke="url(#timerGrad)" stroke-width="8" stroke-linecap="round" />
+
+      <!-- Labels -->
+      <text x="200" y="60" text-anchor="middle" fill="var(--text-s)" font-size="14" font-weight="bold">12</text>
+      <text id="digitalClock" x="200" y="95" text-anchor="middle" fill="var(--text-p)" font-size="22" font-weight="bold">00:00</text>
+      
+      <text id="countdownText" x="200" y="215" text-anchor="middle" fill="var(--text-p)" font-size="48" font-weight="bold" style="opacity:0;">00:00</text>
     </svg>
   </div>
 
-  <!-- Ambient Info -->
-  <div id="ambientBar" class="draggable">
-    <div style="display:flex; align-items:center;">
-       <div id="prayerInfo">Loading Prayers...</div>
-       <span class="pin-btn" onclick="togglePin()">📌</span>
+  <!-- Floating Media -->
+  <div id="mediaWidget" class="draggable">
+    <div style="display:flex; gap:12px; align-items:center;">
+        <img id="npArt" src="">
+        <div>
+            <div id="npTrack" style="font-size:0.85rem; font-weight:bold;">Inactive</div>
+            <div id="npArtist" style="font-size:0.7rem; color:var(--text-s);">Spotify</div>
+        </div>
     </div>
   </div>
 
-  <script src="https://www.youtube.com/iframe_api"></script>
   <script>
-    // --- 1. Security ---
+    // Security
     document.addEventListener('contextmenu', e => e.preventDefault());
 
-    // --- 2. State & Config ---
-    const SPOTIFY_ID = "c5a38a61e38c4f398bc51afcdf464303";
-    const REDIRECT = window.location.origin + window.location.pathname;
-    let ytPlayer, spotifyToken, isCinema = false, isPinned = true;
-    let tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-    let timerRunning = false, durationMs = 15 * 60000, endTime = 0;
+    // Setup
+    let accent = localStorage.getItem('accent') || '#00c6ff';
+    let currentMode = localStorage.getItem('idleMode') || 'dark';
+    let currentLang = localStorage.getItem('idleLang') || 'en';
 
-    // --- 3. Dragging Logic with Memory ---
-    function makeDraggable(el, id) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      const saved = JSON.parse(localStorage.getItem('pos_' + id));
-      if (saved) { el.style.top = saved.y; el.style.left = saved.x; }
+    function setMode(mode) {
+      currentMode = mode;
+      localStorage.setItem('idleMode', mode);
+      document.body.classList.toggle('light-mode', mode === 'light');
+      document.getElementById('modeSlider').style.transform = mode === 'light' ? 'translateX(100%)' : 'translateX(0)';
+    }
 
-      el.onmousedown = (e) => {
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || isPinned && id === 'ambientBar') return;
-        e.preventDefault();
-        pos3 = e.clientX; pos4 = e.clientY;
-        document.onmouseup = () => {
-          document.onmouseup = null; document.onmousemove = null;
-          localStorage.setItem('pos_' + id, JSON.stringify({x: el.style.left, y: el.style.top}));
-        };
-        document.onmousemove = (e) => {
-          pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
-          pos3 = e.clientX; pos4 = e.clientY;
-          el.style.top = (el.offsetTop - pos2) + "px";
-          el.style.left = (el.offsetLeft - pos1) + "px";
-        };
+    function setLang(l) {
+      currentLang = l;
+      localStorage.setItem('idleLang', l);
+      document.body.dir = l === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('langSlider').style.transform = l === 'ar' ? 'translateX(100%)' : 'translateX(0)';
+    }
+
+    // Appearance Dots
+    const colors = ['#00c6ff', '#ff758c', '#ffffff', '#ff4757', '#8E2DE2', '#0ba360', '#f12711', '#00F260'];
+    const grid = document.getElementById('themeGrid');
+    colors.forEach(c => {
+      const d = document.createElement('div');
+      d.className = 'theme-dot';
+      d.style.background = c;
+      if(c === accent) d.classList.add('active');
+      d.onclick = () => {
+          document.querySelectorAll('.theme-dot').forEach(x => x.classList.remove('active'));
+          d.classList.add('active');
+          document.documentElement.style.setProperty('--accent', c);
+          localStorage.setItem('accent', c);
+      };
+      grid.appendChild(d);
+    });
+
+    // Clock Engine
+    function drawTicks() {
+      const g = document.getElementById('ticks');
+      for(let i=0; i<60; i++) {
+        const ang = i * 6;
+        const isHour = i % 5 === 0;
+        const r1 = isHour ? 158 : 162;
+        const x1 = 200 + r1 * Math.cos((ang-90)*Math.PI/180);
+        const y1 = 200 + r1 * Math.sin((ang-90)*Math.PI/180);
+        const x2 = 200 + 168 * Math.cos((ang-90)*Math.PI/180);
+        const y2 = 200 + 168 * Math.sin((ang-90)*Math.PI/180);
+        const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        l.setAttribute("x1", x1); l.setAttribute("y1", y1); l.setAttribute("x2", x2); l.setAttribute("y2", y2);
+        l.setAttribute("stroke", isHour ? "var(--text-s)" : "var(--border)");
+        l.setAttribute("stroke-width", isHour ? 2 : 1);
+        g.appendChild(l);
       }
     }
-    makeDraggable(document.getElementById('mediaWidget'), 'media');
-    makeDraggable(document.getElementById('ambientBar'), 'ambient');
 
-    function togglePin() {
-      isPinned = !isPinned;
-      const bar = document.getElementById('ambientBar');
-      bar.classList.toggle('unpinned', !isPinned);
-      document.querySelector('.pin-btn').classList.toggle('active', !isPinned);
-    }
-
-    // --- 4. Clock Logic (Hybrid) ---
-    function updateClock() {
+    function tick() {
       const now = new Date();
-      if (!timerRunning) {
-        // Analog update
-        const s = now.getSeconds() * 6, m = now.getMinutes() * 6, h = (now.getHours() % 12) * 30 + m/12;
-        document.getElementById('secHand').setAttribute('transform', `rotate(${s})`);
-        document.getElementById('minHand').setAttribute('transform', `rotate(${m})`);
-        document.getElementById('hourHand').setAttribute('transform', `rotate(${h})`);
-        
-        // Digital update
-        const hh = now.getHours() % 12 || 12;
-        const mm = now.getMinutes().toString().padStart(2,'0');
-        const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-        document.getElementById('mainTime').textContent = `${hh}:${mm} ${ampm}`;
-        document.title = `Ambient OS | ${hh}:${mm}`;
-      } else {
-        const remaining = endTime - Date.now();
-        if (remaining <= 0) { 
-          stopTimer(); 
-          if(ytPlayer) ytPlayer.pauseVideo();
-          spAction('pause');
-        } else {
-          const min = Math.floor(remaining/60000), sec = Math.floor((remaining%60000)/1000);
-          document.getElementById('mainTime').textContent = `${min}:${sec.toString().padStart(2,'0')}`;
-          document.title = `⏳ ${min}:${sec.toString().padStart(2,'0')}`;
-        }
-      }
-      requestAnimationFrame(updateClock);
-    }
-    updateClock();
-
-    function stopTimer() { timerRunning = false; document.getElementById('displayTitle').textContent = "Standby"; }
-
-    // --- 5. Media (YouTube & Spotify) ---
-    function onYouTubeIframeAPIReady() {
-      ytPlayer = new YT.Player('player', { height: '100%', width: '100%', events: { 'onStateChange': onPlayerStateChange } });
+      const s = now.getSeconds(), m = now.getMinutes(), h = now.getHours();
+      
+      document.getElementById('secHand').setAttribute('transform', `rotate(${s*6})`);
+      document.getElementById('minHand').setAttribute('transform', `rotate(${m*6})`);
+      document.getElementById('hourHand').setAttribute('transform', `rotate(${(h%12)*30 + m/2})`);
+      
+      const hh = h % 12 || 12;
+      const mm = m.toString().padStart(2,'0');
+      document.getElementById('digitalClock').textContent = `${hh}:${mm}`;
+      
+      requestAnimationFrame(tick);
     }
 
-    function loadYT(url) {
-      const id = url.split('v=')[1]?.split('&')[0] || url.split('/').pop();
-      document.getElementById('spWidget').style.display = 'none';
-      document.getElementById('ytPlayerContainer').style.display = 'block';
-      ytPlayer.loadVideoById(id);
-    }
-
-    function onPlayerStateChange(event) {
-      if (event.data == YT.PlayerState.PLAYING) {
-        document.title = "📺 Watching: " + ytPlayer.getVideoData().title;
-      }
-    }
-
-    function toggleCinema() {
-      isCinema = !isCinema;
-      document.body.classList.toggle('cinema-active', isCinema);
-    }
-
-    // --- 6. Task Management ---
-    function addTask() {
-      const name = document.getElementById('taskName').value;
-      const prio = document.getElementById('taskPriority').value;
-      const time = document.getElementById('taskTime').value;
-      if(!name || !time) return;
-      tasks.push({name, prio, time, id: Date.now()});
-      saveTasks(); renderTasks();
-    }
-
-    function renderTasks() {
-      const list = document.getElementById('taskList');
-      list.innerHTML = '';
-      tasks.forEach(t => {
-        const li = document.createElement('li');
-        li.className = `task-item priority-${t.prio}`;
-        li.innerHTML = `<span>${t.time} - ${t.name}</span><button onclick="delTask(${t.id})" style="width:30px;">×</button>`;
-        list.appendChild(li);
-      });
-      document.getElementById('taskStats').textContent = `${tasks.length} Active`;
-    }
-    function delTask(id) { tasks = tasks.filter(t => t.id !== id); saveTasks(); renderTasks(); }
-    function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
-    renderTasks();
-
-    // --- 7. Accordion ---
     function toggleAcc(el) {
       el.nextElementSibling.classList.toggle('open');
     }
 
-    // --- Spotify Logic (PKCE Minimal) ---
-    async function loginSpotify() {
-      const verifier = "aseel_ambient_os_verifier_" + Math.random().toString(36);
-      localStorage.setItem('verifier', verifier);
-      const url = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=user-read-playback-state user-modify-playback-state&code_challenge_method=S256&code_challenge=...`; // PKCE implementation shortened for space
-      window.location.href = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT)}&scope=user-read-playback-state user-modify-playback-state`;
-    }
-
-    // Initialize Spotify data if token exists
-    const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
-        let parts = item.split('=');
-        initial[parts[0]] = decodeURIComponent(parts[1]);
-        return initial;
-    }, {});
-    if(hash.access_token) {
-        spotifyToken = hash.access_token;
-        window.location.hash = "";
-        setInterval(updateSpotifyUI, 3000);
-    }
-
-    async function updateSpotifyUI() {
-        if(!spotifyToken) return;
-        const res = await fetch("https://api.spotify.com/v1/me/player", { headers: { 'Authorization': 'Bearer ' + spotifyToken } });
-        if(res.status === 200) {
-            const data = await res.json();
-            document.getElementById('npTrack').textContent = data.item.name;
-            document.getElementById('npArtist').textContent = data.item.artists[0].name;
-            document.getElementById('npArt').src = data.item.album.images[0].url;
-            isSpotifyPlaying = data.is_playing;
-            document.getElementById('spPlayBtn').textContent = isSpotifyPlaying ? "⏸" : "▶";
-            if(!isCinema) document.title = "🎵 Listening: " + data.item.name;
-        }
-    }
-
-    function spAction(a) {
-        fetch(`https://api.spotify.com/v1/me/player/${a === 'pause' || a === 'play' ? (isSpotifyPlaying ? 'pause' : 'play') : a}`, {
-            method: a === 'previous' || a === 'next' ? 'POST' : 'PUT',
-            headers: { 'Authorization': 'Bearer ' + spotifyToken }
-        });
-    }
-
-    // Theme Picker Generator
-    const themeColors = ['#00c6ff', '#ff758c', '#ffffff', '#ff4757', '#8E2DE2', '#0ba360', '#f12711', '#00F260'];
-    themeColors.forEach(c => {
-      const d = document.createElement('div');
-      d.className = 'theme-dot'; d.style.background = c;
-      d.onclick = () => { document.documentElement.style.setProperty('--accent', c); localStorage.setItem('accent', c); };
-      document.getElementById('themeGrid').appendChild(d);
-    });
-
+    // Init
+    drawTicks();
+    tick();
+    setMode(currentMode);
+    setLang(currentLang);
+    document.documentElement.style.setProperty('--accent', accent);
   </script>
 </body>
 </html>
