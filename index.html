@@ -183,9 +183,12 @@
     /* Prayer Highlight State */
     .prayer-text-highlight { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); font-size: 0.95rem; }
     
-    /* Spotify Specific UI */
+    /* Spotify Specific UI FIX */
     .spotify-btn-brand { background: #1DB954; color: white !important; font-weight: bold; border-color: #1DB954; padding: 12px; }
     .spotify-btn-brand:hover { background: #1ed760 !important; border-color: #1ed760 !important; }
+    
+    /* Image Ref image_a7d364.png Fix: Spacing above Playback Device dropdown */
+    #spotifyDeviceBlock .panel-header { margin-top: 25px !important; } 
     .sp-device-select { margin-top: 8px; width: 100%; font-size: 0.85rem; padding: 8px; }
   </style>
 </head>
@@ -262,7 +265,7 @@
     </div>
     
     <div id="spotifyDeviceBlock" style="display: none;">
-      <div class="panel-header" style="font-size: 0.7rem; margin-top: 15px;" data-i18n="devices">Playback Device</div>
+      <div class="panel-header" data-i18n="devices">Playback Device</div>
       <select class="title-input sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
         <option>Loading devices...</option>
       </select>
@@ -302,9 +305,6 @@
   </div>
 
   <script>
-    // ==========================================
-    // 1. CONFIGURATION & STATE VARIABLES
-    // ==========================================
     const SPOTIFY_CLIENT_ID = "c5a38a61e38c4f398bc51afcdf464303"; 
     const REDIRECT_URI = window.location.origin + window.location.pathname; 
     const SPOTIFY_SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
@@ -313,16 +313,13 @@
     let isSpotifyPlaying = false;
     let spotifyUpdateInterval;
 
-    // Timer Variables
     const cx = 200, cy = 200, radius = 162;
     let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = false; 
-    
     let originalDurationMs = 15 * 60000; 
     let timerDurationMs = originalDurationMs;
     let timerEndTime = Date.now() + timerDurationMs;
     let isTimerRunning = true; 
 
-    // Localization & Config
     let lang = localStorage.getItem('idleLang') || 'en';
     const translations = {
       en: {
@@ -363,19 +360,14 @@
       neon: { name: 'neon', start: "#00F260", end: "#0575E6", handle: "#00F260" }
     };
     
-    // API & Prayer State
     let prayerTimes = {};
     let nextPrayer = null;
     let currentCity = localStorage.getItem('idleCity') || "Jeddah";
     let currentTheme = themes[localStorage.getItem('idleTheme')] || themes.blue;
     let currentMode = localStorage.getItem('idleMode') || 'dark';
 
-    // Standard Saudi Iqamah Wait Times (in minutes)
     const iqamaOffsets = { Fajr: 20, Dhuhr: 15, Asr: 15, Maghrib: 10, Isha: 15 };
 
-    // ==========================================
-    // 2. DOM ELEMENTS
-    // ==========================================
     const clockSvg = document.getElementById("clock"), ticksGroup = document.getElementById("ticks"), sleepArc = document.getElementById("sleepArc");
     const startHandle = document.getElementById("startHandle"), endHandle = document.getElementById("endHandle");
     const dragString = document.getElementById("dragString"), ballTrail = document.getElementById("ballTrail");
@@ -387,14 +379,10 @@
     const starLayer = document.getElementById("starLayer"), ambientGlow = document.getElementById("ambientGlow"), shootingStar = document.getElementById("shootingStar");
     const nowPlayingDiv = document.getElementById("nowPlaying"), npArt = document.getElementById("npArt"), npTrack = document.getElementById("npTrack"), npArtist = document.getElementById("npArtist");
 
-    // ==========================================
-    // 3. UI FUNCTIONS (Translations, Themes, Mode)
-    // ==========================================
     function setLanguage(selectedLang) {
       lang = selectedLang;
       localStorage.setItem('idleLang', lang);
       document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-      
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang][key]) el.textContent = translations[lang][key];
@@ -403,18 +391,14 @@
         const key = el.getAttribute('data-i18n-ph');
         if (translations[lang][key]) el.placeholder = translations[lang][key];
       });
-
       document.getElementById('langEnBtn').classList.toggle('active-lang', lang === 'en');
       document.getElementById('langArBtn').classList.toggle('active-lang', lang === 'ar');
-      
       document.getElementById("lbl12").textContent = toNum("12");
       document.getElementById("lbl3").textContent = toNum("3");
       document.getElementById("lbl6").textContent = toNum("6");
       document.getElementById("lbl9").textContent = toNum("9");
-      
       const selOpt = document.querySelector('#spDeviceSelect option[disabled]');
       if(selOpt) selOpt.textContent = translations[lang].selectDevice;
-
       renderQuickActions();
       const tempUnit = lang === 'en' ? 'C' : 'م';
       ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`);
@@ -425,7 +409,6 @@
     function setMode(mode) {
       currentMode = mode;
       localStorage.setItem('idleMode', mode);
-      
       if (mode === 'light') {
         document.body.classList.add('light-mode');
         document.getElementById('modeLightBtn').classList.add('active-lang');
@@ -443,17 +426,14 @@
         localStorage.setItem('idleCity', city);
         const tempUnit = lang === 'en' ? 'C' : 'م';
         ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`);
-        
         const date = new Date();
         const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
         const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${city}&country=Saudi Arabia&method=4`);
         const data = await res.json();
-        
         const allTimes = data.data.timings;
         prayerTimes = { Fajr: allTimes.Fajr, Dhuhr: allTimes.Dhuhr, Asr: allTimes.Asr, Maghrib: allTimes.Maghrib, Isha: allTimes.Isha };
         calculateNextPrayer();
       } catch (err) {
-        console.error("Prayer API Error", err);
         prayerNameEl.textContent = lang === 'en' ? "Offline" : "غير متصل";
       }
     }
@@ -461,47 +441,36 @@
     function calculateNextPrayer() {
       const now = new Date();
       let upcoming = null, minDiff = Infinity;
-
       for (const [name, timeStr] of Object.entries(prayerTimes)) {
         const [hours, mins] = timeStr.split(':');
         const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(mins), 0);
         const iDate = new Date(pDate.getTime() + iqamaOffsets[name] * 60000);
-
         const diffMs = iDate.getTime() - now.getTime();
         if (diffMs > 0 && diffMs < minDiff) { 
           minDiff = diffMs; 
           upcoming = { name, azanDate: pDate, iqamaDate: iDate, timeStr }; 
         }
       }
-
       if (!upcoming && prayerTimes.Fajr) {
         const [hours, mins] = prayerTimes.Fajr.split(':');
         const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, parseInt(hours), parseInt(mins), 0);
         const iDate = new Date(pDate.getTime() + iqamaOffsets.Fajr * 60000);
         upcoming = { name: "Fajr", azanDate: pDate, iqamaDate: iDate, timeStr: prayerTimes.Fajr };
       }
-      
       nextPrayer = upcoming; 
       updatePrayerUI();
     }
 
     function updatePrayerUI() {
       if (!nextPrayer) return;
-
       const pName = translations[lang].prayerNames[nextPrayer.name];
       const [h, m] = nextPrayer.timeStr.split(':');
       let h12 = parseInt(h) % 12 || 12;
       const ampm = parseInt(h) >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
-      
       const nowMs = Date.now();
       const azanMs = nextPrayer.azanDate.getTime();
       const iqamaMs = nextPrayer.iqamaDate.getTime();
-
-      if (nowMs >= iqamaMs) {
-          calculateNextPrayer();
-          return;
-      }
-
+      if (nowMs >= iqamaMs) { calculateNextPrayer(); return; }
       if (nowMs >= azanMs && nowMs < iqamaMs) {
           ambientGlow.classList.add("prayer-glow-active");
           prayerNameEl.classList.add("prayer-text-highlight");
@@ -533,31 +502,23 @@
         btn.onclick = () => { titleInput.value = t; displayTitle.textContent = t; localStorage.setItem('idleTitle', t); }; 
         tGrid.appendChild(btn);
       });
-
       const tmGrid = document.getElementById('timersGrid'); tmGrid.innerHTML = '';
       const hLabel = lang === 'en' ? 'h' : 'س', mLabel = lang === 'en' ? 'm' : 'د';
-      
       quickTimers.forEach(m => {
         const btn = document.createElement('button'); btn.className = 'quick-btn';
         btn.textContent = m >= 60 ? (m % 60 === 0 ? toNum(m/60) + hLabel : toNum((m/60).toFixed(1)) + hLabel) : toNum(m) + mLabel;
-        btn.onclick = () => { 
-          originalDurationMs = m * 60000;
-          timerDurationMs = originalDurationMs;
-          timerEndTime = Date.now() + timerDurationMs; 
-          isTimerRunning = true; 
-          updateLiveTimer(); 
-        }; 
+        btn.onclick = () => { originalDurationMs = m * 60000; timerDurationMs = originalDurationMs; timerEndTime = Date.now() + timerDurationMs; isTimerRunning = true; updateLiveTimer(); }; 
         tmGrid.appendChild(btn);
       });
     }
 
     function editQuickTitles() {
-      const input = prompt(lang === 'en' ? "Edit Quick Titles (comma separated):" : "تعديل العناوين السريعة (مفصول بفاصلة):", quickTitles.join(", "));
+      const input = prompt(lang === 'en' ? "Edit Quick Titles:" : "تعديل العناوين السريعة:", quickTitles.join(", "));
       if (input !== null) { quickTitles = input.split(',').map(s => s.trim()).filter(s => s); renderQuickActions(); }
     }
 
     function editQuickTimers() {
-      const input = prompt(lang === 'en' ? "Edit Quick Timers in minutes (comma separated):" : "تعديل المؤقتات بالدقائق (مفصول بفاصلة):", quickTimers.join(", "));
+      const input = prompt(lang === 'en' ? "Edit Quick Timers (min):" : "تعديل المؤقتات بالدقائق:", quickTimers.join(", "));
       if (input !== null) { quickTimers = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)); renderQuickActions(); }
     }
 
@@ -570,9 +531,7 @@
       endHandle.setAttribute('fill', currentTheme.handle);
       ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`;
       starLayer.style.setProperty('--star-color', currentTheme.handle);
-      if(nextPrayer && !ambientGlow.classList.contains("prayer-glow-active")) {
-        prayerCountdownEl.style.color = currentTheme.handle; 
-      }
+      if(nextPrayer && !ambientGlow.classList.contains("prayer-glow-active")) { prayerCountdownEl.style.color = currentTheme.handle; }
     }
 
     const minsToAngle = (m) => ((m % 720) / 720) * 360;
@@ -617,12 +576,10 @@
       const hx = parseFloat(endHandle.getAttribute("cx")), hy = parseFloat(endHandle.getAttribute("cy"));
       const dx = hx - cx, dy = hy - cy, flingX = cx + dx * 6, flingY = cy + dy * 6;
       const throwCurve = "cubic-bezier(0.2, 0.8, 0.2, 1)", throwDuration = "2.5s";
-
       ballTrail.style.transition = "none"; ballTrail.setAttribute("x1", hx); ballTrail.setAttribute("y1", hy); ballTrail.setAttribute("x2", hx); ballTrail.setAttribute("y2", hy); ballTrail.style.opacity = "0.8"; void ballTrail.offsetWidth;
       endHandle.style.transition = `cx ${throwDuration} ${throwCurve}, cy ${throwDuration} ${throwCurve}`; endHandle.setAttribute("cx", flingX); endHandle.setAttribute("cy", flingY);
       ballTrail.style.transition = `x2 ${throwDuration} ${throwCurve}, y2 ${throwDuration} ${throwCurve}, x1 ${throwDuration} 0.15s ${throwCurve}, y1 ${throwDuration} 0.15s ${throwCurve}, opacity 1s 1.5s ease-out`;
       ballTrail.setAttribute("x2", flingX); ballTrail.setAttribute("y2", flingY); ballTrail.setAttribute("x1", flingX); ballTrail.setAttribute("y1", flingY); ballTrail.style.opacity = "0";
-
       setTimeout(() => {
         endHandle.style.transition = "none"; endHandle.style.opacity = "0"; dragRadius = radius; updateLiveTimer(); 
         setTimeout(() => {
@@ -664,42 +621,16 @@
       let d = new Date(), h = d.getHours(), m = d.getMinutes().toString().padStart(2, '0');
       ambientClock.textContent = toNum(`${h % 12 || 12}:${m} ${h >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص')}`);
       ambientDate.textContent = toNum(d.toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
-
       updatePrayerUI();
       if (isBroken) return; 
-
       let diffMs;
       if (isTimerRunning) {
         diffMs = timerEndTime - now;
-        if (diffMs <= 0) {
-          isTimerRunning = false;
-          timerDurationMs = originalDurationMs;
-          diffMs = originalDurationMs;
-          triggerShootingStar();
-          if (isSpotifyPlaying) spotifyPause(); 
-        } else {
-          timerDurationMs = diffMs; 
-        }
-      } else {
-        diffMs = timerDurationMs;
-      }
-
-      if (!isTimerRunning) {
-          timeLabelText.textContent = translations[lang].paused;
-          timeValueText.classList.add('paused');
-      } else {
-          timeLabelText.textContent = translations[lang].remaining;
-          timeValueText.classList.remove('paused');
-      }
-      
-      if (!ambientGlow.classList.contains("prayer-glow-active")) {
-          if (diffMs > 0 && diffMs <= 60000 && isTimerRunning) {
-            ambientGlow.style.transition = "opacity 1s linear";
-            ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`;
-            ambientGlow.style.opacity = ((1 - (diffMs / 60000)) * 0.4).toString(); 
-          } else if (diffMs > 60000 && !dragging) { ambientGlow.style.opacity = "0"; }
-      }
-
+        if (diffMs <= 0) { isTimerRunning = false; timerDurationMs = originalDurationMs; diffMs = originalDurationMs; triggerShootingStar(); if (isSpotifyPlaying) spotifyPause(); }
+        else { timerDurationMs = diffMs; }
+      } else { diffMs = timerDurationMs; }
+      if (!isTimerRunning) { timeLabelText.textContent = translations[lang].paused; timeValueText.classList.add('paused'); }
+      else { timeLabelText.textContent = translations[lang].remaining; timeValueText.classList.remove('paused'); }
       const targetMins = nowMins + (diffMs / 60000);
       const realSAng = minsToAngle(nowMins);
       const realEAng = minsToAngle(targetMins);
@@ -714,168 +645,39 @@
       timeValueText.textContent = toNum(timeString);
     }
 
-    timeValueText.addEventListener("click", () => {
-       isTimerRunning = !isTimerRunning;
-       if (isTimerRunning) timerEndTime = Date.now() + timerDurationMs;
-       updateLiveTimer();
-    });
+    timeValueText.addEventListener("click", () => { isTimerRunning = !isTimerRunning; if (isTimerRunning) timerEndTime = Date.now() + timerDurationMs; updateLiveTimer(); });
+    function getMouseData(e) { const rect = clockSvg.getBoundingClientRect(); const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY; const x = clientX - rect.left - rect.width / 2, y = clientY - rect.top - rect.height / 2; let ang = Math.atan2(y, x) * (180 / Math.PI) + 90; if (ang < 0) ang += 360; return { ang, dist: Math.hypot(x, y) * (400 / rect.width) }; }
+    function onPointerDown(e) { if (e.target === endHandle && !isBroken) { dragging = true; prevMouseAngle = null; isTimerRunning = false; endHandle.classList.remove("snap-back"); dragString.style.opacity = "1"; e.target.classList.add("dragging"); } }
+    function onPointerMove(e) { if (!dragging || isBroken) return; e.preventDefault(); const { ang, dist } = getMouseData(e); if (dist > 330) { triggerSnapEasterEgg(); return; } dragRadius = Math.max(120, dist); if (prevMouseAngle === null) { prevMouseAngle = ang; return; } let deltaAngle = ang - prevMouseAngle; if (deltaAngle > 180) deltaAngle -= 360; if (deltaAngle < -180) deltaAngle += 360; timerDurationMs += deltaAngle * 2 * 60 * 1000; if (timerDurationMs < 0) timerDurationMs = 0; prevMouseAngle = ang; if (dist < radius - 5) { const snapMs = 5 * 60 * 1000; timerDurationMs = Math.round(timerDurationMs / snapMs) * snapMs; } originalDurationMs = timerDurationMs; updateLiveTimer(); }
+    function onPointerUp() { if (dragging && !isBroken) { dragging = false; prevMouseAngle = null; dragRadius = radius; isTimerRunning = true; timerEndTime = Date.now() + timerDurationMs; endHandle.classList.add("snap-back"); endHandle.classList.remove("dragging"); dragString.style.opacity = "0"; updateLiveTimer(); } }
 
-    function getMouseData(e) {
-      const rect = clockSvg.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const x = clientX - rect.left - rect.width / 2, y = clientY - rect.top - rect.height / 2;
-      let ang = Math.atan2(y, x) * (180 / Math.PI) + 90; if (ang < 0) ang += 360;
-      return { ang, dist: Math.hypot(x, y) * (400 / rect.width) };
-    }
-
-    function onPointerDown(e) {
-      if (e.target === endHandle && !isBroken) {
-        dragging = true; prevMouseAngle = null; 
-        isTimerRunning = false; 
-        endHandle.classList.remove("snap-back"); dragString.style.opacity = "1"; e.target.classList.add("dragging");
-      }
-    }
-
-    function onPointerMove(e) {
-      if (!dragging || isBroken) return;
-      e.preventDefault();
-      const { ang, dist } = getMouseData(e);
-      if (dist > 330) { triggerSnapEasterEgg(); return; }
-      dragRadius = Math.max(120, dist);
-      if (prevMouseAngle === null) { prevMouseAngle = ang; return; }
-      let deltaAngle = ang - prevMouseAngle; if (deltaAngle > 180) deltaAngle -= 360; if (deltaAngle < -180) deltaAngle += 360;
-      timerDurationMs += deltaAngle * 2 * 60 * 1000; 
-      if (timerDurationMs < 0) timerDurationMs = 0;
-      prevMouseAngle = ang;
-      if (dist < radius - 5) {
-        const snapMs = 5 * 60 * 1000; timerDurationMs = Math.round(timerDurationMs / snapMs) * snapMs;
-      } 
-      originalDurationMs = timerDurationMs;
-      updateLiveTimer(); 
-    }
-
-    function onPointerUp() {
-      if (dragging && !isBroken) {
-        dragging = false; prevMouseAngle = null; dragRadius = radius; 
-        isTimerRunning = true; timerEndTime = Date.now() + timerDurationMs;
-        endHandle.classList.add("snap-back"); endHandle.classList.remove("dragging"); dragString.style.opacity = "0"; 
-        updateLiveTimer(); 
-      }
-    }
-
-    // --- SPOTIFY PKCE ---
-    const generateRandomString = (length) => {
-      const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      const values = crypto.getRandomValues(new Uint8Array(length));
-      return values.reduce((acc, x) => acc + possible[x % possible.length], "");
-    }
-    const sha256 = async (plain) => {
-      const encoder = new TextEncoder(); const data = encoder.encode(plain);
-      return window.crypto.subtle.digest('SHA-256', data);
-    }
-    const base64encode = (input) => {
-      return btoa(String.fromCharCode(...new Uint8Array(input))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-    }
-    async function loginSpotify() {
-      const verifier = generateRandomString(64); window.localStorage.setItem('code_verifier', verifier);
-      const hashed = await sha256(verifier); const challenge = base64encode(hashed);
-      const authUrl = new URL("https://accounts.spotify.com/authorize");
-      const params = { response_type: 'code', client_id: SPOTIFY_CLIENT_ID, scope: SPOTIFY_SCOPES, code_challenge_method: 'S256', code_challenge: challenge, redirect_uri: REDIRECT_URI };
-      authUrl.search = new URLSearchParams(params).toString(); window.location.href = authUrl.toString();
-    }
-    async function handleSpotifyCallback() {
-      const urlParams = new URLSearchParams(window.location.search); let code = urlParams.get('code');
-      if (code) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-        const verifier = localStorage.getItem('code_verifier');
-        const payload = { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'authorization_code', code: code, redirect_uri: REDIRECT_URI, code_verifier: verifier }) };
-        const body = await fetch("https://accounts.spotify.com/api/token", payload); const resp = await body.json();
-        if (resp.access_token) {
-          spotifyToken = resp.access_token; spotifyTokenExpiry = Date.now() + (resp.expires_in * 1000);
-          localStorage.setItem('spotify_token', spotifyToken); localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry); localStorage.setItem('spotify_refresh_token', resp.refresh_token);
-        }
-      }
-    }
-    async function refreshSpotifyToken() {
-       const refresh = localStorage.getItem('spotify_refresh_token'); if (!refresh) return logoutSpotify();
-       const payload = { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'refresh_token', refresh_token: refresh }) };
-       const body = await fetch("https://accounts.spotify.com/api/token", payload); const resp = await body.json();
-       if (resp.access_token) {
-          spotifyToken = resp.access_token; spotifyTokenExpiry = Date.now() + (resp.expires_in * 1000);
-          localStorage.setItem('spotify_token', spotifyToken); localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
-          if (resp.refresh_token) localStorage.setItem('spotify_refresh_token', resp.refresh_token);
-       } else { logoutSpotify(); }
-    }
-    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) {
-      if (!spotifyToken) return null; if (Date.now() > spotifyTokenExpiry) await refreshSpotifyToken(); if (!spotifyToken) return null; 
-      try {
-        const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, { method: method, headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : null });
-        if (res.status === 401) { await refreshSpotifyToken(); return null; } if (res.status === 204) return { no_content: true }; 
-        if (res.ok && method === 'GET') return await res.json(); return { success: true };
-      } catch (err) { return null; }
-    }
-    function logoutSpotify() {
-      spotifyToken = null; localStorage.removeItem('spotify_token'); localStorage.removeItem('spotify_token_expiry'); localStorage.removeItem('spotify_refresh_token');
-      document.getElementById('spotifyLoginBlock').style.display = 'block'; document.getElementById('spotifyDeviceBlock').style.display = 'none';
-      document.getElementById('nowPlaying').classList.remove('active'); clearInterval(spotifyUpdateInterval);
-    }
-    async function updateSpotifyUI() {
-      if (!spotifyToken) return;
-      document.getElementById('spotifyLoginBlock').style.display = 'none'; document.getElementById('spotifyDeviceBlock').style.display = 'block';
-      const data = await fetchSpotifyAPI('');
-      if (!data || data.no_content || !data.item) { nowPlayingDiv.classList.remove('active'); isSpotifyPlaying = false; return; }
-      document.getElementById("npTrack").textContent = data.item.name;
-      document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', ');
-      if (data.item.album.images.length > 0) document.getElementById("npArt").src = data.item.album.images[0].url;
-      isSpotifyPlaying = data.is_playing; document.getElementById("spPlayBtn").textContent = isSpotifyPlaying ? "⏸" : "▶";
-      if (isSpotifyPlaying) eqBars.classList.add('playing'); else eqBars.classList.remove('playing');
-      nowPlayingDiv.classList.add('active');
-    }
-    async function getSpotifyDevices() {
-      if (!spotifyToken) return; const data = await fetchSpotifyAPI('/devices'); if (!data || !data.devices) return;
-      const select = document.getElementById("spDeviceSelect");
-      select.innerHTML = `<option value="" disabled selected>${translations[lang].selectDevice}</option>`;
-      data.devices.forEach(dev => {
-        const option = document.createElement("option"); option.value = dev.id;
-        option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`; if(dev.is_active) option.selected = true;
-        select.appendChild(option); 
-      });
-    }
-    async function spotifyTogglePlay() {
-      const method = isSpotifyPlaying ? 'pause' : 'play'; await fetchSpotifyAPI(`/${method}`, 'PUT'); setTimeout(updateSpotifyUI, 500); 
-    }
+    const generateRandomString = (length) => { const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; const values = crypto.getRandomValues(new Uint8Array(length)); return values.reduce((acc, x) => acc + possible[x % possible.length], ""); }
+    const sha256 = async (plain) => { const encoder = new TextEncoder(); const data = encoder.encode(plain); return window.crypto.subtle.digest('SHA-256', data); }
+    const base64encode = (input) => { return btoa(String.fromCharCode(...new Uint8Array(input))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'); }
+    async function loginSpotify() { const verifier = generateRandomString(64); window.localStorage.setItem('code_verifier', verifier); const hashed = await sha256(verifier); const challenge = base64encode(hashed); const authUrl = new URL("https://accounts.spotify.com/authorize"); const params = { response_type: 'code', client_id: SPOTIFY_CLIENT_ID, scope: SPOTIFY_SCOPES, code_challenge_method: 'S256', code_challenge: challenge, redirect_uri: REDIRECT_URI }; authUrl.search = new URLSearchParams(params).toString(); window.location.href = authUrl.toString(); }
+    async function handleSpotifyCallback() { const urlParams = new URLSearchParams(window.location.search); let code = urlParams.get('code'); if (code) { window.history.replaceState({}, document.title, window.location.pathname); const verifier = localStorage.getItem('code_verifier'); const payload = { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'authorization_code', code: code, redirect_uri: REDIRECT_URI, code_verifier: verifier }) }; const body = await fetch("https://accounts.spotify.com/api/token", payload); const resp = await body.json(); if (resp.access_token) { spotifyToken = resp.access_token; spotifyTokenExpiry = Date.now() + (resp.expires_in * 1000); localStorage.setItem('spotify_token', spotifyToken); localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry); localStorage.setItem('spotify_refresh_token', resp.refresh_token); } } }
+    async function refreshSpotifyToken() { const refresh = localStorage.getItem('spotify_refresh_token'); if (!refresh) return logoutSpotify(); const payload = { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'refresh_token', refresh_token: refresh }) }; const body = await fetch("https://accounts.spotify.com/api/token", payload); const resp = await body.json(); if (resp.access_token) { spotifyToken = resp.access_token; spotifyTokenExpiry = Date.now() + (resp.expires_in * 1000); localStorage.setItem('spotify_token', spotifyToken); localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry); if (resp.refresh_token) localStorage.setItem('spotify_refresh_token', resp.refresh_token); } else { logoutSpotify(); } }
+    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) { if (!spotifyToken) return null; if (Date.now() > spotifyTokenExpiry) await refreshSpotifyToken(); if (!spotifyToken) return null; try { const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, { method: method, headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : null }); if (res.status === 401) { await refreshSpotifyToken(); return null; } if (res.status === 204) return { no_content: true }; if (res.ok && method === 'GET') return await res.json(); return { success: true }; } catch (err) { return null; } }
+    function logoutSpotify() { spotifyToken = null; localStorage.removeItem('spotify_token'); localStorage.removeItem('spotify_token_expiry'); localStorage.removeItem('spotify_refresh_token'); document.getElementById('spotifyLoginBlock').style.display = 'block'; document.getElementById('spotifyDeviceBlock').style.display = 'none'; document.getElementById('nowPlaying').classList.remove('active'); clearInterval(spotifyUpdateInterval); }
+    async function updateSpotifyUI() { if (!spotifyToken) return; document.getElementById('spotifyLoginBlock').style.display = 'none'; document.getElementById('spotifyDeviceBlock').style.display = 'block'; const data = await fetchSpotifyAPI(''); if (!data || data.no_content || !data.item) { nowPlayingDiv.classList.remove('active'); isSpotifyPlaying = false; return; } document.getElementById("npTrack").textContent = data.item.name; document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', '); if (data.item.album.images.length > 0) document.getElementById("npArt").src = data.item.album.images[0].url; isSpotifyPlaying = data.is_playing; document.getElementById("spPlayBtn").textContent = isSpotifyPlaying ? "⏸" : "▶"; if (isSpotifyPlaying) eqBars.classList.add('playing'); else eqBars.classList.remove('playing'); nowPlayingDiv.classList.add('active'); }
+    async function getSpotifyDevices() { if (!spotifyToken) return; const data = await fetchSpotifyAPI('/devices'); if (!data || !data.devices) return; const select = document.getElementById("spDeviceSelect"); select.innerHTML = `<option value="" disabled selected>${translations[lang].selectDevice}</option>`; data.devices.forEach(dev => { const option = document.createElement("option"); option.value = dev.id; option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`; if(dev.is_active) option.selected = true; select.appendChild(option); }); }
+    async function spotifyTogglePlay() { const method = isSpotifyPlaying ? 'pause' : 'play'; await fetchSpotifyAPI(`/${method}`, 'PUT'); setTimeout(updateSpotifyUI, 500); }
     async function spotifyPause() { if(!spotifyToken) return; await fetchSpotifyAPI('/pause', 'PUT'); setTimeout(updateSpotifyUI, 500); }
     async function spotifyAction(action) { await fetchSpotifyAPI(`/${action}`, 'POST'); setTimeout(updateSpotifyUI, 800); }
     async function spotifyTransfer(deviceId) { if(!deviceId) return; await fetchSpotifyAPI('', 'PUT', { device_ids: [deviceId] }); setTimeout(updateSpotifyUI, 1000); }
 
-    // --- INIT ---
     titleInput.value = localStorage.getItem('idleTitle') || "System Standby";
     displayTitle.textContent = titleInput.value; cityInput.value = currentCity;
     cityInput.addEventListener("keydown", (e) => { if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim()); });
     titleInput.addEventListener("input", (e) => { displayTitle.textContent = e.target.value || " "; localStorage.setItem('idleTitle', e.target.value); });
     clockSvg.addEventListener("mousedown", onPointerDown); window.addEventListener("mousemove", onPointerMove); window.addEventListener("mouseup", onPointerUp);
     clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); window.addEventListener("touchmove", onPointerMove, {passive: false}); window.addEventListener("touchend", onPointerUp);
-    Object.entries(themes).forEach(([key, colors]) => {
-      const dot = document.createElement("div"); dot.className = `theme-dot`; dot.dataset.key = key;
-      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`; dot.addEventListener('click', () => applyTheme(colors));
-      themeGrid.appendChild(dot);
-    });
+    Object.entries(themes).forEach(([key, colors]) => { const dot = document.createElement("div"); dot.className = `theme-dot`; dot.dataset.key = key; dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`; dot.addEventListener('click', () => applyTheme(colors)); themeGrid.appendChild(dot); });
 
     applyTheme(currentTheme); setMode(currentMode); setLanguage(lang);
     drawTicks(); updateLiveTimer(); animateWobblyString(); setInterval(updateLiveTimer, 1000);
-
-    if ("geolocation" in navigator && !localStorage.getItem('idleCity')) {
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
-          const data = await res.json(); cityInput.value = data.city || data.locality || "Jeddah"; fetchPrayerTimes(cityInput.value);
-        } catch (e) { fetchPrayerTimes("Jeddah"); }
-      }, () => fetchPrayerTimes("Jeddah")); 
-    } else { fetchPrayerTimes(currentCity); }
-
-    handleSpotifyCallback().then(() => {
-      if (spotifyToken) { updateSpotifyUI(); getSpotifyDevices(); spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); }
-    });
+    if ("geolocation" in navigator && !localStorage.getItem('idleCity')) { navigator.geolocation.getCurrentPosition(async (pos) => { try { const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`); const data = await res.json(); cityInput.value = data.city || data.locality || "Jeddah"; fetchPrayerTimes(cityInput.value); } catch (e) { fetchPrayerTimes("Jeddah"); } }, () => fetchPrayerTimes("Jeddah")); } else { fetchPrayerTimes(currentCity); }
+    handleSpotifyCallback().then(() => { if (spotifyToken) { updateSpotifyUI(); getSpotifyDevices(); spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); } });
   </script>
 </body>
 </html>
