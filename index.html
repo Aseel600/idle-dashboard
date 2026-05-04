@@ -82,7 +82,7 @@
     .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.2s; }
     .eq-bar:nth-child(3) { height: 40%; animation-delay: 0.4s; }
     @keyframes eqBounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
-    .eq-bars:not(.playing) .eq-bar { animation: none; height: 2px; } /* Flatline when paused */
+    .eq-bars:not(.playing) .eq-bar { animation: none; height: 2px; } 
 
     /* --- Clock & Interface --- */
     .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; position: relative; z-index: 10; pointer-events: none; }
@@ -151,13 +151,11 @@
 </head>
 <body>
 
-  <!-- Background Effects -->
   <div id="starLayer" class="star-layer">
     <div id="ambientGlow" class="ambient-glow"></div>
     <div id="shootingStar" class="shooting-star"></div>
   </div>
 
-  <!-- Now Playing Media Widget (Spotify) -->
   <div class="now-playing" id="nowPlaying">
     <img src="" alt="Album Art" class="album-art" id="npArt">
     <div class="track-info">
@@ -169,7 +167,6 @@
       </div>
       <div class="artist-name" id="npArtist">Artist Name</div>
       
-      <!-- Native Spotify Controls -->
       <div class="spotify-controls">
         <button class="sp-btn" onclick="spotifyAction('previous')" title="Previous">⏮</button>
         <button class="sp-btn play-pause" id="spPlayBtn" onclick="spotifyTogglePlay()" title="Play/Pause">⏯</button>
@@ -178,7 +175,6 @@
     </div>
   </div>
 
-  <!-- Ambient Info (Bottom) -->
   <div class="ambient-info">
     <div id="ambientClock">00:00 AM</div>
     <div id="ambientDate">Monday, Jan 1</div>
@@ -190,7 +186,6 @@
     </div>
   </div>
 
-  <!-- Interactive Side Panel -->
   <div class="side-panel">
     <div class="panel-tab">‹</div>
     
@@ -201,7 +196,7 @@
     </div>
 
     <div class="panel-header" data-i18n="location">Location</div>
-    <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City (e.g., Riyadh)" />
+    <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City" data-i18n-ph="enterCity" />
 
     <div class="panel-header" data-i18n="displayTitle">Display Title</div>
     <input type="text" class="title-input" id="titleInput" value="System Standby" />
@@ -215,7 +210,6 @@
     <div class="panel-header" data-i18n="accentColor">Accent Color</div>
     <div class="theme-grid" id="themeGrid"></div>
 
-    <!-- Spotify Integration Block -->
     <div class="panel-header" data-i18n="musicIntegration">Music (Spotify)</div>
     <div id="spotifyLoginBlock">
       <button class="quick-btn spotify-btn-brand" onclick="loginSpotify()" data-i18n="loginSpotify">Log in with Spotify</button>
@@ -229,7 +223,6 @@
     </div>
   </div>
 
-  <!-- Clock Interface -->
   <div class="container">
     <div class="display-title" id="displayTitle">System Standby</div>
     
@@ -264,173 +257,39 @@
 
   <script>
     // ==========================================
-    // SPOTIFY WEB API CONFIGURATION
+    // 1. CONFIGURATION & STATE VARIABLES
     // ==========================================
     const SPOTIFY_CLIENT_ID = "c5a38a61e38c4f398bc51afcdf464303"; 
-    
-    // This dynamically gets your exact URL (e.g. https://aseel600.github.io/idle-dashboard/)
-    // Make sure this exact link is added to the "Redirect URIs" in your Spotify Developer Dashboard!
     const REDIRECT_URI = window.location.origin + window.location.pathname; 
-    
     const SPOTIFY_SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
     let spotifyToken = localStorage.getItem('spotify_token');
     let spotifyTokenExpiry = localStorage.getItem('spotify_token_expiry');
     let isSpotifyPlaying = false;
     let spotifyUpdateInterval;
 
-    // --- SPOTIFY AUTHENTICATION ---
-    function loginSpotify() {
-      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`;
-      window.location.href = authUrl;
-    }
-
-    // Check URL for token after redirect
-    function handleSpotifyCallback() {
-      const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
-        if (item) {
-          var parts = item.split('=');
-          initial[parts[0]] = decodeURIComponent(parts[1]);
-        }
-        return initial;
-      }, {});
-      
-      window.location.hash = ''; // Clear URL bar
-
-      if (hash.access_token) {
-        spotifyToken = hash.access_token;
-        spotifyTokenExpiry = Date.now() + (hash.expires_in * 1000);
-        localStorage.setItem('spotify_token', spotifyToken);
-        localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
-      }
-    }
-
-    // --- SPOTIFY API CALLS ---
-    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) {
-      if (!spotifyToken || Date.now() > spotifyTokenExpiry) {
-        logoutSpotify(); return null; 
-      }
-      
-      try {
-        const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, {
-          method: method,
-          headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
-          body: body ? JSON.stringify(body) : null
-        });
-
-        if (res.status === 401) { logoutSpotify(); return null; }
-        if (res.status === 204) return { no_content: true }; // Nothing active
-        if (res.ok && method === 'GET') return await res.json();
-        return { success: true };
-      } catch (err) { console.error("Spotify API Error", err); return null; }
-    }
-
-    function logoutSpotify() {
-      spotifyToken = null;
-      localStorage.removeItem('spotify_token'); localStorage.removeItem('spotify_token_expiry');
-      document.getElementById('spotifyLoginBlock').style.display = 'block';
-      document.getElementById('spotifyDeviceBlock').style.display = 'none';
-      document.getElementById('nowPlaying').classList.remove('active');
-      clearInterval(spotifyUpdateInterval);
-    }
-
-    // --- SPOTIFY UI UPDATES ---
-    async function updateSpotifyUI() {
-      if (!spotifyToken) return;
-      
-      // Hide login, show devices
-      document.getElementById('spotifyLoginBlock').style.display = 'none';
-      document.getElementById('spotifyDeviceBlock').style.display = 'block';
-
-      const data = await fetchSpotifyAPI('');
-      
-      const nowPlayingDiv = document.getElementById("nowPlaying");
-      const eqBars = document.getElementById("eqBars");
-      const playBtn = document.getElementById("spPlayBtn");
-
-      if (!data || data.no_content || !data.item) {
-        // Nothing is playing, hide widget
-        nowPlayingDiv.classList.remove('active');
-        isSpotifyPlaying = false;
-        return;
-      }
-
-      // Update Track Info
-      document.getElementById("npTrack").textContent = data.item.name;
-      document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', ');
-      
-      if (data.item.album.images.length > 0) {
-        document.getElementById("npArt").src = data.item.album.images[0].url;
-      }
-
-      // Update Play/Pause State
-      isSpotifyPlaying = data.is_playing;
-      playBtn.textContent = isSpotifyPlaying ? "⏸" : "▶";
-      
-      if (isSpotifyPlaying) eqBars.classList.add('playing');
-      else eqBars.classList.remove('playing');
-
-      nowPlayingDiv.classList.add('active');
-    }
-
-    async function getSpotifyDevices() {
-      if (!spotifyToken) return;
-      const data = await fetchSpotifyAPI('/devices');
-      if (!data || !data.devices) return;
-      
-      const select = document.getElementById("spDeviceSelect");
-      select.innerHTML = '<option value="" disabled selected data-i18n="selectDevice">Select Device</option>';
-      
-      data.devices.forEach(dev => {
-        const option = document.createElement("option");
-        option.value = dev.id;
-        option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`;
-        if(dev.is_active) option.selected = true;
-        select.appendChild(select); // Correcting syntax to append to select
-        select.appendChild(option);
-      });
-      // Re-apply translation if needed
-      if(translations[lang].selectDevice) select.options[0].textContent = translations[lang].selectDevice;
-    }
-
-    // --- SPOTIFY CONTROLS ---
-    async function spotifyTogglePlay() {
-      const method = isSpotifyPlaying ? 'pause' : 'play';
-      await fetchSpotifyAPI(`/${method}`, 'PUT');
-      setTimeout(updateSpotifyUI, 500); // Wait a half second for Spotify to register, then update UI
-    }
-
-    async function spotifyAction(action) {
-      await fetchSpotifyAPI(`/${action}`, 'POST');
-      setTimeout(updateSpotifyUI, 800); 
-    }
-
-    async function spotifyTransfer(deviceId) {
-      if(!deviceId) return;
-      await fetchSpotifyAPI('', 'PUT', { device_ids: [deviceId] });
-      setTimeout(updateSpotifyUI, 1000);
-    }
-
-    // Initialize Spotify if returning from Login
-    handleSpotifyCallback();
-    if (spotifyToken && Date.now() < spotifyTokenExpiry) {
-      updateSpotifyUI();
-      getSpotifyDevices();
-      spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); // Check every 5 seconds
-    }
-
-    // ==========================================
-    // WOBBLY CLOCK & DASHBOARD LOGIC 
-    // ==========================================
     const cx = 200, cy = 200, radius = 162;
     let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = false; 
     let exactTargetMs = 0, targetDate = new Date();
     targetDate.setSeconds(targetDate.getSeconds() + 15); 
     let wasOverdue = false; 
 
-    // Localization Data
     let lang = localStorage.getItem('idleLang') || 'en';
-    Object.assign(translations.en, { musicIntegration: "Music (Spotify)", loginSpotify: "Log in with Spotify", devices: "Playback Device", selectDevice: "Select Device" });
-    Object.assign(translations.ar, { musicIntegration: "الموسيقى (Spotify)", loginSpotify: "تسجيل الدخول", devices: "جهاز التشغيل", selectDevice: "اختر الجهاز" });
+    const translations = {
+      en: {
+        language: "Language / اللغة", location: "Location", displayTitle: "Display Title",
+        quickTitles: "Quick Titles", quickTimers: "Quick Timers", accentColor: "Accent Color",
+        remaining: "REMAINING", overdue: "OVERDUE", resting: "RESTING", enterCity: "Enter City (e.g., Riyadh)",
+        musicIntegration: "Music (Spotify)", loginSpotify: "Log in with Spotify", devices: "Playback Device", selectDevice: "Select Device",
+        prayerNames: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", None: "None" }
+      },
+      ar: {
+        language: "اللغة / Language", location: "الموقع", displayTitle: "العنوان",
+        quickTitles: "عناوين سريعة", quickTimers: "مؤقتات سريعة", accentColor: "لون المظهر",
+        remaining: "المتبقي", overdue: "انتهى الوقت", resting: "راحة", enterCity: "أدخل المدينة (مثل الرياض)",
+        musicIntegration: "الموسيقى (Spotify)", loginSpotify: "تسجيل الدخول", devices: "جهاز التشغيل", selectDevice: "اختر الجهاز",
+        prayerNames: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", None: "لا يوجد" }
+      }
+    };
 
     const toNum = (str) => {
       if (lang === 'en') return str.toString();
@@ -450,13 +309,14 @@
       neon: { name: 'neon', start: "#00F260", end: "#0575E6", handle: "#00F260" }
     };
     
-    // API & Data State
     let prayerTimes = {};
     let nextPrayer = null;
     let currentCity = localStorage.getItem('idleCity') || "Jeddah";
     let currentTheme = themes[localStorage.getItem('idleTheme')] || themes.blue;
 
-    // DOM Elements
+    // ==========================================
+    // 2. DOM ELEMENTS
+    // ==========================================
     const clockSvg = document.getElementById("clock"), ticksGroup = document.getElementById("ticks"), sleepArc = document.getElementById("sleepArc");
     const startHandle = document.getElementById("startHandle"), endHandle = document.getElementById("endHandle");
     const dragString = document.getElementById("dragString"), ballTrail = document.getElementById("ballTrail");
@@ -466,18 +326,11 @@
     const titleInput = document.getElementById("titleInput"), displayTitle = document.getElementById("displayTitle");
     const themeGrid = document.getElementById("themeGrid"), cityInput = document.getElementById("cityInput");
     const starLayer = document.getElementById("starLayer"), ambientGlow = document.getElementById("ambientGlow"), shootingStar = document.getElementById("shootingStar");
-    
-    // --- INITIALIZE SAVED SETTINGS ---
-    titleInput.value = localStorage.getItem('idleTitle') || "System Standby";
-    displayTitle.textContent = titleInput.value;
-    cityInput.value = currentCity;
+    const nowPlayingDiv = document.getElementById("nowPlaying"), npArt = document.getElementById("npArt"), npTrack = document.getElementById("npTrack"), npArtist = document.getElementById("npArtist");
 
-    titleInput.addEventListener("input", (e) => { 
-      displayTitle.textContent = e.target.value || " "; 
-      localStorage.setItem('idleTitle', e.target.value);
-    });
-
-    // --- Translation Logic ---
+    // ==========================================
+    // 3. UI FUNCTIONS (Translations, API, Themes)
+    // ==========================================
     function setLanguage(selectedLang) {
       lang = selectedLang;
       localStorage.setItem('idleLang', lang);
@@ -488,7 +341,8 @@
         if (translations[lang][key]) el.textContent = translations[lang][key];
       });
       document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-        if (translations[lang][el.getAttribute('data-i18n-ph')]) el.placeholder = translations[lang][el.getAttribute('data-i18n-ph')];
+        const key = el.getAttribute('data-i18n-ph');
+        if (translations[lang][key]) el.placeholder = translations[lang][key];
       });
 
       document.getElementById('langEnBtn').classList.toggle('active-lang', lang === 'en');
@@ -499,7 +353,6 @@
       document.getElementById("lbl6").textContent = toNum("6");
       document.getElementById("lbl9").textContent = toNum("9");
       
-      // Update Device Dropdown "Select Device" language if present
       const selOpt = document.querySelector('#spDeviceSelect option[disabled]');
       if(selOpt) selOpt.textContent = translations[lang].selectDevice;
 
@@ -510,7 +363,6 @@
       updateLiveTimer(); 
     }
 
-    // --- Prayer API Logic ---
     async function fetchPrayerTimes(city) {
       try {
         currentCity = city;
@@ -530,23 +382,6 @@
         console.error("Prayer API Error", err);
         prayerNameEl.textContent = lang === 'en' ? "Offline" : "غير متصل";
       }
-    }
-
-    cityInput.addEventListener("keydown", (e) => {
-      if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim());
-    });
-
-    if ("geolocation" in navigator && !localStorage.getItem('idleCity')) {
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
-          const data = await res.json();
-          cityInput.value = data.city || data.locality || "Jeddah";
-          fetchPrayerTimes(cityInput.value);
-        } catch (e) { fetchPrayerTimes("Jeddah"); }
-      }, () => fetchPrayerTimes("Jeddah")); 
-    } else {
-      fetchPrayerTimes(currentCity);
     }
 
     function calculateNextPrayer() {
@@ -589,11 +424,9 @@
       const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
       
       prayerCountdownEl.textContent = toNum(`(${lang === 'en' ? 'in' : 'خلال'} ${hrs}:${mins}:${secs})`);
-      // Update prayer text color slightly to match theme
       prayerCountdownEl.style.color = currentTheme.handle; 
     }
 
-    // --- Core UI Logic ---
     function renderQuickActions() {
       const tGrid = document.getElementById('titlesGrid'); tGrid.innerHTML = '';
       quickTitles.forEach(t => {
@@ -637,15 +470,6 @@
       starLayer.style.setProperty('--star-color', currentTheme.handle);
       if(nextPrayer) prayerCountdownEl.style.color = currentTheme.handle; 
     }
-
-    Object.entries(themes).forEach(([key, colors]) => {
-      const dot = document.createElement("div");
-      dot.className = `theme-dot`;
-      dot.dataset.key = key;
-      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`;
-      dot.addEventListener('click', () => applyTheme(colors));
-      themeGrid.appendChild(dot);
-    });
 
     const minsToAngle = (m) => ((m % 720) / 720) * 360;
     const getNowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
@@ -826,14 +650,186 @@
       }
     }
 
+    // ==========================================
+    // 4. SPOTIFY AUTHENTICATION & API
+    // ==========================================
+    function loginSpotify() {
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`;
+      window.location.href = authUrl;
+    }
+
+    function handleSpotifyCallback() {
+      const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
+        if (item) {
+          var parts = item.split('=');
+          initial[parts[0]] = decodeURIComponent(parts[1]);
+        }
+        return initial;
+      }, {});
+      
+      window.location.hash = ''; 
+
+      if (hash.access_token) {
+        spotifyToken = hash.access_token;
+        spotifyTokenExpiry = Date.now() + (hash.expires_in * 1000);
+        localStorage.setItem('spotify_token', spotifyToken);
+        localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
+      }
+    }
+
+    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) {
+      if (!spotifyToken || Date.now() > spotifyTokenExpiry) {
+        logoutSpotify(); return null; 
+      }
+      
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, {
+          method: method,
+          headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
+          body: body ? JSON.stringify(body) : null
+        });
+
+        if (res.status === 401) { logoutSpotify(); return null; }
+        if (res.status === 204) return { no_content: true }; 
+        if (res.ok && method === 'GET') return await res.json();
+        return { success: true };
+      } catch (err) { console.error("Spotify API Error", err); return null; }
+    }
+
+    function logoutSpotify() {
+      spotifyToken = null;
+      localStorage.removeItem('spotify_token'); localStorage.removeItem('spotify_token_expiry');
+      document.getElementById('spotifyLoginBlock').style.display = 'block';
+      document.getElementById('spotifyDeviceBlock').style.display = 'none';
+      document.getElementById('nowPlaying').classList.remove('active');
+      clearInterval(spotifyUpdateInterval);
+    }
+
+    async function updateSpotifyUI() {
+      if (!spotifyToken) return;
+      
+      document.getElementById('spotifyLoginBlock').style.display = 'none';
+      document.getElementById('spotifyDeviceBlock').style.display = 'block';
+
+      const data = await fetchSpotifyAPI('');
+      
+      const npDiv = document.getElementById("nowPlaying");
+      const eqBars = document.getElementById("eqBars");
+      const playBtn = document.getElementById("spPlayBtn");
+
+      if (!data || data.no_content || !data.item) {
+        npDiv.classList.remove('active');
+        isSpotifyPlaying = false;
+        return;
+      }
+
+      document.getElementById("npTrack").textContent = data.item.name;
+      document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', ');
+      
+      if (data.item.album.images.length > 0) {
+        document.getElementById("npArt").src = data.item.album.images[0].url;
+      }
+
+      isSpotifyPlaying = data.is_playing;
+      playBtn.textContent = isSpotifyPlaying ? "⏸" : "▶";
+      
+      if (isSpotifyPlaying) eqBars.classList.add('playing');
+      else eqBars.classList.remove('playing');
+
+      npDiv.classList.add('active');
+    }
+
+    async function getSpotifyDevices() {
+      if (!spotifyToken) return;
+      const data = await fetchSpotifyAPI('/devices');
+      if (!data || !data.devices) return;
+      
+      const select = document.getElementById("spDeviceSelect");
+      select.innerHTML = `<option value="" disabled selected>${translations[lang].selectDevice}</option>`;
+      
+      data.devices.forEach(dev => {
+        const option = document.createElement("option");
+        option.value = dev.id;
+        option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`;
+        if(dev.is_active) option.selected = true;
+        select.appendChild(option); 
+      });
+    }
+
+    async function spotifyTogglePlay() {
+      const method = isSpotifyPlaying ? 'pause' : 'play';
+      await fetchSpotifyAPI(`/${method}`, 'PUT');
+      setTimeout(updateSpotifyUI, 500); 
+    }
+
+    async function spotifyAction(action) {
+      await fetchSpotifyAPI(`/${action}`, 'POST');
+      setTimeout(updateSpotifyUI, 800); 
+    }
+
+    async function spotifyTransfer(deviceId) {
+      if(!deviceId) return;
+      await fetchSpotifyAPI('', 'PUT', { device_ids: [deviceId] });
+      setTimeout(updateSpotifyUI, 1000);
+    }
+
+    // ==========================================
+    // 5. INITIAL EXECUTION SEQUENCE
+    // ==========================================
+    titleInput.value = localStorage.getItem('idleTitle') || "System Standby";
+    displayTitle.textContent = titleInput.value;
+    cityInput.value = currentCity;
+    
+    cityInput.addEventListener("keydown", (e) => {
+      if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim());
+    });
+
+    titleInput.addEventListener("input", (e) => { 
+      displayTitle.textContent = e.target.value || " "; 
+      localStorage.setItem('idleTitle', e.target.value);
+    });
+
     clockSvg.addEventListener("mousedown", onPointerDown); window.addEventListener("mousemove", onPointerMove); window.addEventListener("mouseup", onPointerUp);
     clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); window.addEventListener("touchmove", onPointerMove, {passive: false}); window.addEventListener("touchend", onPointerUp);
 
-    // Initial setups
+    Object.entries(themes).forEach(([key, colors]) => {
+      const dot = document.createElement("div");
+      dot.className = `theme-dot`;
+      dot.dataset.key = key;
+      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`;
+      dot.addEventListener('click', () => applyTheme(colors));
+      themeGrid.appendChild(dot);
+    });
+
+    // Start UI
     applyTheme(currentTheme);
     setLanguage(lang);
-    drawTicks(); updateLiveTimer(); animateWobblyString();
+    drawTicks(); 
+    updateLiveTimer(); 
+    animateWobblyString();
     setInterval(updateLiveTimer, 1000);
+
+    // Start Location / Prayers
+    if ("geolocation" in navigator && !localStorage.getItem('idleCity')) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
+          const data = await res.json();
+          cityInput.value = data.city || data.locality || "Jeddah";
+          fetchPrayerTimes(cityInput.value);
+        } catch (e) { fetchPrayerTimes("Jeddah"); }
+      }, () => fetchPrayerTimes("Jeddah")); 
+    } else {
+      fetchPrayerTimes(currentCity);
+    }
+
+    // Run Spotify Logic AFTER UI is built
+    handleSpotifyCallback();
+    if (spotifyToken && Date.now() < spotifyTokenExpiry) {
+      updateSpotifyUI();
+      getSpotifyDevices();
+      spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); 
+    }
   </script>
 </body>
 </html>
