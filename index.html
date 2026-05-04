@@ -23,7 +23,9 @@
     body[dir="rtl"] .side-panel:hover { transform: translateX(0); }
     body[dir="rtl"] .panel-tab { left: auto; right: 15px; transform: translateY(-50%) rotate(180deg); }
     body[dir="rtl"] .ambient-info { left: auto; right: 24px; text-align: right; }
+    body[dir="rtl"] .now-playing { left: auto; right: 24px; flex-direction: row-reverse; text-align: right; }
     body[dir="rtl"] .edit-btn { float: left; }
+    body[dir="rtl"] .spotify-controls { flex-direction: row-reverse; }
 
     /* --- Shooting Star Layer --- */
     .star-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; --star-color: #00c6ff; }
@@ -48,10 +50,44 @@
       100% { transform: rotate(135deg) translateX(120vmax); width: 0px; opacity: 0; }
     }
 
+    /* --- Now Playing Widget (Spotify) --- */
+    .now-playing {
+      position: fixed; top: 24px; left: 24px; display: flex; align-items: center; gap: 14px;
+      background: rgba(15, 15, 18, 0.6); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px 16px 12px 12px;
+      opacity: 0; transform: translateY(-10px); transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 50; 
+    }
+    .now-playing.active { opacity: 1; transform: translateY(0); }
+    .album-art { width: 56px; height: 56px; border-radius: 8px; background: #222; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .track-info { display: flex; flex-direction: column; gap: 4px; }
+    .track-name { font-size: 0.95rem; font-weight: bold; color: white; display: flex; align-items: center; gap: 8px;}
+    .artist-name { font-size: 0.8rem; color: #aaa; }
+    
+    /* Spotify Controls */
+    .spotify-controls { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
+    .sp-btn { 
+      background: none; border: none; color: #aaa; cursor: pointer; font-size: 1.1rem; 
+      transition: color 0.2s, transform 0.2s; padding: 0; display: flex; align-items: center; justify-content: center;
+    }
+    .sp-btn:hover { color: white; transform: scale(1.1); }
+    .sp-btn.play-pause { color: white; font-size: 1.3rem; }
+    .sp-btn.play-pause:hover { color: var(--star-color, #00c6ff); }
+
+    /* Animated EQ Bars */
+    .eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; opacity: 0; transition: opacity 0.3s; }
+    .eq-bars.playing { opacity: 1; }
+    .eq-bar { width: 3px; background-color: var(--star-color, #00c6ff); border-radius: 2px; animation: eqBounce 1s infinite ease-in-out; }
+    .eq-bar:nth-child(1) { height: 60%; animation-delay: 0s; }
+    .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.2s; }
+    .eq-bar:nth-child(3) { height: 40%; animation-delay: 0.4s; }
+    @keyframes eqBounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
+    .eq-bars:not(.playing) .eq-bar { animation: none; height: 2px; } /* Flatline when paused */
+
     /* --- Clock & Interface --- */
-    .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; position: relative; z-index: 10; }
+    .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; position: relative; z-index: 10; pointer-events: none; }
     .display-title { font-size: 1.15rem; letter-spacing: 0.14em; text-transform: uppercase; color: #ffffff; margin-bottom: 30px; opacity: 0.8; }
-    svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8)); }
+    svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8)); pointer-events: auto; }
 
     .drag-string { fill: none; stroke: rgba(255, 255, 255, 0.5); stroke-linecap: round; opacity: 0; transition: opacity 0.2s; }
     .ball-trail { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4)); }
@@ -76,8 +112,8 @@
     .panel-tab { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255, 255, 255, 0.4); font-size: 24px; font-weight: bold; pointer-events: none; transition: opacity 0.3s; }
     .side-panel:hover .panel-tab { opacity: 0; }
     
-    .panel-header { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: -10px; margin-top: 10px; }
-    .edit-btn { float: right; cursor: pointer; opacity: 0.4; font-size: 1rem; transition: opacity 0.2s; }
+    .panel-header { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: -10px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .edit-btn { cursor: pointer; opacity: 0.4; font-size: 1rem; transition: opacity 0.2s; }
     .edit-btn:hover { opacity: 1; color: white; }
 
     .title-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 12px; border-radius: 8px; outline: none; font-size: 1rem; }
@@ -106,14 +142,40 @@
 
     .overdue-text { fill: #ff4757 !important; animation: pulse 2s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    
+    /* Spotify Specific UI */
+    .spotify-btn-brand { background: #1DB954; color: white; font-weight: bold; border-color: #1DB954; padding: 12px; }
+    .spotify-btn-brand:hover { background: #1ed760; border-color: #1ed760; }
+    .sp-device-select { margin-top: 8px; width: 100%; font-size: 0.85rem; padding: 8px; }
   </style>
 </head>
 <body>
 
-  <!-- Shooting Star & Ambient Glow -->
+  <!-- Background Effects -->
   <div id="starLayer" class="star-layer">
     <div id="ambientGlow" class="ambient-glow"></div>
     <div id="shootingStar" class="shooting-star"></div>
+  </div>
+
+  <!-- Now Playing Media Widget (Spotify) -->
+  <div class="now-playing" id="nowPlaying">
+    <img src="" alt="Album Art" class="album-art" id="npArt">
+    <div class="track-info">
+      <div class="track-name">
+        <span id="npTrack">Loading...</span>
+        <div class="eq-bars" id="eqBars">
+          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+        </div>
+      </div>
+      <div class="artist-name" id="npArtist">Artist Name</div>
+      
+      <!-- Native Spotify Controls -->
+      <div class="spotify-controls">
+        <button class="sp-btn" onclick="spotifyAction('previous')" title="Previous">⏮</button>
+        <button class="sp-btn play-pause" id="spPlayBtn" onclick="spotifyTogglePlay()" title="Play/Pause">⏯</button>
+        <button class="sp-btn" onclick="spotifyAction('next')" title="Next">⏭</button>
+      </div>
+    </div>
   </div>
 
   <!-- Ambient Info (Bottom) -->
@@ -152,6 +214,19 @@
 
     <div class="panel-header" data-i18n="accentColor">Accent Color</div>
     <div class="theme-grid" id="themeGrid"></div>
+
+    <!-- Spotify Integration Block -->
+    <div class="panel-header" data-i18n="musicIntegration">Music (Spotify)</div>
+    <div id="spotifyLoginBlock">
+      <button class="quick-btn spotify-btn-brand" onclick="loginSpotify()" data-i18n="loginSpotify">Log in with Spotify</button>
+    </div>
+    
+    <div id="spotifyDeviceBlock" style="display: none;">
+      <div class="panel-header" style="font-size: 0.7rem; color: #666;" data-i18n="devices">Playback Device</div>
+      <select class="title-input sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
+        <option>Loading devices...</option>
+      </select>
+    </div>
   </div>
 
   <!-- Clock Interface -->
@@ -188,6 +263,164 @@
   </div>
 
   <script>
+    // ==========================================
+    // SPOTIFY WEB API CONFIGURATION
+    // ==========================================
+    const SPOTIFY_CLIENT_ID = "c5a38a61e38c4f398bc51afcdf464303"; 
+    
+    // This dynamically gets your exact URL (e.g. https://aseel600.github.io/idle-dashboard/)
+    // Make sure this exact link is added to the "Redirect URIs" in your Spotify Developer Dashboard!
+    const REDIRECT_URI = window.location.origin + window.location.pathname; 
+    
+    const SPOTIFY_SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
+    let spotifyToken = localStorage.getItem('spotify_token');
+    let spotifyTokenExpiry = localStorage.getItem('spotify_token_expiry');
+    let isSpotifyPlaying = false;
+    let spotifyUpdateInterval;
+
+    // --- SPOTIFY AUTHENTICATION ---
+    function loginSpotify() {
+      const authUrl = `https://accounts.spotify.com/authorize?client_id=${SPOTIFY_CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SPOTIFY_SCOPES)}`;
+      window.location.href = authUrl;
+    }
+
+    // Check URL for token after redirect
+    function handleSpotifyCallback() {
+      const hash = window.location.hash.substring(1).split('&').reduce((initial, item) => {
+        if (item) {
+          var parts = item.split('=');
+          initial[parts[0]] = decodeURIComponent(parts[1]);
+        }
+        return initial;
+      }, {});
+      
+      window.location.hash = ''; // Clear URL bar
+
+      if (hash.access_token) {
+        spotifyToken = hash.access_token;
+        spotifyTokenExpiry = Date.now() + (hash.expires_in * 1000);
+        localStorage.setItem('spotify_token', spotifyToken);
+        localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
+      }
+    }
+
+    // --- SPOTIFY API CALLS ---
+    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) {
+      if (!spotifyToken || Date.now() > spotifyTokenExpiry) {
+        logoutSpotify(); return null; 
+      }
+      
+      try {
+        const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, {
+          method: method,
+          headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
+          body: body ? JSON.stringify(body) : null
+        });
+
+        if (res.status === 401) { logoutSpotify(); return null; }
+        if (res.status === 204) return { no_content: true }; // Nothing active
+        if (res.ok && method === 'GET') return await res.json();
+        return { success: true };
+      } catch (err) { console.error("Spotify API Error", err); return null; }
+    }
+
+    function logoutSpotify() {
+      spotifyToken = null;
+      localStorage.removeItem('spotify_token'); localStorage.removeItem('spotify_token_expiry');
+      document.getElementById('spotifyLoginBlock').style.display = 'block';
+      document.getElementById('spotifyDeviceBlock').style.display = 'none';
+      document.getElementById('nowPlaying').classList.remove('active');
+      clearInterval(spotifyUpdateInterval);
+    }
+
+    // --- SPOTIFY UI UPDATES ---
+    async function updateSpotifyUI() {
+      if (!spotifyToken) return;
+      
+      // Hide login, show devices
+      document.getElementById('spotifyLoginBlock').style.display = 'none';
+      document.getElementById('spotifyDeviceBlock').style.display = 'block';
+
+      const data = await fetchSpotifyAPI('');
+      
+      const nowPlayingDiv = document.getElementById("nowPlaying");
+      const eqBars = document.getElementById("eqBars");
+      const playBtn = document.getElementById("spPlayBtn");
+
+      if (!data || data.no_content || !data.item) {
+        // Nothing is playing, hide widget
+        nowPlayingDiv.classList.remove('active');
+        isSpotifyPlaying = false;
+        return;
+      }
+
+      // Update Track Info
+      document.getElementById("npTrack").textContent = data.item.name;
+      document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', ');
+      
+      if (data.item.album.images.length > 0) {
+        document.getElementById("npArt").src = data.item.album.images[0].url;
+      }
+
+      // Update Play/Pause State
+      isSpotifyPlaying = data.is_playing;
+      playBtn.textContent = isSpotifyPlaying ? "⏸" : "▶";
+      
+      if (isSpotifyPlaying) eqBars.classList.add('playing');
+      else eqBars.classList.remove('playing');
+
+      nowPlayingDiv.classList.add('active');
+    }
+
+    async function getSpotifyDevices() {
+      if (!spotifyToken) return;
+      const data = await fetchSpotifyAPI('/devices');
+      if (!data || !data.devices) return;
+      
+      const select = document.getElementById("spDeviceSelect");
+      select.innerHTML = '<option value="" disabled selected data-i18n="selectDevice">Select Device</option>';
+      
+      data.devices.forEach(dev => {
+        const option = document.createElement("option");
+        option.value = dev.id;
+        option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`;
+        if(dev.is_active) option.selected = true;
+        select.appendChild(select); // Correcting syntax to append to select
+        select.appendChild(option);
+      });
+      // Re-apply translation if needed
+      if(translations[lang].selectDevice) select.options[0].textContent = translations[lang].selectDevice;
+    }
+
+    // --- SPOTIFY CONTROLS ---
+    async function spotifyTogglePlay() {
+      const method = isSpotifyPlaying ? 'pause' : 'play';
+      await fetchSpotifyAPI(`/${method}`, 'PUT');
+      setTimeout(updateSpotifyUI, 500); // Wait a half second for Spotify to register, then update UI
+    }
+
+    async function spotifyAction(action) {
+      await fetchSpotifyAPI(`/${action}`, 'POST');
+      setTimeout(updateSpotifyUI, 800); 
+    }
+
+    async function spotifyTransfer(deviceId) {
+      if(!deviceId) return;
+      await fetchSpotifyAPI('', 'PUT', { device_ids: [deviceId] });
+      setTimeout(updateSpotifyUI, 1000);
+    }
+
+    // Initialize Spotify if returning from Login
+    handleSpotifyCallback();
+    if (spotifyToken && Date.now() < spotifyTokenExpiry) {
+      updateSpotifyUI();
+      getSpotifyDevices();
+      spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); // Check every 5 seconds
+    }
+
+    // ==========================================
+    // WOBBLY CLOCK & DASHBOARD LOGIC 
+    // ==========================================
     const cx = 200, cy = 200, radius = 162;
     let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = false; 
     let exactTargetMs = 0, targetDate = new Date();
@@ -196,20 +429,8 @@
 
     // Localization Data
     let lang = localStorage.getItem('idleLang') || 'en';
-    const translations = {
-      en: {
-        language: "Language / اللغة", location: "Location", displayTitle: "Display Title",
-        quickTitles: "Quick Titles", quickTimers: "Quick Timers", accentColor: "Accent Color",
-        remaining: "REMAINING", overdue: "OVERDUE", resting: "RESTING",
-        prayerNames: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", None: "None" }
-      },
-      ar: {
-        language: "اللغة / Language", location: "الموقع", displayTitle: "العنوان",
-        quickTitles: "عناوين سريعة", quickTimers: "مؤقتات سريعة", accentColor: "لون المظهر",
-        remaining: "المتبقي", overdue: "انتهى الوقت", resting: "راحة",
-        prayerNames: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", None: "لا يوجد" }
-      }
-    };
+    Object.assign(translations.en, { musicIntegration: "Music (Spotify)", loginSpotify: "Log in with Spotify", devices: "Playback Device", selectDevice: "Select Device" });
+    Object.assign(translations.ar, { musicIntegration: "الموسيقى (Spotify)", loginSpotify: "تسجيل الدخول", devices: "جهاز التشغيل", selectDevice: "اختر الجهاز" });
 
     const toNum = (str) => {
       if (lang === 'en') return str.toString();
@@ -251,7 +472,6 @@
     displayTitle.textContent = titleInput.value;
     cityInput.value = currentCity;
 
-    // Save inputs on change
     titleInput.addEventListener("input", (e) => { 
       displayTitle.textContent = e.target.value || " "; 
       localStorage.setItem('idleTitle', e.target.value);
@@ -265,10 +485,10 @@
       
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        el.textContent = translations[lang][key];
+        if (translations[lang][key]) el.textContent = translations[lang][key];
       });
       document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-        el.placeholder = translations[lang][el.getAttribute('data-i18n-ph')];
+        if (translations[lang][el.getAttribute('data-i18n-ph')]) el.placeholder = translations[lang][el.getAttribute('data-i18n-ph')];
       });
 
       document.getElementById('langEnBtn').classList.toggle('active-lang', lang === 'en');
@@ -278,6 +498,10 @@
       document.getElementById("lbl3").textContent = toNum("3");
       document.getElementById("lbl6").textContent = toNum("6");
       document.getElementById("lbl9").textContent = toNum("9");
+      
+      // Update Device Dropdown "Select Device" language if present
+      const selOpt = document.querySelector('#spDeviceSelect option[disabled]');
+      if(selOpt) selOpt.textContent = translations[lang].selectDevice;
 
       renderQuickActions();
       const tempUnit = lang === 'en' ? 'C' : 'م';
@@ -365,6 +589,7 @@
       const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
       
       prayerCountdownEl.textContent = toNum(`(${lang === 'en' ? 'in' : 'خلال'} ${hrs}:${mins}:${secs})`);
+      // Update prayer text color slightly to match theme
       prayerCountdownEl.style.color = currentTheme.handle; 
     }
 
