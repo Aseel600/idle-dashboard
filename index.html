@@ -293,7 +293,7 @@
     
     <div id="spotifyDeviceBlock" style="display: none;">
       <div class="panel-header" style="font-size: 0.7rem;" data-i18n="devices">Playback Device</div>
-      <select class="sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
+      <select class="title-input sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
         <option>Loading devices...</option>
       </select>
     </div>
@@ -591,7 +591,7 @@
       const tGrid = document.getElementById('titlesGrid'); tGrid.innerHTML = '';
       quickTitles.forEach(t => {
         const btn = document.createElement('button'); btn.className = 'quick-btn'; btn.textContent = t;
-        btn.onclick = () => { titleInput.value = t; displayTitle.textContent = t; localStorage.setItem('idleTitle', t); }; 
+        btn.onclick = () => { titleInput.value = t; displayTitle.textContent = t; localStorage.setItem('idleTitle', t); document.title = t; }; 
         tGrid.appendChild(btn);
       });
 
@@ -799,6 +799,9 @@
       sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcSAng, arcEAng)); 
       sleepArc.setAttribute("stroke", "url(#dynamicGrad)");
       timeValueText.textContent = toNum(timeString);
+      
+      // Update Tab/Browser Title Dynamically
+      document.title = `${displayTitle.textContent} • ${toNum(timeString)}`;
     }
 
     timeValueText.addEventListener("click", () => {
@@ -1065,6 +1068,7 @@
     // ==========================================
     titleInput.value = localStorage.getItem('idleTitle') || "System Standby";
     displayTitle.textContent = titleInput.value;
+    document.title = titleInput.value;
     cityInput.value = currentCity;
     
     cityInput.addEventListener("keydown", (e) => {
