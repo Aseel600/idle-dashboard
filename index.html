@@ -184,7 +184,7 @@
     /* Prayer Highlight State */
     .prayer-text-highlight { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); font-size: 0.95rem; }
     
-    /* --- NEW: Animated Sliders --- */
+    /* --- ANIMATED SLIDERS (FIXED FOR RTL) --- */
     .slider-container {
       display: flex; background: var(--input-bg); border-radius: 10px;
       padding: 3px; position: relative; margin-top: 10px; border: 1px solid var(--input-border);
@@ -195,14 +195,18 @@
       background: var(--accent); border-radius: 8px; z-index: 1;
       transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
     }
+    /* In RTL mode, physical left becomes right */
+    body[dir="rtl"] .slider-bg { left: auto; right: 3px; }
+    
     .slider-opt {
       flex: 1; text-align: center; z-index: 2; color: var(--text-secondary); font-size: 0.8rem;
       font-weight: bold; display: flex; align-items: center; justify-content: center; transition: color 0.3s;
     }
     .slider-opt.active { color: #ffffff; }
-    /* Transform overrides based on direction and state */
-    .slide-right { transform: translateX(100%); }
-    body[dir="rtl"] .slide-right { transform: translateX(-100%); }
+    
+    /* Transform to the second option */
+    .slide-second { transform: translateX(100%); }
+    body[dir="rtl"] .slide-second { transform: translateX(-100%); }
 
     /* --- Spotify Specific UI Fix --- */
     .spotify-btn-brand { background: #1DB954; color: white !important; font-weight: bold; border-color: #1DB954; padding: 12px; }
@@ -430,11 +434,11 @@
       
       const langBg = document.getElementById('langSliderBg');
       if (lang === 'ar') {
-        langBg.classList.add('slide-right');
+        langBg.classList.add('slide-second');
         document.getElementById('langArOpt').classList.add('active');
         document.getElementById('langEnOpt').classList.remove('active');
       } else {
-        langBg.classList.remove('slide-right');
+        langBg.classList.remove('slide-second');
         document.getElementById('langEnOpt').classList.add('active');
         document.getElementById('langArOpt').classList.remove('active');
       }
@@ -474,12 +478,12 @@
       const modeBg = document.getElementById('modeSliderBg');
       if (mode === 'light') {
         document.body.classList.add('light-mode');
-        modeBg.classList.add('slide-right');
+        modeBg.classList.add('slide-second');
         document.getElementById('modeLightOpt').classList.add('active');
         document.getElementById('modeDarkOpt').classList.remove('active');
       } else {
         document.body.classList.remove('light-mode');
-        modeBg.classList.remove('slide-right');
+        modeBg.classList.remove('slide-second');
         document.getElementById('modeDarkOpt').classList.add('active');
         document.getElementById('modeLightOpt').classList.remove('active');
       }
