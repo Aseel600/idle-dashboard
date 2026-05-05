@@ -128,7 +128,7 @@
     .clock-inner { fill: var(--clock-inner); transition: fill 0.4s; }
     .clock-text { fill: var(--text-secondary); transition: fill 0.4s; }
     
-    /* NEW: Ultra Minimal Timer Glide CSS */
+    /* Ultra Minimal Timer Glide CSS */
     .clock-value { fill: var(--text-primary); cursor: pointer; transition: fill 0.4s, opacity 0.2s; }
     .clock-value.paused { opacity: 0.4; }
     .time-part { transition: font-size 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease; }
@@ -321,7 +321,7 @@
 
       <path id="sleepArc" fill="none" stroke="url(#dynamicGrad)" stroke-width="8" stroke-linecap="round" />
 
-      <!-- UPDATED: The Ultra-Minimal Glide Timer Text -->
+      <!-- Ultra-Minimal Glide Timer Text -->
       <text id="timeValueText" class="clock-value" x="200" y="195" text-anchor="middle" font-size="40" font-weight="bold" title="Click to Pause/Play">
         <tspan id="timeH" class="time-part">00:</tspan><tspan id="timeM" class="time-part">00:</tspan><tspan id="timeS" class="time-part">00</tspan>
       </text>
@@ -368,7 +368,7 @@
         remaining: "REMAINING", paused: "PAUSED", enterCity: "Enter City (e.g., Riyadh)",
         displayMode: "Display Mode", dark: "Dark", light: "Light",
         musicIntegration: "Music (Spotify)", loginSpotify: "Log in with Spotify", devices: "Playback Device", selectDevice: "Select Device",
-        iqamaFor: "Iqamah: ", finishAt: "Finish at: ",
+        iqamaFor: "Iqamah: ", finishAt: "Finish at: ", tomorrow: " (Tomorrow)",
         prayerNames: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", None: "None" }
       },
       ar: {
@@ -377,7 +377,7 @@
         remaining: "المتبقي", paused: "متوقف", enterCity: "أدخل المدينة (مثل الرياض)",
         displayMode: "المظهر", dark: "داكن", light: "فاتح",
         musicIntegration: "الموسيقى (Spotify)", loginSpotify: "تسجيل الدخول", devices: "جهاز التشغيل", selectDevice: "اختر الجهاز",
-        iqamaFor: "الإقامة: ", finishAt: "ينتهي في: ",
+        iqamaFor: "الإقامة: ", finishAt: "ينتهي في: ", tomorrow: " (غداً)",
         prayerNames: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", None: "لا يوجد" }
       }
     };
@@ -691,13 +691,14 @@
       ballTrail.style.transition = `x2 ${throwDuration} ${throwCurve}, y2 ${throwDuration} ${throwCurve}, x1 ${throwDuration} 0.15s ${throwCurve}, y1 ${throwDuration} 0.15s ${throwCurve}, opacity 1s 1.5s ease-out`;
       ballTrail.setAttribute("x2", flingX); ballTrail.setAttribute("y2", flingY); ballTrail.setAttribute("x1", flingX); ballTrail.setAttribute("y1", flingY); ballTrail.style.opacity = "0";
 
+      // UPGRADE: Match the return time perfectly to the 2.5s throw animation
       setTimeout(() => {
         endHandle.style.transition = "none"; endHandle.style.opacity = "0"; dragRadius = radius; updateLiveTimer(); 
         setTimeout(() => {
-          endHandle.style.transition = "opacity 1.5s ease"; endHandle.style.opacity = "1";
-          setTimeout(() => { endHandle.style.transition = ""; endHandle.classList.add("snap-back"); isBroken = false; }, 1500);
+          endHandle.style.transition = "opacity 0.5s ease"; endHandle.style.opacity = "1";
+          setTimeout(() => { endHandle.style.transition = ""; endHandle.classList.add("snap-back"); isBroken = false; }, 500);
         }, 50);
-      }, 5000); 
+      }, 2500); 
     }
 
     function animateWobblyString() {
@@ -747,10 +748,12 @@
       let diffMs;
       if (isTimerRunning) {
         diffMs = timerEndTime - now;
+        
         if (diffMs <= 0) {
           isTimerRunning = false;
           timerDurationMs = originalDurationMs;
           diffMs = originalDurationMs;
+          
           triggerShootingStar();
           if (isSpotifyPlaying) spotifyPause(); 
         } else {
@@ -768,7 +771,7 @@
           timeValueText.classList.remove('paused');
       }
       
-      // NEW: Ultra-Minimal "Glide" Logic
+      // Ultra-Minimal "Glide" Logic
       const absDiff = Math.abs(diffMs);
       const hNum = Math.floor(absDiff / 3600000);
       const mNum = Math.floor((absDiff % 3600000) / 60000);
@@ -782,7 +785,6 @@
       const elM = document.getElementById('timeM');
       const elS = document.getElementById('timeS');
 
-      // Calculate Tab Title string based on what is visually shown
       let tabTimeStr = '';
 
       if (hNum === 0) {
@@ -806,17 +808,28 @@
         tabTimeStr = `${hStr}:${mStr}:${sStr}`;
       }
 
-      // Sync the Browser Tab
       document.title = `${displayTitle.textContent} • ${toNum(tabTimeStr)}`;
       
-      // Calculate Finish Time
+      // UPGRADE: Calculate Finish Time with Date/Tomorrow checking
       const finishTimeDate = new Date(now + diffMs);
       let fH = finishTimeDate.getHours();
       const fM = finishTimeDate.getMinutes().toString().padStart(2, '0');
       const fAMPM = fH >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
       fH = fH % 12 || 12;
       const finishStr = toNum(`${fH}:${fM} ${fAMPM}`);
-      document.getElementById('finishTimeText').textContent = translations[lang].finishAt + finishStr;
+      
+      let dateSuffix = "";
+      if (finishTimeDate.toDateString() !== new Date().toDateString()) {
+          const tomorrow = new Date(); 
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          if (finishTimeDate.toDateString() === tomorrow.toDateString()) {
+              dateSuffix = translations[lang].tomorrow;
+          } else {
+              dateSuffix = " (" + toNum(finishTimeDate.toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', {month: 'short', day: 'numeric'})) + ")";
+          }
+      }
+      
+      document.getElementById('finishTimeText').textContent = translations[lang].finishAt + finishStr + dateSuffix;
 
       if (!ambientGlow.classList.contains("prayer-glow-active")) {
           if (diffMs > 0 && diffMs <= 60000 && isTimerRunning) {
@@ -867,7 +880,8 @@
       e.preventDefault();
       const { ang, dist } = getMouseData(e);
 
-      if (dist > 330) { triggerSnapEasterEgg(); return; }
+      // UPGRADE: 50% increase in snap range. (Changed from 330 to 495)
+      if (dist > 495) { triggerSnapEasterEgg(); return; }
 
       dragRadius = Math.max(120, dist);
 
