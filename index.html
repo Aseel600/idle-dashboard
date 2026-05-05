@@ -356,6 +356,7 @@
     
     let originalDurationMs = 15 * 60000; 
     let timerDurationMs = originalDurationMs;
+    let rawTimerDurationMs = timerDurationMs; // FIX: Tracking continuous dragging accuracy
     let timerEndTime = Date.now() + timerDurationMs;
     let isTimerRunning = true; 
 
@@ -608,6 +609,7 @@
         btn.onclick = () => { 
           originalDurationMs = m * 60000;
           timerDurationMs = originalDurationMs;
+          rawTimerDurationMs = originalDurationMs; // FIX: Ensure raw syncs when quick buttons pressed
           timerEndTime = Date.now() + timerDurationMs; 
           isTimerRunning = true; 
           updateLiveTimer(); 
@@ -691,7 +693,6 @@
       ballTrail.style.transition = `x2 ${throwDuration} ${throwCurve}, y2 ${throwDuration} ${throwCurve}, x1 ${throwDuration} 0.15s ${throwCurve}, y1 ${throwDuration} 0.15s ${throwCurve}, opacity 1s 1.5s ease-out`;
       ballTrail.setAttribute("x2", flingX); ballTrail.setAttribute("y2", flingY); ballTrail.setAttribute("x1", flingX); ballTrail.setAttribute("y1", flingY); ballTrail.style.opacity = "0";
 
-      // UPGRADE: Match the return time perfectly to the 2.5s throw animation
       setTimeout(() => {
         endHandle.style.transition = "none"; endHandle.style.opacity = "0"; dragRadius = radius; updateLiveTimer(); 
         setTimeout(() => {
@@ -748,12 +749,11 @@
       let diffMs;
       if (isTimerRunning) {
         diffMs = timerEndTime - now;
-        
         if (diffMs <= 0) {
           isTimerRunning = false;
           timerDurationMs = originalDurationMs;
+          rawTimerDurationMs = originalDurationMs;
           diffMs = originalDurationMs;
-          
           triggerShootingStar();
           if (isSpotifyPlaying) spotifyPause(); 
         } else {
@@ -810,7 +810,7 @@
 
       document.title = `${displayTitle.textContent} • ${toNum(tabTimeStr)}`;
       
-      // UPGRADE: Calculate Finish Time with Date/Tomorrow checking
+      // Calculate Finish Time with Date/Tomorrow checking
       const finishTimeDate = new Date(now + diffMs);
       let fH = finishTimeDate.getHours();
       const fM = finishTimeDate.getMinutes().toString().padStart(2, '0');
@@ -871,6 +871,7 @@
       if (e.target === endHandle && !isBroken) {
         dragging = true; prevMouseAngle = null; 
         isTimerRunning = false; 
+        rawTimerDurationMs = timerDurationMs; // FIX: Sync raw tracker when grab starts
         endHandle.classList.remove("snap-back"); dragString.style.opacity = "1"; e.target.classList.add("dragging");
       }
     }
@@ -880,7 +881,6 @@
       e.preventDefault();
       const { ang, dist } = getMouseData(e);
 
-      // UPGRADE: 50% increase in snap range. (Changed from 330 to 495)
       if (dist > 495) { triggerSnapEasterEgg(); return; }
 
       dragRadius = Math.max(120, dist);
@@ -888,13 +888,17 @@
       if (prevMouseAngle === null) { prevMouseAngle = ang; return; }
       let deltaAngle = ang - prevMouseAngle; if (deltaAngle > 180) deltaAngle -= 360; if (deltaAngle < -180) deltaAngle += 360;
 
-      timerDurationMs += deltaAngle * 2 * 60 * 1000; 
-      if (timerDurationMs < 0) timerDurationMs = 0;
+      // FIX: Apply continuous dragging math to raw tracker, not the snapped value
+      rawTimerDurationMs += deltaAngle * 2 * 60 * 1000; 
+      if (rawTimerDurationMs < 0) rawTimerDurationMs = 0;
       prevMouseAngle = ang;
 
       if (dist < radius - 5) {
-        const snapMs = 5 * 60 * 1000; timerDurationMs = Math.round(timerDurationMs / snapMs) * snapMs;
-      } 
+        const snapMs = 5 * 60 * 1000; 
+        timerDurationMs = Math.round(rawTimerDurationMs / snapMs) * snapMs; // Snap only the output
+      } else {
+        timerDurationMs = rawTimerDurationMs; // No snap, perfectly smooth
+      }
       originalDurationMs = timerDurationMs;
       updateLiveTimer(); 
     }
