@@ -3,18 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Live Ambient Dashboard</title>
+  <title>Ambient OS | Dashboard (Dev Branch)</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    /* ==========================================
+       1. CSS RESET & DYNAMIC VARIABLES
+       ========================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-    /* --- Dynamic Color Variables --- */
     :root {
       --bg-color-main: #050505;
       --bg-color-panel: rgba(15, 15, 18, 0.85);
       --text-primary: #ffffff;
       --text-secondary: #888888;
-      --input-bg: rgba(255,255,255,0.05);
-      --input-border: rgba(255,255,255,0.1);
+      --input-bg: rgba(255, 255, 255, 0.05);
+      --input-border: rgba(255, 255, 255, 0.1);
       --clock-bg: #0a0a0c;
       --clock-stroke: #111111;
       --clock-inner: #0f0f13;
@@ -28,8 +34,8 @@
       --bg-color-panel: rgba(255, 255, 255, 0.85);
       --text-primary: #111111;
       --text-secondary: #666666;
-      --input-bg: rgba(0,0,0,0.04);
-      --input-border: rgba(0,0,0,0.1);
+      --input-bg: rgba(0, 0, 0, 0.04);
+      --input-border: rgba(0, 0, 0, 0.1);
       --clock-bg: #e5e5e5;
       --clock-stroke: #d0d0d0;
       --clock-inner: #f0f0f0;
@@ -38,33 +44,702 @@
     }
 
     body {
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: radial-gradient(circle at top, rgba(120, 120, 120, 0.05), transparent 40%), var(--bg-color-main);
-      color: var(--text-primary); overflow: hidden; user-select: none; transition: direction 0.3s ease, background-color 0.4s ease;
+      color: var(--text-primary);
+      overflow: hidden;
+      user-select: none;
+      transition: direction 0.3s ease, background-color 0.4s ease;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    body[dir="rtl"] { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    
-    body[dir="rtl"] .side-panel {
-      right: auto; left: 0; transform: translateX(calc(-100% + 40px));
-      border-left: none; border-right: 1px solid var(--input-border); padding: 40px 50px 30px 30px;
+    /* ==========================================
+       2. RTL SUPPORT (ARABIC)
+       ========================================== */
+    body[dir="rtl"] {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
-    body[dir="rtl"] .side-panel:hover { transform: translateX(0); }
-    body[dir="rtl"] .panel-tab { left: auto; right: 15px; transform: translateY(-50%) rotate(180deg); }
-    body[dir="rtl"] .ambient-info { left: auto; right: 24px; text-align: right; }
-    body[dir="rtl"] .now-playing { left: auto; right: 24px; flex-direction: row-reverse; text-align: right; }
-    body[dir="rtl"] .edit-btn { float: left; }
-    body[dir="rtl"] .spotify-controls { flex-direction: row-reverse; }
 
-    /* --- Shooting Star Layer & Holy Glow --- */
-    .star-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; --star-color: var(--accent); }
-    .ambient-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s linear; }
-    
+    body[dir="rtl"] .side-panel {
+      right: auto;
+      left: 0;
+      transform: translateX(calc(-100% + 40px));
+      border-left: none;
+      border-right: 1px solid var(--input-border);
+      padding: 40px 50px 30px 30px;
+    }
+
+    body[dir="rtl"] .side-panel:hover {
+      transform: translateX(0);
+    }
+
+    body[dir="rtl"] .panel-tab {
+      left: auto;
+      right: 15px;
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    body[dir="rtl"] .ambient-info {
+      left: auto;
+      right: 24px;
+      text-align: right;
+    }
+
+    body[dir="rtl"] .now-playing {
+      left: auto;
+      right: 24px;
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+
+    body[dir="rtl"] .zen-toggle {
+      right: auto;
+      left: 24px;
+    }
+
+    body[dir="rtl"] .dev-menu {
+      right: auto;
+      left: 20px;
+    }
+
+    /* ==========================================
+       3. ZEN / FOCUS MODE
+       ========================================== */
+    body.focus-mode .side-panel, 
+    body.focus-mode .horizon-scoreboard, 
+    body.focus-mode .now-playing, 
+    body.focus-mode .ambient-info, 
+    body.focus-mode .timeline-container, 
+    body.focus-mode .dev-menu {
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .zen-toggle {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .zen-toggle:hover {
+      color: var(--text-primary);
+      border-color: var(--accent);
+      transform: scale(1.1);
+    }
+
+    /* ==========================================
+       4. DEV MENU
+       ========================================== */
+    .dev-menu {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(20, 0, 0, 0.85);
+      border: 1px solid #ff4757;
+      padding: 10px 15px;
+      border-radius: 8px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(10px);
+      transition: opacity 0.3s;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .dev-header {
+      color: #ff4757;
+      font-size: 0.7rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: center;
+      cursor: move;
+      padding: 5px;
+      border-bottom: 1px solid rgba(255, 71, 87, 0.3);
+      margin-bottom: 5px;
+    }
+
+    .dev-btn {
+      background: #ff4757;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .dev-btn:hover {
+      background: #ff6b81;
+      transform: scale(1.05);
+    }
+
+    /* ==========================================
+       5. HORIZONTAL TIMELINE
+       ========================================== */
+    .timeline-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 90px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+      mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+      -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+      z-index: 80;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .timeline-reticle {
+      position: fixed;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: monospace;
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: var(--accent);
+      text-shadow: 0 0 15px var(--accent);
+      z-index: 85;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: color 0.4s, text-shadow 0.4s;
+    }
+
+    .timeline-reticle::after {
+      content: '▼';
+      font-size: 0.8rem;
+      margin-top: -2px;
+    }
+
+    .timeline-tape {
+      position: absolute;
+      top: 55px;
+      height: 35px;
+      width: 4320px;
+      transition: transform 0.2s linear;
+    }
+
+    .timeline-core-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .timeline-dot {
+      position: absolute;
+      top: -3px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(-50%);
+    }
+
+    .timeline-label {
+      position: absolute;
+      top: 12px;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .timeline-segment {
+      position: absolute;
+      top: -1px;
+      height: 4px;
+      border-radius: 4px;
+      box-shadow: 0 0 8px currentColor;
+      transition: 0.3s;
+    }
+
+    .timeline-segment-label {
+      position: absolute;
+      top: -20px;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      font-weight: bold;
+      color: currentColor;
+      white-space: nowrap;
+    }
+
+    /* ==========================================
+       6. HORIZON SCOREBOARD
+       ========================================== */
+    .horizon-scoreboard {
+      position: fixed;
+      top: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 15px;
+      z-index: 70;
+      transition: opacity 0.5s ease;
+    }
+
+    .goal-pill {
+      background: var(--bg-color-panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--input-border);
+      padding: 8px 16px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: var(--text-secondary);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .goal-pill.completed {
+      color: var(--text-primary);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px rgba(0, 198, 255, 0.2);
+    }
+
+    .goal-pill .indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--input-border);
+      transition: 0.3s;
+    }
+
+    .goal-pill.completed .indicator {
+      background: var(--accent);
+    }
+
+    /* ==========================================
+       7. ADD TASK MODAL
+       ========================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-content {
+      background: var(--bg-color-panel);
+      border: 1px solid var(--input-border);
+      padding: 30px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--text-primary);
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .mini-clock-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .mini-clock-svg {
+      width: 180px;
+      height: 180px;
+      overflow: visible;
+    }
+
+    .mini-bg {
+      fill: var(--clock-inner);
+      stroke: var(--input-border);
+      stroke-width: 2;
+    }
+
+    .mini-arc {
+      fill: none;
+      stroke-width: 6;
+      stroke-linecap: round;
+    }
+
+    .mini-handle {
+      cursor: grab;
+      stroke: white;
+      stroke-width: 2;
+    }
+
+    .mini-handle:active {
+      cursor: grabbing;
+      transform: scale(1.2);
+    }
+
+    .mini-time-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .mini-time-text {
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+
+    .mini-time-sub {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin: 10px 0;
+    }
+
+    .color-swatch {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: 0.2s;
+      background: currentColor;
+    }
+
+    .color-swatch.active {
+      border-color: white;
+      transform: scale(1.15);
+      box-shadow: 0 0 12px currentColor;
+    }
+
+    .modal-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .modal-btn.save {
+      background: var(--accent);
+      color: white;
+    }
+
+    .modal-btn.cancel {
+      background: var(--input-bg);
+      color: var(--text-secondary);
+      border: 1px solid var(--input-border);
+    }
+
+    /* ==========================================
+       8. SIDE PANEL (RIGHT)
+       ========================================== */
+    .side-panel {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      transform: translateX(calc(100% - 40px));
+      background: var(--bg-color-panel);
+      backdrop-filter: blur(16px);
+      border-left: 1px solid var(--input-border);
+      padding: 40px 30px 30px 50px;
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), background 0.4s, border-color 0.4s;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      width: 320px;
+      overflow-y: auto;
+    }
+
+    .side-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .side-panel::-webkit-scrollbar-thumb {
+      background: rgba(120, 120, 120, 0.2);
+      border-radius: 10px;
+    }
+
+    .side-panel:hover {
+      transform: translateX(0);
+    }
+
+    .panel-tab {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-secondary);
+      font-size: 24px;
+      font-weight: bold;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      opacity: 0.5;
+    }
+
+    .side-panel:hover .panel-tab {
+      opacity: 0;
+    }
+
+    .panel-header {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: -10px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .title-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-primary);
+      padding: 12px;
+      border-radius: 8px;
+      outline: none;
+      font-size: 1rem;
+      transition: background 0.4s, color 0.4s;
+    }
+
+    .title-input:focus {
+      border-color: rgba(120, 120, 120, 0.3);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+    }
+
+    .theme-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .theme-dot.active {
+      border-color: var(--text-primary);
+      transform: scale(1.15);
+    }
+
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+      gap: 8px;
+    }
+
+    .quick-grid.tight {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .quick-btn {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 8px 4px;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .quick-btn:hover, .quick-btn.active-lang {
+      background: rgba(120, 120, 120, 0.15);
+      color: var(--text-primary);
+      border-color: rgba(120, 120, 120, 0.3);
+    }
+
+    .add-task-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 1px dashed var(--input-border);
+      color: var(--text-secondary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .add-task-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ==========================================
+       9. SLIDERS
+       ========================================== */
+    .slider-container {
+      display: flex;
+      background: var(--input-bg);
+      border-radius: 10px;
+      padding: 3px;
+      position: relative;
+      margin-top: 10px;
+      border: 1px solid var(--input-border);
+      height: 38px;
+      cursor: pointer;
+    }
+
+    .slider-bg {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: calc(50% - 3px);
+      height: calc(100% - 6px);
+      background: var(--accent);
+      border-radius: 8px;
+      z-index: 1;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    }
+
+    body[dir="rtl"] .slider-bg {
+      left: auto;
+      right: 3px;
+    }
+
+    .slider-opt {
+      flex: 1;
+      text-align: center;
+      z-index: 2;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.3s;
+    }
+
+    .slider-opt.active {
+      color: #ffffff;
+    }
+
+    .slide-second {
+      transform: translateX(100%);
+    }
+
+    body[dir="rtl"] .slide-second {
+      transform: translateX(-100%);
+    }
+
+    /* ==========================================
+       10. EFFECTS (STARS, GLOW)
+       ========================================== */
+    .star-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      --star-color: var(--accent);
+    }
+
+    .ambient-glow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 1s linear;
+    }
+
     @keyframes holyPulse {
       0%, 100% { opacity: 0.3; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.1); }
     }
+
     .prayer-glow-active {
       background: radial-gradient(circle at top, rgba(255, 215, 0, 0.35) 0%, transparent 60%) !important;
       animation: holyPulse 4s infinite ease-in-out !important;
@@ -72,157 +747,367 @@
     }
 
     .shooting-star {
-      position: absolute; top: 50%; left: 50%; width: 0px; height: 3px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0px;
+      height: 3px;
       background: linear-gradient(to right, transparent 0%, var(--star-color) 80%, #ffffff 100%);
-      border-radius: 50px; filter: drop-shadow(0 0 15px var(--star-color)) drop-shadow(0 0 30px var(--star-color));
-      opacity: 0; transform-origin: right center; 
+      border-radius: 50px;
+      filter: drop-shadow(0 0 15px var(--star-color));
+      opacity: 0;
+      transform-origin: right center;
     }
-    .shooting-star::after {
-      content: ''; position: absolute; top: 50%; right: 0; transform: translateY(-50%);
-      width: 6px; height: 6px; background: #fff; border-radius: 50%; box-shadow: 0 0 15px 4px var(--star-color);
+
+    .shooting-star.shoot {
+      animation: starFly 2.5s ease-out forwards;
     }
-    .shooting-star.shoot { animation: starFly 2.5s ease-out forwards; }
+
     @keyframes starFly {
       0% { transform: rotate(135deg) translateX(-120vmax); width: 0px; opacity: 0; }
       10% { opacity: 1; width: 100px; }
-      20% { width: 400px; }
-      80% { width: 400px; opacity: 1; }
       100% { transform: rotate(135deg) translateX(120vmax); width: 0px; opacity: 0; }
     }
 
-    /* --- Now Playing Widget (Spotify) --- */
+    /* ==========================================
+       11. SPOTIFY WIDGET
+       ========================================== */
     .now-playing {
-      position: fixed; top: 24px; left: 24px; display: flex; align-items: center; gap: 14px;
-      background: var(--now-playing-bg); backdrop-filter: blur(10px);
-      border: 1px solid var(--input-border); border-radius: 12px; padding: 12px 16px 12px 12px;
-      opacity: 0; transform: translateY(-10px); transition: opacity 0.5s ease, transform 0.5s ease, background 0.4s, border-color 0.4s;
-      z-index: 50; 
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--now-playing-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      padding: 12px 16px 12px 12px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      z-index: 50;
     }
-    .now-playing.active { opacity: 1; transform: translateY(0); }
-    .album-art { width: 56px; height: 56px; border-radius: 8px; background: #222; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .track-info { display: flex; flex-direction: column; gap: 4px; }
-    .track-name { font-size: 0.95rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; gap: 8px;}
-    .artist-name { font-size: 0.8rem; color: var(--text-secondary); }
-    
-    .spotify-controls { display: flex; align-items: center; gap: 12px; margin-top: 2px; }
-    .sp-btn { background: none; border: none; color: var(--sp-btn-color); cursor: pointer; font-size: 1.1rem; transition: color 0.2s, transform 0.2s; padding: 0; display: flex; align-items: center; justify-content: center;}
-    .sp-btn:hover { color: var(--text-primary); transform: scale(1.1); }
-    .sp-btn.play-pause { color: var(--text-primary); font-size: 1.3rem; }
-    .sp-btn.play-pause:hover { color: var(--star-color, #00c6ff); }
 
-    .eq-bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; opacity: 0; transition: opacity 0.3s; }
-    .eq-bars.playing { opacity: 1; }
-    .eq-bar { width: 3px; background-color: var(--star-color, #00c6ff); border-radius: 2px; animation: eqBounce 1s infinite ease-in-out; }
+    .now-playing.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .album-art {
+      width: 56px;
+      height: 56px;
+      border-radius: 8px;
+      background: #222;
+      object-fit: cover;
+    }
+
+    .track-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .spotify-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 2px;
+    }
+
+    .sp-btn {
+      background: none;
+      border: none;
+      color: var(--sp-btn-color);
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: 0.2s;
+    }
+
+    .sp-btn:hover {
+      color: var(--text-primary);
+      transform: scale(1.1);
+    }
+
+    .eq-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 2px;
+      height: 12px;
+      opacity: 0;
+      transition: 0.3s;
+    }
+
+    .eq-bars.playing {
+      opacity: 1;
+    }
+
+    .eq-bar {
+      width: 3px;
+      background-color: var(--accent);
+      border-radius: 2px;
+      animation: eqBounce 1s infinite ease-in-out;
+    }
+
     .eq-bar:nth-child(1) { height: 60%; animation-delay: 0s; }
     .eq-bar:nth-child(2) { height: 100%; animation-delay: 0.2s; }
     .eq-bar:nth-child(3) { height: 40%; animation-delay: 0.4s; }
-    @keyframes eqBounce { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1); } }
-    .eq-bars:not(.playing) .eq-bar { animation: none; height: 2px; } 
 
-    /* --- Clock & Interface --- */
-    .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; position: relative; z-index: 10; pointer-events: none; }
-    .display-title { font-size: 1.15rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 30px; opacity: 0.8; }
-    svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5)); pointer-events: auto; }
-
-    .clock-bg { fill: var(--clock-bg); stroke: var(--clock-stroke); transition: fill 0.4s, stroke 0.4s; }
-    .clock-inner { fill: var(--clock-inner); transition: fill 0.4s; }
-    .clock-text { fill: var(--text-secondary); transition: fill 0.4s; }
-    
-    /* Ultra Minimal Timer Glide CSS */
-    .clock-value { fill: var(--text-primary); cursor: pointer; transition: fill 0.4s, opacity 0.2s; }
-    .clock-value.paused { opacity: 0.4; }
-    .time-part { transition: font-size 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease; }
-    .time-part.hidden { font-size: 0px; opacity: 0; }
-
-    .drag-string { fill: none; stroke: rgba(120, 120, 120, 0.5); stroke-linecap: round; opacity: 0; transition: opacity 0.2s; }
-    .ball-trail { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px rgba(120, 120, 120, 0.4)); }
-    .handle { cursor: grab; transform-box: fill-box; transform-origin: center; transition: stroke-width 0.2s, transform 0.2s; }
-    .handle:hover { stroke: rgba(120,120,120,0.3); stroke-width: 6px; }
-    .handle:active, .handle.dragging { cursor: grabbing; transform: scale(1.4); filter: drop-shadow(0 0 8px currentColor); }
-    .handle.snap-back { transition: stroke-width 0.2s, transform 0.2s, cx 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), cy 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .playhead { transition: all 0.1s linear; filter: drop-shadow(0 0 4px rgba(120,120,120,0.5)); }
-
-    /* --- Customization Side Panel --- */
-    .side-panel {
-      position: fixed; right: 0; top: 0; bottom: 0; transform: translateX(calc(100% - 40px));
-      background: var(--bg-color-panel); backdrop-filter: blur(16px); border-left: 1px solid var(--input-border);
-      padding: 40px 30px 30px 50px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), background 0.4s, border-color 0.4s;
-      z-index: 100; display: flex; flex-direction: column; gap: 24px; width: 320px; overflow-y: auto;
+    @keyframes eqBounce {
+      0%, 100% { transform: scaleY(0.5); }
+      50% { transform: scaleY(1); }
     }
-    
-    .side-panel::-webkit-scrollbar { width: 6px; }
-    .side-panel::-webkit-scrollbar-thumb { background: rgba(120,120,120,0.2); border-radius: 10px; }
-    .side-panel:hover { transform: translateX(0); }
-    .panel-tab { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 24px; font-weight: bold; pointer-events: none; transition: opacity 0.3s; opacity: 0.5; }
-    .side-panel:hover .panel-tab { opacity: 0; }
-    
-    .panel-header { font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: -10px; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .edit-btn { cursor: pointer; opacity: 0.4; font-size: 1rem; transition: opacity 0.2s; color: var(--text-primary); }
-    .edit-btn:hover { opacity: 1; }
 
-    .title-input { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); padding: 12px; border-radius: 8px; outline: none; font-size: 1rem; transition: background 0.4s, color 0.4s; }
-    .title-input:focus { border-color: rgba(120,120,120,0.3); }
+    .eq-bars:not(.playing) .eq-bar {
+      animation: none;
+      height: 2px;
+    }
 
-    .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-    .theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; }
-    .theme-dot:hover { transform: scale(1.15); }
-    .theme-dot.active { border-color: var(--text-primary); transform: scale(1.15); }
+    .spotify-btn-brand {
+      background: #1DB954;
+      color: white !important;
+      font-weight: bold;
+      border-color: #1DB954;
+      padding: 12px;
+      margin-top: 10px;
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-    .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; }
-    .quick-grid.tight { grid-template-columns: repeat(5, 1fr); }
-    
-    .quick-btn { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 6px; color: var(--text-secondary); cursor: pointer; padding: 8px 4px; font-size: 0.8rem; transition: all 0.2s; }
-    .quick-btn:hover, .quick-btn.active-lang { background: rgba(120,120,120,0.15); color: var(--text-primary); border-color: rgba(120,120,120,0.3); }
+    #spotifyDeviceBlock {
+      margin-top: 30px !important;
+      border-top: 1px solid var(--input-border);
+      padding-top: 15px;
+    }
 
-    /* Ambient Info Zone */
+    .sp-device-select {
+      margin-top: 8px;
+      width: 100%;
+      font-size: 0.85rem;
+      padding: 8px;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      outline: none;
+    }
+
+    /* ==========================================
+       12. MAIN CLOCK ENGINE
+       ========================================== */
+    .container {
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .display-title {
+      font-size: 1.15rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      margin-bottom: 30px;
+      transition: color 0.4s;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+      pointer-events: auto;
+    }
+
+    .clock-bg {
+      fill: var(--clock-bg);
+      stroke: var(--clock-stroke);
+      transition: fill 0.4s, stroke 0.4s;
+    }
+
+    .clock-inner {
+      fill: var(--clock-inner);
+      transition: fill 0.4s;
+    }
+
+    .clock-text {
+      fill: var(--text-secondary);
+      transition: fill 0.4s;
+    }
+
+    .clock-value {
+      fill: var(--text-primary);
+      cursor: pointer;
+      transition: fill 0.4s, opacity 0.2s;
+    }
+
+    .clock-value.paused {
+      opacity: 0.4;
+    }
+
+    .time-part {
+      transition: font-size 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+    }
+
+    .time-part.hidden {
+      font-size: 0px;
+      opacity: 0;
+    }
+
+    /* RESTORED: Explicit unminified properties */
+    .drag-string {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.3);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .ball-trail {
+      opacity: 0;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(120, 120, 120, 0.4));
+    }
+
+    .handle {
+      cursor: grab;
+      transform-box: fill-box;
+      transform-origin: center;
+      transition: stroke-width 0.2s, transform 0.2s;
+    }
+
+    .handle:hover {
+      stroke: rgba(120, 120, 120, 0.3);
+      stroke-width: 6px;
+    }
+
+    .handle:active, .handle.dragging {
+      cursor: grabbing;
+      transform: scale(1.4);
+      filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .handle.snap-back {
+      transition: stroke-width 0.2s, transform 0.2s, cx 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), cy 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ==========================================
+       13. AMBIENT INFO BOTTOM
+       ========================================== */
     .ambient-info {
-      position: fixed; bottom: 24px; left: 24px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
-      opacity: 0.3; font-size: 0.9rem; letter-spacing: 0.05em; transition: opacity 0.3s ease; pointer-events: none;
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      opacity: 0.3;
+      font-size: 0.9rem;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
     }
-    body:hover .ambient-info { opacity: 0.7; }
-    .prayer-info { color: var(--text-secondary); font-size: 0.85rem; display: flex; align-items: center; gap: 6px;}
-    .prayer-name { font-weight: bold; color: var(--text-primary); transition: color 0.5s; }
-    .prayer-countdown { color: var(--star-color, #00c6ff); }
 
-    /* Prayer Highlight State */
-    .prayer-text-highlight { color: #FFD700 !important; text-shadow: 0 0 10px rgba(255, 215, 0, 0.4); font-size: 0.95rem; }
-    
-    /* --- ANIMATED SLIDERS (FIXED FOR RTL) --- */
-    .slider-container {
-      display: flex; background: var(--input-bg); border-radius: 10px;
-      padding: 3px; position: relative; margin-top: 10px; border: 1px solid var(--input-border);
-      height: 38px; cursor: pointer;
+    body:hover .ambient-info {
+      opacity: 0.7;
     }
-    .slider-bg {
-      position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px);
-      background: var(--accent); border-radius: 8px; z-index: 1;
-      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-    body[dir="rtl"] .slider-bg { left: auto; right: 3px; }
-    
-    .slider-opt {
-      flex: 1; text-align: center; z-index: 2; color: var(--text-secondary); font-size: 0.8rem;
-      font-weight: bold; display: flex; align-items: center; justify-content: center; transition: color 0.3s;
-    }
-    .slider-opt.active { color: #ffffff; }
-    
-    .slide-second { transform: translateX(100%); }
-    body[dir="rtl"] .slide-second { transform: translateX(-100%); }
 
-    /* --- Spotify Specific UI Fix --- */
-    .spotify-btn-brand { background: #1DB954; color: white !important; font-weight: bold; border-color: #1DB954; padding: 12px; }
-    .spotify-btn-brand:hover { background: #1ed760 !important; border-color: #1ed760 !important; }
-    
-    #spotifyDeviceBlock { margin-top: 30px !important; border-top: 1px solid var(--input-border); padding-top: 15px; }
-    .sp-device-select { margin-top: 8px; width: 100%; font-size: 0.85rem; padding: 8px; background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); border-radius: 8px; outline: none; }
+    .prayer-info {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prayer-name {
+      font-weight: bold;
+      color: var(--text-primary);
+      transition: color 0.5s;
+    }
+
+    .prayer-countdown {
+      color: var(--accent);
+    }
+
+    .prayer-text-highlight {
+      color: #FFD700 !important;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      font-size: 0.95rem;
+    }
+
   </style>
 </head>
 <body>
+
+  <div class="dev-menu" id="devMenu">
+    <div class="dev-header" id="devHeader">Test Tools (Drag Me)</div>
+    <button class="dev-btn" onclick="triggerShootingStar()">Shooting Star</button>
+    <button class="dev-btn" onclick="playChime()">Play Chime</button>
+    <button class="dev-btn" onclick="triggerSnapEasterEgg()">Trigger Snap</button>
+    <button class="dev-btn" onclick="testHolyGlow()" id="glowBtn">Simulate Azan Glow</button>
+  </div>
+
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal-content">
+      <div class="modal-header">Schedule New Task</div>
+      <input type="text" class="title-input" id="newTaskName" placeholder="Task Name..." style="margin-bottom: 10px;" />
+      
+      <div class="mini-clock-container">
+        <svg class="mini-clock-svg" id="miniClock" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" class="mini-bg" />
+          <path id="miniArc" class="mini-arc" d="" />
+          <circle id="miniStartH" cx="100" cy="20" r="8" fill="#ffffff" class="mini-handle" />
+          <circle id="miniEndH" cx="100" cy="20" r="8" fill="#ffffff" class="mini-handle" />
+        </svg>
+        <div class="mini-time-display">
+          <div class="mini-time-text" id="miniTimeStart">12:00 AM</div>
+          <div class="mini-time-sub">to</div>
+          <div class="mini-time-text" id="miniTimeEnd">01:00 AM</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 10px;">Accent Color</div>
+      <div class="color-grid">
+        <div class="color-swatch active" style="color: #ff4757;" onclick="selectTaskColor('#ff4757', this)"></div>
+        <div class="color-swatch" style="color: #ffa502;" onclick="selectTaskColor('#ffa502', this)"></div>
+        <div class="color-swatch" style="color: #eccc68;" onclick="selectTaskColor('#eccc68', this)"></div>
+        <div class="color-swatch" style="color: #7bed9f;" onclick="selectTaskColor('#7bed9f', this)"></div>
+        <div class="color-swatch" style="color: #2ed573;" onclick="selectTaskColor('#2ed573', this)"></div>
+        <div class="color-swatch" style="color: #1e90ff;" onclick="selectTaskColor('#1e90ff', this)"></div>
+        <div class="color-swatch" style="color: #5352ed;" onclick="selectTaskColor('#5352ed', this)"></div>
+        <div class="color-swatch" style="color: #3742fa;" onclick="selectTaskColor('#3742fa', this)"></div>
+        <div class="color-swatch" style="color: #9b59b6;" onclick="selectTaskColor('#9b59b6', this)"></div>
+        <div class="color-swatch" style="color: #ff6b81;" onclick="selectTaskColor('#ff6b81', this)"></div>
+        <div class="color-swatch" style="color: #ffffff;" onclick="selectTaskColor('#ffffff', this)"></div>
+        <div class="color-swatch" style="color: #888888;" onclick="selectTaskColor('#888888', this)"></div>
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeTaskModal()">Cancel</button>
+        <button class="modal-btn save" onclick="addScheduledTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
 
   <div id="starLayer" class="star-layer">
     <div id="ambientGlow" class="ambient-glow"></div>
     <div id="shootingStar" class="shooting-star"></div>
   </div>
+
+  <div class="timeline-container" id="timelineContainer">
+    <div class="timeline-reticle" id="timelineReticleText">12:00 PM</div>
+    <div class="timeline-tape" id="timelineTape">
+      <div class="timeline-core-line"></div>
+      </div>
+  </div>
+
+  <div class="horizon-scoreboard" id="horizonScoreboard"></div>
 
   <div class="now-playing" id="nowPlaying">
     <img src="" alt="Album Art" class="album-art" id="npArt">
@@ -230,15 +1115,16 @@
       <div class="track-name">
         <span id="npTrack">Loading...</span>
         <div class="eq-bars" id="eqBars">
-          <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
+          <div class="eq-bar"></div>
         </div>
       </div>
-      <div class="artist-name" id="npArtist">Artist Name</div>
-      
+      <div class="artist-name" id="npArtist" style="font-size:0.8rem; color:var(--text-secondary);">Artist Name</div>
       <div class="spotify-controls">
-        <button class="sp-btn" onclick="spotifyAction('previous')" title="Previous">⏮</button>
-        <button class="sp-btn play-pause" id="spPlayBtn" onclick="spotifyTogglePlay()" title="Play/Pause">⏯</button>
-        <button class="sp-btn" onclick="spotifyAction('next')" title="Next">⏭</button>
+        <button class="sp-btn" onclick="spotifyAction('previous')">⏮</button>
+        <button class="sp-btn play-pause" id="spPlayBtn" onclick="spotifyTogglePlay()">⏯</button>
+        <button class="sp-btn" onclick="spotifyAction('next')">⏭</button>
       </div>
     </div>
   </div>
@@ -254,8 +1140,20 @@
     </div>
   </div>
 
+  <div class="zen-toggle" onclick="toggleFocusMode()" title="Toggle Focus Mode">✧</div>
+
   <div class="side-panel">
     <div class="panel-tab">‹</div>
+
+    <div class="panel-header" style="margin-top: 0; color: var(--text-primary);">Tasks & Goals</div>
+    <button class="add-task-btn" style="margin-top: 10px;" onclick="openTaskModal()">+ Add New Task</button>
+    
+    <div class="input-row" style="margin-top: 10px;">
+      <input type="text" class="title-input" id="newGoalName" placeholder="Daily Goal (e.g. Gym)..." />
+      <button class="add-task-btn" style="margin-top:0; width: 60px;" onclick="addDailyGoal()">Add</button>
+    </div>
+
+    <hr style="border: 0; height: 1px; background: var(--input-border); margin: 15px 0 5px 0;">
     
     <div class="panel-header" data-i18n="language">Language / اللغة</div>
     <div class="slider-container" onclick="toggleLang()">
@@ -272,25 +1170,21 @@
     </div>
 
     <div class="panel-header" data-i18n="location">Location</div>
-    <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City" data-i18n-ph="enterCity" />
-
+    <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City" />
+    
     <div class="panel-header" data-i18n="displayTitle">Display Title</div>
     <input type="text" class="title-input" id="titleInput" value="System Standby" />
     
-    <div class="panel-header"><span data-i18n="quickTitles">Quick Titles</span> <span class="edit-btn" onclick="editQuickTitles()">✎</span></div>
-    <div class="quick-grid" id="titlesGrid"></div>
-
-    <div class="panel-header"><span data-i18n="quickTimers">Quick Timers</span> <span class="edit-btn" onclick="editQuickTimers()">✎</span></div>
+    <div class="panel-header"><span data-i18n="quickTimers">Quick Timers</span></div>
     <div class="quick-grid tight" id="timersGrid"></div>
-
-    <div class="panel-header" data-i18n="accentColor">Accent Color</div>
+    
+    <div class="panel-header" data-i18n="accentColor">Ambient Theme</div>
     <div class="theme-grid" id="themeGrid"></div>
-
+    
     <div class="panel-header" data-i18n="musicIntegration">Music (Spotify)</div>
     <div id="spotifyLoginBlock">
-      <button class="quick-btn spotify-btn-brand" onclick="loginSpotify()" data-i18n="loginSpotify">Log in with Spotify</button>
+      <button class="spotify-btn-brand" onclick="loginSpotify()" data-i18n="loginSpotify">Log in with Spotify</button>
     </div>
-    
     <div id="spotifyDeviceBlock" style="display: none;">
       <div class="panel-header" style="font-size: 0.7rem;" data-i18n="devices">Playback Device</div>
       <select class="title-input sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
@@ -300,7 +1194,7 @@
   </div>
 
   <div class="container">
-    <div class="display-title" id="displayTitle">System Standby</div>
+    <div class="display-title" id="displayTitle" style="font-weight: bold;">System Standby</div>
     
     <svg id="clock" viewBox="0 0 400 400">
       <defs>
@@ -311,871 +1205,1333 @@
       </defs>
 
       <circle cx="200" cy="200" r="170" class="clock-bg" stroke-width="4" />
+      <g id="scheduleArcsGroup"></g>
       <circle cx="200" cy="200" r="154" class="clock-inner" />
+      
       <g id="ticks"></g>
-
+      
       <text id="lbl12" class="clock-text" x="200" y="62" text-anchor="middle" font-size="14" font-weight="bold">12</text>
       <text id="lbl3" class="clock-text" x="342" y="205" text-anchor="middle" font-size="14" font-weight="bold">3</text>
       <text id="lbl6" class="clock-text" x="200" y="348" text-anchor="middle" font-size="14" font-weight="bold">6</text>
       <text id="lbl9" class="clock-text" x="58" y="205" text-anchor="middle" font-size="14" font-weight="bold">9</text>
-
+      
       <path id="sleepArc" fill="none" stroke="url(#dynamicGrad)" stroke-width="8" stroke-linecap="round" />
 
-      <!-- Ultra-Minimal Glide Timer Text -->
       <text id="timeValueText" class="clock-value" x="200" y="195" text-anchor="middle" font-size="40" font-weight="bold" title="Click to Pause/Play">
         <tspan id="timeH" class="time-part">00:</tspan><tspan id="timeM" class="time-part">00:</tspan><tspan id="timeS" class="time-part">00</tspan>
       </text>
-      
       <text id="timeLabelText" class="clock-text" x="200" y="225" text-anchor="middle" font-size="11" letter-spacing="3" data-i18n="remaining">REMAINING</text>
-      
-      <!-- Finish Time Display -->
       <text id="finishTimeText" class="clock-text" x="200" y="245" text-anchor="middle" font-size="12" fill="#888888" style="opacity: 0.6;">Finish at: --:--</text>
 
       <circle id="startHandle" cx="200" cy="40" r="6" fill="transparent" stroke="#ffffff" stroke-width="3" class="playhead" />
-      <path id="dragString" class="drag-string" d="" />
+      
+      <path id="dragString" class="drag-string" d="" fill="none" stroke="rgba(200, 200, 200, 0.6)" stroke-width="2.5" stroke-linecap="round" />
       <line id="ballTrail" class="ball-trail" stroke="url(#dynamicGrad)" stroke-width="6" stroke-linecap="round" x1="0" y1="0" x2="0" y2="0" />
+      
       <circle id="endHandle" cx="200" cy="40" r="8" fill="#ffffff" class="handle snap-back" />
     </svg>
   </div>
-
   <script>
-    // ==========================================
-    // 1. CONFIGURATION & STATE VARIABLES
-    // ==========================================
+    /* ==========================================
+       1. STATE & CONFIGURATION
+       ========================================== */
     const SPOTIFY_CLIENT_ID = "c5a38a61e38c4f398bc51afcdf464303"; 
     const REDIRECT_URI = window.location.origin + window.location.pathname; 
     const SPOTIFY_SCOPES = "user-read-playback-state user-modify-playback-state user-read-currently-playing";
+    
     let spotifyToken = localStorage.getItem('spotify_token');
     let spotifyTokenExpiry = localStorage.getItem('spotify_token_expiry');
     let isSpotifyPlaying = false;
     let spotifyUpdateInterval;
 
-    // Timer Variables
     const cx = 200, cy = 200, radius = 162;
     let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = false; 
     
-    let originalDurationMs = 15 * 60000; 
+    let originalDurationMs = 15 * 60000;
     let timerDurationMs = originalDurationMs;
-    let rawTimerDurationMs = timerDurationMs; // FIX: Tracking continuous dragging accuracy
+    let rawTimerDurationMs = timerDurationMs; 
     let timerEndTime = Date.now() + timerDurationMs;
     let isTimerRunning = true; 
 
-    // Localization & Config
+    let scheduledTasks = JSON.parse(localStorage.getItem('idleTasks')) || [];
+    let dailyGoals = JSON.parse(localStorage.getItem('idleGoals')) || [];
+    let activeTaskObj = null; 
+    let selectedTaskColor = '#ff4757'; 
+
     let lang = localStorage.getItem('idleLang') || 'en';
     const translations = {
       en: {
-        language: "Language / اللغة", location: "Location", displayTitle: "Display Title",
-        quickTitles: "Quick Titles", quickTimers: "Quick Timers", accentColor: "Accent Color",
-        remaining: "REMAINING", paused: "PAUSED", enterCity: "Enter City (e.g., Riyadh)",
-        displayMode: "Display Mode", dark: "Dark", light: "Light",
+        language: "Language", location: "Location", displayTitle: "Display Title", quickTimers: "Quick Timers", accentColor: "Ambient Theme",
+        remaining: "REMAINING", paused: "PAUSED", enterCity: "Enter City...", displayMode: "Display Mode", dark: "Dark", light: "Light",
         musicIntegration: "Music (Spotify)", loginSpotify: "Log in with Spotify", devices: "Playback Device", selectDevice: "Select Device",
         iqamaFor: "Iqamah: ", finishAt: "Finish at: ", tomorrow: " (Tomorrow)",
         prayerNames: { Fajr: "Fajr", Dhuhr: "Dhuhr", Asr: "Asr", Maghrib: "Maghrib", Isha: "Isha", None: "None" }
       },
       ar: {
-        language: "اللغة / Language", location: "الموقع", displayTitle: "العنوان",
-        quickTitles: "عناوين سريعة", quickTimers: "مؤقتات سريعة", accentColor: "لون المظهر",
-        remaining: "المتبقي", paused: "متوقف", enterCity: "أدخل المدينة (مثل الرياض)",
-        displayMode: "المظهر", dark: "داكن", light: "فاتح",
+        language: "اللغة", location: "الموقع", displayTitle: "العنوان", quickTimers: "مؤقتات سريعة", accentColor: "لون المظهر",
+        remaining: "المتبقي", paused: "متوقف", enterCity: "أدخل المدينة...", displayMode: "المظهر", dark: "داكن", light: "فاتح",
         musicIntegration: "الموسيقى (Spotify)", loginSpotify: "تسجيل الدخول", devices: "جهاز التشغيل", selectDevice: "اختر الجهاز",
         iqamaFor: "الإقامة: ", finishAt: "ينتهي في: ", tomorrow: " (غداً)",
         prayerNames: { Fajr: "الفجر", Dhuhr: "الظهر", Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء", None: "لا يوجد" }
       }
     };
 
-    const toNum = (str) => {
-      if (lang === 'en') return str.toString();
-      return str.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-    };
+    const toNum = (str) => lang === 'ar' ? str.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]) : str.toString();
 
-    let quickTitles = ['Standby', 'Sleeping', 'Working'];
-    let quickTimers = [10, 15, 30, 120, 180];
-    const themes = {
-      blue: { name: 'blue', start: "#00c6ff", end: "#0072ff", handle: "#00c6ff" },
-      pink: { name: 'pink', start: "#ff758c", end: "#ff7eb3", handle: "#ff758c" },
-      white: { name: 'white', start: "#ffffff", end: "#888888", handle: "#ffffff" },
-      red: { name: 'red', start: "#ff0844", end: "#ffb199", handle: "#ff0844" },
-      purple: { name: 'purple', start: "#8E2DE2", end: "#4A00E0", handle: "#8E2DE2" },
-      green: { name: 'green', start: "#0ba360", end: "#3cba92", handle: "#0ba360" },
-      orange: { name: 'orange', start: "#f12711", end: "#f5af19", handle: "#f12711" },
-      neon: { name: 'neon', start: "#00F260", end: "#0575E6", handle: "#00F260" }
+    let quickTimers = [10, 15, 30, 60, 120];
+    const themes = { 
+      blue: { name: 'blue', start: "#00c6ff", end: "#0072ff", handle: "#00c6ff" }, 
+      pink: { name: 'pink', start: "#ff758c", end: "#ff7eb3", handle: "#ff758c" }, 
+      white: { name: 'white', start: "#ffffff", end: "#888888", handle: "#ffffff" }, 
+      red: { name: 'red', start: "#ff0844", end: "#ffb199", handle: "#ff0844" }, 
+      purple: { name: 'purple', start: "#8E2DE2", end: "#4A00E0", handle: "#8E2DE2" }, 
+      green: { name: 'green', start: "#0ba360", end: "#3cba92", handle: "#0ba360" }, 
+      orange: { name: 'orange', start: "#f12711", end: "#f5af19", handle: "#f12711" } 
     };
     
-    // API & Prayer State
     let prayerTimes = {};
     let nextPrayer = null;
     let currentCity = localStorage.getItem('idleCity') || "Jeddah";
     let currentTheme = themes[localStorage.getItem('idleTheme')] || themes.blue;
-    let currentMode = localStorage.getItem('idleMode') || 'dark';
-
-    // Standard Saudi Iqamah Wait Times (in minutes)
+    let currentMode = localStorage.getItem('idleMode') || 'dark'; 
     const iqamaOffsets = { Fajr: 20, Dhuhr: 15, Asr: 15, Maghrib: 10, Isha: 15 };
 
-    // ==========================================
-    // 2. DOM ELEMENTS
-    // ==========================================
-    const clockSvg = document.getElementById("clock"), ticksGroup = document.getElementById("ticks"), sleepArc = document.getElementById("sleepArc");
-    const startHandle = document.getElementById("startHandle"), endHandle = document.getElementById("endHandle");
-    const dragString = document.getElementById("dragString"), ballTrail = document.getElementById("ballTrail");
-    const timeValueText = document.getElementById("timeValueText"), timeLabelText = document.getElementById("timeLabelText");
-    const ambientClock = document.getElementById("ambientClock"), ambientDate = document.getElementById("ambientDate"), ambientWeather = document.getElementById("ambientWeather");
-    const prayerNameEl = document.getElementById("prayerName"), prayerTimeEl = document.getElementById("prayerTime"), prayerCountdownEl = document.getElementById("prayerCountdown");
-    const titleInput = document.getElementById("titleInput"), displayTitle = document.getElementById("displayTitle");
-    const themeGrid = document.getElementById("themeGrid"), cityInput = document.getElementById("cityInput");
-    const starLayer = document.getElementById("starLayer"), ambientGlow = document.getElementById("ambientGlow"), shootingStar = document.getElementById("shootingStar");
-    const nowPlayingDiv = document.getElementById("nowPlaying"), npArt = document.getElementById("npArt"), npTrack = document.getElementById("npTrack"), npArtist = document.getElementById("npArtist");
+    const clockSvg = document.getElementById("clock");
+    const ticksGroup = document.getElementById("ticks");
+    const sleepArc = document.getElementById("sleepArc");
+    const startHandle = document.getElementById("startHandle");
+    const endHandle = document.getElementById("endHandle");
+    const dragString = document.getElementById("dragString");
+    const ballTrail = document.getElementById("ballTrail");
+    const timeValueText = document.getElementById("timeValueText");
+    const timeLabelText = document.getElementById("timeLabelText");
+    const ambientClock = document.getElementById("ambientClock");
+    const ambientDate = document.getElementById("ambientDate");
+    const ambientWeather = document.getElementById("ambientWeather");
+    const prayerNameEl = document.getElementById("prayerName");
+    const prayerTimeEl = document.getElementById("prayerTime");
+    const prayerCountdownEl = document.getElementById("prayerCountdown");
+    const titleInput = document.getElementById("titleInput");
+    const displayTitle = document.getElementById("displayTitle");
+    const themeGrid = document.getElementById("themeGrid");
+    const cityInput = document.getElementById("cityInput");
+    const starLayer = document.getElementById("starLayer");
+    const ambientGlow = document.getElementById("ambientGlow");
+    const shootingStar = document.getElementById("shootingStar");
 
-    // ==========================================
-    // 3. UI FUNCTIONS (Translations, Themes, Mode, Sliders)
-    // ==========================================
-    function toggleLang() {
-      setLanguage(lang === 'en' ? 'ar' : 'en');
+    /* ==========================================
+       2. AUDIO CHIME & ZEN MODE
+       ========================================== */
+    function playChime() { 
+      try { 
+        const ctx = new (window.AudioContext || window.webkitAudioContext)(); 
+        const osc = ctx.createOscillator(); 
+        const gain = ctx.createGain(); 
+        osc.connect(gain); 
+        gain.connect(ctx.destination); 
+        osc.type = 'sine'; 
+        osc.frequency.setValueAtTime(880, ctx.currentTime); 
+        gain.gain.setValueAtTime(0.1, ctx.currentTime); 
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5); 
+        osc.start(); 
+        osc.stop(ctx.currentTime + 1.5); 
+      } catch(e) {
+        console.error("Audio playback prevented by browser policy", e);
+      } 
+    }
+
+    function toggleFocusMode() { 
+      document.body.classList.toggle('focus-mode'); 
+    }
+
+    /* ==========================================
+       3. DEV MENU LOGIC
+       ========================================== */
+    const devMenu = document.getElementById('devMenu');
+    let devDrag = false, devX, devY;
+    
+    document.getElementById('devHeader').addEventListener('mousedown', (e) => {
+      devDrag = true; 
+      devX = e.clientX - devMenu.getBoundingClientRect().left; 
+      devY = e.clientY - devMenu.getBoundingClientRect().top;
+    });
+    
+    window.addEventListener('mousemove', (e) => {
+      if (devDrag) { 
+        devMenu.style.left = (e.clientX - devX) + 'px'; 
+        devMenu.style.top = (e.clientY - devY) + 'px'; 
+        devMenu.style.right = 'auto'; 
+      }
+    });
+    
+    window.addEventListener('mouseup', () => devDrag = false);
+
+    let isTestGlowActive = false;
+    function testHolyGlow() {
+      const btn = document.getElementById('glowBtn');
+      isTestGlowActive = !isTestGlowActive;
+      
+      if (isTestGlowActive) {
+        ambientGlow.classList.add("prayer-glow-active");
+        prayerNameEl.classList.add("prayer-text-highlight");
+        prayerNameEl.textContent = "DEV TEST: Glow Mode";
+        prayerCountdownEl.textContent = "(05:00)";
+        prayerCountdownEl.style.color = "#FFD700";
+        btn.textContent = "Reset Prayer Glow";
+      } else {
+        // Hard reset
+        ambientGlow.classList.remove("prayer-glow-active");
+        prayerNameEl.classList.remove("prayer-text-highlight");
+        btn.textContent = "Simulate Azan Glow";
+        calculateNextPrayer(); 
+      }
+    }
+
+    /* ==========================================
+       4. MODAL & MINI CLOCK LOGIC
+       ========================================== */
+    let miniStartMins = 540, miniEndMins = 600; 
+    let miniDragging = null; 
+    const mcx = 100, mcy = 100, mr = 80;
+
+    function openTaskModal() { 
+      document.getElementById('taskModal').classList.add('active'); 
+      updateMiniClock(); 
+    }
+
+    function closeTaskModal() { 
+      document.getElementById('taskModal').classList.remove('active'); 
+    }
+
+    function selectTaskColor(color, el) { 
+      selectedTaskColor = color; 
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active')); 
+      el.classList.add('active'); 
+      updateMiniClock(); 
+    }
+    
+    function format12H(mins) {
+      const h = Math.floor(mins / 60); 
+      const m = Math.floor(mins % 60).toString().padStart(2,'0');
+      let h12 = h % 12 || 12; 
+      const ampm = h >= 12 ? (lang==='en'?'PM':'م') : (lang==='en'?'AM':'ص');
+      return toNum(`${h12}:${m} ${ampm}`);
+    }
+    
+    function updateMiniClock() {
+      document.getElementById('miniTimeStart').textContent = format12H(miniStartMins);
+      document.getElementById('miniTimeEnd').textContent = format12H(miniEndMins);
+      
+      const sAng = (miniStartMins / 1440) * 360; 
+      const eAng = (miniEndMins / 1440) * 360;
+      
+      const sPos = polarToCartesian(mcx, mcy, mr, sAng); 
+      const ePos = polarToCartesian(mcx, mcy, mr, eAng);
+      
+      document.getElementById('miniStartH').setAttribute('cx', sPos.x); 
+      document.getElementById('miniStartH').setAttribute('cy', sPos.y);
+      document.getElementById('miniEndH').setAttribute('cx', ePos.x); 
+      document.getElementById('miniEndH').setAttribute('cy', ePos.y);
+      
+      let endA = eAng; 
+      if(endA < sAng) endA += 360;
+      
+      document.getElementById('miniArc').setAttribute('d', describeArc(mcx, mcy, mr, sAng, endA));
+      document.getElementById('miniArc').setAttribute('stroke', selectedTaskColor);
+    }
+
+    const miniSvg = document.getElementById('miniClock');
+    
+    miniSvg.addEventListener('mousedown', e => { 
+      if(e.target.id === 'miniStartH') miniDragging = 'start'; 
+      else if(e.target.id === 'miniEndH') miniDragging = 'end';
+    });
+    
+    window.addEventListener('mousemove', e => {
+      if(!miniDragging) return; 
+      e.preventDefault();
+      
+      const rect = miniSvg.getBoundingClientRect(); 
+      const x = e.clientX - rect.left - mcx, y = e.clientY - rect.top - mcy;
+      
+      let ang = Math.atan2(y, x) * (180/Math.PI) + 90; 
+      if(ang < 0) ang += 360;
+      
+      let mins = Math.round((ang / 360) * 1440 / 15) * 15; 
+      if(mins === 1440) mins = 0;
+      
+      if(miniDragging === 'start') miniStartMins = mins; 
+      else miniEndMins = mins;
+      
+      updateMiniClock();
+    });
+    
+    window.addEventListener('mouseup', () => { 
+      miniDragging = null; 
+    });
+
+    function addScheduledTask() {
+      const name = document.getElementById('newTaskName').value;
+      if(!name) return alert(lang === 'en' ? "Please name your task." : "الرجاء كتابة اسم المهمة.");
+      
+      const sH = Math.floor(miniStartMins / 60).toString().padStart(2,'0');
+      const sM = Math.floor(miniStartMins % 60).toString().padStart(2,'0');
+      const eH = Math.floor(miniEndMins / 60).toString().padStart(2,'0');
+      const eM = Math.floor(miniEndMins % 60).toString().padStart(2,'0');
+      
+      scheduledTasks.push({ 
+        id: Date.now(), 
+        name, 
+        start: `${sH}:${sM}`, 
+        end: `${eH}:${eM}`, 
+        color: selectedTaskColor 
+      });
+      
+      scheduledTasks.sort((a,b) => a.start.localeCompare(b.start)); 
+      localStorage.setItem('idleTasks', JSON.stringify(scheduledTasks));
+      
+      document.getElementById('newTaskName').value = ''; 
+      closeTaskModal(); 
+      renderV3UI();
+    }
+
+    function addDailyGoal() { 
+      const name = document.getElementById('newGoalName').value; 
+      if(!name) return; 
+      
+      dailyGoals.push({ id: Date.now(), name, completed: false }); 
+      localStorage.setItem('idleGoals', JSON.stringify(dailyGoals)); 
+      document.getElementById('newGoalName').value = ''; 
+      renderV3UI(); 
+    }
+
+    function toggleGoal(id) { 
+      const goal = dailyGoals.find(g => g.id === id); 
+      if(goal) { 
+        goal.completed = !goal.completed; 
+        localStorage.setItem('idleGoals', JSON.stringify(dailyGoals)); 
+        renderV3UI(); 
+      } 
+    }
+
+    /* ==========================================
+       5. HORIZONTAL TIMELINE GENERATOR
+       ========================================== */
+    function initTimeline() {
+      const tape = document.getElementById('timelineTape');
+      Array.from(tape.children).forEach(c => { 
+        if(!c.classList.contains('timeline-core-line')) c.remove(); 
+      });
+      
+      for(let h = 0; h <= 24; h++) {
+        const min = h * 60; 
+        const x = min * 3;
+        const dot = document.createElement('div');
+        dot.className = 'timeline-dot'; 
+        dot.style.left = x + 'px';
+        tape.appendChild(dot);
+
+        if(h < 24) {
+          let h12 = h % 12 || 12; 
+          let ampm = h >= 12 ? (lang==='en'?'PM':'م') : (lang==='en'?'AM':'ص');
+          const lbl = document.createElement('div');
+          lbl.className = 'timeline-label'; 
+          lbl.style.left = x + 'px';
+          lbl.textContent = toNum(`${h12} ${ampm}`);
+          tape.appendChild(lbl);
+        }
+      }
+    }
+
+    function renderTimelineSegments() {
+      const tape = document.getElementById('timelineTape');
+      document.querySelectorAll('.timeline-segment').forEach(e => e.remove());
+      
+      scheduledTasks.forEach(t => {
+        const [sH, sM] = t.start.split(':').map(Number); 
+        const [eH, eM] = t.end.split(':').map(Number);
+        const startMins = sH * 60 + sM; 
+        let endMins = eH * 60 + eM;
+        
+        if (endMins < startMins) endMins += 1440; 
+        
+        const w = (endMins - startMins) * 3; 
+        const x = startMins * 3;
+        
+        const segment = document.createElement('div');
+        segment.className = 'timeline-segment'; 
+        segment.style.left = x + 'px'; 
+        segment.style.width = w + 'px';
+        segment.style.background = t.color; 
+        segment.style.color = t.color;
+        
+        const lbl = document.createElement('div'); 
+        lbl.className = 'timeline-segment-label'; 
+        lbl.textContent = t.name; 
+        lbl.style.left = (w/2) + 'px';
+        
+        segment.appendChild(lbl); 
+        tape.appendChild(segment);
+      });
+    }
+
+    function updateTimelineHUD() {
+      const now = new Date(); 
+      const currentMins = now.getHours() * 60 + now.getMinutes() + (now.getSeconds() / 60);
+      const tape = document.getElementById('timelineTape');
+      const offset = (window.innerWidth / 2) - (currentMins * 3);
+      tape.style.transform = `translateX(${offset}px)`;
+      
+      let h = now.getHours(); 
+      const m = now.getMinutes().toString().padStart(2, '0');
+      let h12 = h % 12 || 12; 
+      const ampm = h >= 12 ? (lang==='en'?'PM':'م') : (lang==='en'?'AM':'ص');
+      document.getElementById('timelineReticleText').textContent = toNum(`${h12}:${m} ${ampm}`);
+    }
+
+    /* ==========================================
+       6. CENTRAL RENDERER & SMART SYNERGY
+       ========================================== */
+    function renderV3UI() {
+      const sb = document.getElementById('horizonScoreboard'); 
+      sb.innerHTML = '';
+      dailyGoals.forEach(g => { 
+        sb.innerHTML += `<div class="goal-pill ${g.completed ? 'completed' : ''}" onclick="toggleGoal(${g.id})"><div class="indicator"></div>${g.name}</div>`; 
+      });
+      renderTaskArcs(); 
+      renderTimelineSegments();
+    }
+
+    function renderTaskArcs() {
+      const grp = document.getElementById('scheduleArcsGroup'); 
+      grp.innerHTML = '';
+      
+      scheduledTasks.forEach(t => {
+        const [sH, sM] = t.start.split(':').map(Number); 
+        const [eH, eM] = t.end.split(':').map(Number);
+        
+        const sAng = (((sH % 12) + sM/60) / 12) * 360; 
+        let eAng = (((eH % 12) + eM/60) / 12) * 360;
+        if(eAng <= sAng) eAng += 360; 
+        
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path"); 
+        path.setAttribute("d", describeArc(cx, cy, radius + 8, sAng, eAng)); 
+        path.setAttribute("fill", "none"); 
+        path.setAttribute("stroke", t.color); 
+        path.setAttribute("stroke-width", "4"); 
+        path.setAttribute("stroke-linecap", "round"); 
+        path.style.opacity = "0.7"; 
+        grp.appendChild(path);
+      });
+    }
+
+    let lastCheckedMinute = -1;
+    function checkV3Logic() {
+      const now = new Date(); 
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+      
+      if(currentMins === lastCheckedMinute) return; 
+      lastCheckedMinute = currentMins;
+      
+      let foundActive = false;
+      
+      scheduledTasks.forEach(t => {
+        const [sH, sM] = t.start.split(':').map(Number); 
+        const [eH, eM] = t.end.split(':').map(Number);
+        const startMins = sH * 60 + sM; 
+        const endMins = eH * 60 + eM;
+        
+        if (currentMins === startMins) playChime(); 
+        
+        if (currentMins >= startMins && currentMins < endMins) {
+          foundActive = true;
+          if (activeTaskObj !== t) { 
+            activeTaskObj = t; 
+            document.getElementById('titleInput').value = t.name; 
+            displayTitle.textContent = t.name; 
+            document.documentElement.style.setProperty('--accent', t.color); 
+            document.getElementById('displayTitle').style.color = t.color; 
+            renderV3UI(); 
+          }
+        }
+      });
+      
+      if (!foundActive && activeTaskObj !== null) { 
+        activeTaskObj = null; 
+        playChime(); 
+        document.getElementById('titleInput').value = "System Standby"; 
+        displayTitle.textContent = "System Standby"; 
+        document.documentElement.style.setProperty('--accent', currentTheme.handle); 
+        document.getElementById('displayTitle').style.color = "var(--text-primary)"; 
+        renderV3UI(); 
+      }
+    }
+
+    /* ==========================================
+       7. UI, THEMES, TRANSLATIONS
+       ========================================== */
+    function toggleLang() { 
+      setLanguage(lang === 'en' ? 'ar' : 'en'); 
     }
 
     function setLanguage(selectedLang) {
-      lang = selectedLang;
-      localStorage.setItem('idleLang', lang);
-      document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
-      
+      lang = selectedLang; 
+      localStorage.setItem('idleLang', lang); 
+      document.body.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr'); 
       const langBg = document.getElementById('langSliderBg');
-      if (lang === 'ar') {
-        langBg.classList.add('slide-second');
-        document.getElementById('langArOpt').classList.add('active');
-        document.getElementById('langEnOpt').classList.remove('active');
-      } else {
-        langBg.classList.remove('slide-second');
-        document.getElementById('langEnOpt').classList.add('active');
-        document.getElementById('langArOpt').classList.remove('active');
+      
+      if (lang === 'ar') { 
+        langBg.classList.add('slide-second'); 
+        document.getElementById('langArOpt').classList.add('active'); 
+        document.getElementById('langEnOpt').classList.remove('active'); 
+      } else { 
+        langBg.classList.remove('slide-second'); 
+        document.getElementById('langEnOpt').classList.add('active'); 
+        document.getElementById('langArOpt').classList.remove('active'); 
       }
-
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[lang][key]) el.textContent = translations[lang][key];
-      });
-      document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-        const key = el.getAttribute('data-i18n-ph');
-        if (translations[lang][key]) el.placeholder = translations[lang][key];
+      
+      document.querySelectorAll('[data-i18n]').forEach(el => { 
+        const key = el.getAttribute('data-i18n'); 
+        if (translations[lang][key]) el.textContent = translations[lang][key]; 
+      }); 
+      
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => { 
+        const key = el.getAttribute('data-i18n-ph'); 
+        if (translations[lang][key]) el.placeholder = translations[lang][key]; 
       });
       
-      document.getElementById("lbl12").textContent = toNum("12");
-      document.getElementById("lbl3").textContent = toNum("3");
-      document.getElementById("lbl6").textContent = toNum("6");
-      document.getElementById("lbl9").textContent = toNum("9");
+      document.getElementById("lbl12").textContent = toNum("12"); 
+      document.getElementById("lbl3").textContent = toNum("3"); 
+      document.getElementById("lbl6").textContent = toNum("6"); 
+      document.getElementById("lbl9").textContent = toNum("9"); 
       
-      const selOpt = document.querySelector('#spDeviceSelect option[disabled]');
+      const selOpt = document.querySelector('#spDeviceSelect option[disabled]'); 
       if(selOpt) selOpt.textContent = translations[lang].selectDevice;
-
-      renderQuickActions();
-      const tempUnit = lang === 'en' ? 'C' : 'م';
-      ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`);
+      
+      renderQuickActions(); 
+      const tempUnit = lang === 'en' ? 'C' : 'م'; 
+      ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`); 
+      
       if (nextPrayer) updatePrayerUI(); 
       updateLiveTimer(); 
+      renderV3UI(); 
+      initTimeline(); 
+      updateTimelineHUD();
     }
 
-    function toggleMode() {
-      setMode(currentMode === 'dark' ? 'light' : 'dark');
+    function toggleMode() { 
+      setMode(currentMode === 'dark' ? 'light' : 'dark'); 
     }
 
     function setMode(mode) {
-      currentMode = mode;
-      localStorage.setItem('idleMode', mode);
-      
+      currentMode = mode; 
+      localStorage.setItem('idleMode', mode); 
       const modeBg = document.getElementById('modeSliderBg');
-      if (mode === 'light') {
-        document.body.classList.add('light-mode');
-        modeBg.classList.add('slide-second');
-        document.getElementById('modeLightOpt').classList.add('active');
-        document.getElementById('modeDarkOpt').classList.remove('active');
-      } else {
-        document.body.classList.remove('light-mode');
-        modeBg.classList.remove('slide-second');
-        document.getElementById('modeDarkOpt').classList.add('active');
-        document.getElementById('modeLightOpt').classList.remove('active');
+      
+      if (mode === 'light') { 
+        document.body.classList.add('light-mode'); 
+        modeBg.classList.add('slide-second'); 
+        document.getElementById('modeLightOpt').classList.add('active'); 
+        document.getElementById('modeDarkOpt').classList.remove('active'); 
+      } else { 
+        document.body.classList.remove('light-mode'); 
+        modeBg.classList.remove('slide-second'); 
+        document.getElementById('modeDarkOpt').classList.add('active'); 
+        document.getElementById('modeLightOpt').classList.remove('active'); 
       }
     }
 
-    async function fetchPrayerTimes(city) {
+    function applyTheme(themeObj) { 
+      currentTheme = themeObj; 
+      localStorage.setItem('idleTheme', themeObj.name); 
+      
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active')); 
+      document.querySelector(`.theme-dot[data-key="${themeObj.name}"]`).classList.add('active'); 
+      
+      gradStart.setAttribute('stop-color', currentTheme.start); 
+      gradEnd.setAttribute('stop-color', currentTheme.end); 
+      endHandle.setAttribute('fill', currentTheme.handle); 
+      ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`; 
+      starLayer.style.setProperty('--star-color', currentTheme.handle); 
+      
+      if(!activeTaskObj) document.documentElement.style.setProperty('--accent', currentTheme.handle); 
+      if(nextPrayer && !ambientGlow.classList.contains("prayer-glow-active") && !isTestGlowActive) { 
+        prayerCountdownEl.style.color = currentTheme.handle; 
+      } 
+    }
+
+    /* ==========================================
+       8. QUICK ACTIONS
+       ========================================== */
+    function renderQuickActions() {
+      const tGrid = document.getElementById('titlesGrid'); 
+      tGrid.innerHTML = ''; 
+      
+      quickTitles.forEach(t => { 
+        const btn = document.createElement('button'); 
+        btn.className = 'quick-btn'; 
+        btn.textContent = t; 
+        btn.onclick = () => { 
+          titleInput.value = t; 
+          displayTitle.textContent = t; 
+          localStorage.setItem('idleTitle', t); 
+          document.title = t; 
+        }; 
+        tGrid.appendChild(btn); 
+      });
+      
+      const tmGrid = document.getElementById('timersGrid'); 
+      tmGrid.innerHTML = ''; 
+      const hLabel = lang === 'en' ? 'h' : 'س';
+      const mLabel = lang === 'en' ? 'm' : 'د'; 
+      
+      quickTimers.forEach(m => { 
+        const btn = document.createElement('button'); 
+        btn.className = 'quick-btn'; 
+        btn.textContent = m >= 60 ? (m % 60 === 0 ? toNum(m/60) + hLabel : toNum((m/60).toFixed(1)) + hLabel) : toNum(m) + mLabel; 
+        btn.onclick = () => { 
+          originalDurationMs = m * 60000; 
+          timerDurationMs = originalDurationMs; 
+          rawTimerDurationMs = originalDurationMs; 
+          timerEndTime = Date.now() + timerDurationMs; 
+          isTimerRunning = true; 
+          updateLiveTimer(); 
+        }; 
+        tmGrid.appendChild(btn); 
+      });
+    }
+
+    function editQuickTitles() { 
+      const input = prompt(lang === 'en' ? "Edit Quick Titles (comma separated):" : "تعديل العناوين السريعة (مفصول بفاصلة):", quickTitles.join(", ")); 
+      if (input !== null) { 
+        quickTitles = input.split(',').map(s => s.trim()).filter(s => s); 
+        renderQuickActions(); 
+      } 
+    }
+
+    function editQuickTimers() { 
+      const input = prompt(lang === 'en' ? "Edit Quick Timers in minutes (comma separated):" : "تعديل المؤقتات بالدقائق (مفصول بفاصلة):", quickTimers.join(", ")); 
+      if (input !== null) { 
+        quickTimers = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)); 
+        renderQuickActions(); 
+      } 
+    }
+
+    /* ==========================================
+       9. MATH & SVG PHYSICS
+       ========================================== */
+    const minsToAngle = (m) => ((m % 720) / 720) * 360; 
+    const getNowMins = () => { 
+      const d = new Date(); 
+      return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; 
+    };
+
+    function polarToCartesian(centerX, centerY, radius, angleInDegrees) { 
+      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0; 
+      return { 
+        x: centerX + (radius * Math.cos(angleInRadians)), 
+        y: centerY + (radius * Math.sin(angleInRadians)) 
+      }; 
+    }
+
+    function describeArc(x, y, r, startAngle, endAngle) { 
+      let diff = endAngle - startAngle; 
+      if (diff < 0) diff += 360; 
+      if (diff === 0) diff = 359.9; 
+      const start = polarToCartesian(x, y, r, startAngle); 
+      const end = polarToCartesian(x, y, r, endAngle); 
+      const largeArcFlag = diff > 180 ? "1" : "0"; 
+      return ["M", start.x, start.y, "A", r, r, 0, largeArcFlag, 1, end.x, end.y].join(" "); 
+    }
+    
+    function drawTicks() { 
+      const tg = document.getElementById("ticks");
+      for (let i = 0; i < 72; i++) { 
+        if (i % 18 === 0) continue; 
+        const angle = i * 5, isH = i % 3 === 0, r1 = isH ? radius - 14 : radius - 20; 
+        const p1 = polarToCartesian(cx, cy, r1, angle), p2 = polarToCartesian(cx, cy, radius - 4, angle); 
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line"); 
+        line.setAttribute("x1", p1.x); 
+        line.setAttribute("y1", p1.y); 
+        line.setAttribute("x2", p2.x); 
+        line.setAttribute("y2", p2.y); 
+        line.setAttribute("stroke", isH ? "rgba(120,120,120,0.5)" : "rgba(120,120,120,0.2)"); 
+        line.setAttribute("stroke-width", isH ? "2" : "1"); 
+        tg.appendChild(line); 
+      } 
+    }
+
+    /* ==========================================
+       10. EFFECTS (STARS, SNAP, WOBBLE)
+       ========================================== */
+    function triggerShootingStar() { 
+      starLayer.style.setProperty('--star-color', activeTaskObj ? activeTaskObj.color : currentTheme.handle); 
+      shootingStar.classList.remove("shoot"); 
+      void shootingStar.offsetWidth; 
+      shootingStar.classList.add("shoot"); 
+      
+      if (!ambientGlow.classList.contains("prayer-glow-active")) { 
+        ambientGlow.style.transition = "opacity 0.2s"; 
+        ambientGlow.style.opacity = "0.7"; 
+        setTimeout(() => { 
+          ambientGlow.style.transition = "opacity 2s linear"; 
+          ambientGlow.style.opacity = "0"; 
+        }, 200); 
+      } 
+    }
+    
+    function triggerSnapEasterEgg() { 
+      isBroken = true; 
+      dragging = false; 
+      prevMouseAngle = null; 
+      
+      endHandle.classList.remove("dragging", "snap-back"); 
+      dragString.style.opacity = "0"; 
+      
+      const hx = parseFloat(endHandle.getAttribute("cx")), hy = parseFloat(endHandle.getAttribute("cy")); 
+      const dx = hx - cx, dy = hy - cy, flingX = cx + dx * 6, flingY = cy + dy * 6; 
+      
+      // Fixed at 1 second
+      const throwCurve = "cubic-bezier(0.2, 0.8, 0.2, 1)", throwDuration = "1s"; 
+      
+      ballTrail.style.transition = "none"; 
+      ballTrail.setAttribute("x1", hx); 
+      ballTrail.setAttribute("y1", hy); 
+      ballTrail.setAttribute("x2", hx); 
+      ballTrail.setAttribute("y2", hy); 
+      ballTrail.style.opacity = "0.8"; 
+      void ballTrail.offsetWidth; 
+      
+      endHandle.style.transition = `cx ${throwDuration} ${throwCurve}, cy ${throwDuration} ${throwCurve}`; 
+      endHandle.setAttribute("cx", flingX); 
+      endHandle.setAttribute("cy", flingY); 
+      
+      ballTrail.style.transition = `x2 ${throwDuration} ${throwCurve}, y2 ${throwDuration} ${throwCurve}, x1 ${throwDuration} 0.15s ${throwCurve}, y1 ${throwDuration} 0.15s ${throwCurve}, opacity 1s 0.5s ease-out`; 
+      ballTrail.setAttribute("x2", flingX); 
+      ballTrail.setAttribute("y2", flingY); 
+      ballTrail.setAttribute("x1", flingX); 
+      ballTrail.setAttribute("y1", flingY); 
+      ballTrail.style.opacity = "0"; 
+      
+      // Engine Reset safety wrap
+      setTimeout(() => { 
+        endHandle.style.transition = "none"; 
+        endHandle.style.opacity = "0"; 
+        dragRadius = radius; 
+        try { updateLiveTimer(); } catch(e) {}
+        
+        setTimeout(() => { 
+          endHandle.style.transition = "opacity 0.3s ease"; 
+          endHandle.style.opacity = "1"; 
+          setTimeout(() => { 
+            endHandle.style.transition = ""; 
+            endHandle.classList.add("snap-back"); 
+            isBroken = false; 
+          }, 300); 
+        }, 50); 
+      }, 1000); 
+    }
+
+    function animateWobblyString() { 
+      requestAnimationFrame(animateWobblyString); 
+      if (isBroken) return; 
+      
+      const nowMins = getNowMins(); 
+      const targetMins = nowMins + (timerDurationMs / 60000); 
+      const base = polarToCartesian(cx, cy, radius, minsToAngle(targetMins)); 
+      
+      const hx = parseFloat(endHandle.getAttribute("cx")) || base.x, hy = parseFloat(endHandle.getAttribute("cy")) || base.y; 
+      const dist = Math.hypot(hx - base.x, hy - base.y), centerDist = Math.hypot(hx - cx, hy - cy); 
+      
+      if (dist < 1) { 
+        dragString.style.opacity = "0"; 
+        return; 
+      } 
+      
+      if (centerDist < radius - 5) { 
+        dragString.style.opacity = "1"; 
+        dragString.style.strokeDasharray = "4 6"; 
+        dragString.style.strokeWidth = "2.5"; 
+        dragString.setAttribute("d", `M ${base.x} ${base.y} L ${hx} ${hy}`); 
+      } else { 
+        dragString.style.opacity = "1"; 
+        dragString.style.strokeDasharray = "none"; 
+        const stretch = Math.max(0, centerDist - radius); 
+        dragString.style.strokeWidth = Math.max(0.5, 3 - stretch / 50).toString(); 
+        const wobble = Math.max(0, 20 - stretch * 0.15); 
+        
+        const pt1x = base.x + (hx - base.x) * 0.33, pt1y = base.y + (hy - base.y) * 0.33; 
+        const pt2x = base.x + (hx - base.x) * 0.66, pt2y = base.y + (hy - base.y) * 0.66; 
+        const nx = -(hy - base.y) / dist, ny = (hx - base.x) / dist, time = Date.now(); 
+        const activeWobble = dragging ? wobble : 0; 
+        const w1 = Math.sin(time / 250) * activeWobble, w2 = Math.sin((time / 250) + Math.PI/2) * activeWobble; 
+        
+        dragString.setAttribute("d", `M ${base.x} ${base.y} C ${pt1x + nx * w1} ${pt1y + ny * w1}, ${pt2x + nx * w2} ${pt2y + ny * w2}, ${hx} ${hy}`); 
+      } 
+    }
+
+    /* ==========================================
+       11. MAIN LIVE TIMER UPDATE
+       ========================================== */
+    function updateLiveTimer() {
+      // Wrapping the entire update loop so an error can't crash the loop
       try {
-        currentCity = city;
-        localStorage.setItem('idleCity', city);
-        const tempUnit = lang === 'en' ? 'C' : 'م';
-        ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`);
+        const now = Date.now(); 
+        const nowMins = getNowMins();
         
-        const date = new Date();
-        const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
-        const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${city}&country=Saudi Arabia&method=4`);
-        const data = await res.json();
+        let h = new Date().getHours(), m = new Date().getMinutes().toString().padStart(2, '0');
+        ambientClock.textContent = toNum(`${h % 12 || 12}:${m} ${h >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص')}`);
+        ambientDate.textContent = toNum(new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
         
-        const allTimes = data.data.timings;
-        prayerTimes = { Fajr: allTimes.Fajr, Dhuhr: allTimes.Dhuhr, Asr: allTimes.Asr, Maghrib: allTimes.Maghrib, Isha: allTimes.Isha };
-        calculateNextPrayer();
-      } catch (err) {
-        console.error("Prayer API Error", err);
-        prayerNameEl.textContent = lang === 'en' ? "Offline" : "غير متصل";
+        updatePrayerUI(); 
+        checkV3Logic(); 
+        updateTimelineHUD();
+
+        if (isBroken) return; 
+        
+        let diffMs;
+        if (isTimerRunning) { 
+          diffMs = timerEndTime - now; 
+          if (diffMs <= 0) { 
+            isTimerRunning = false; 
+            timerDurationMs = originalDurationMs; 
+            rawTimerDurationMs = originalDurationMs; 
+            diffMs = originalDurationMs; 
+            triggerShootingStar(); 
+            if (isSpotifyPlaying) spotifyPause(); 
+          } else { 
+            timerDurationMs = diffMs; 
+          } 
+        } else { 
+          diffMs = timerDurationMs; 
+        }
+        
+        if (!isTimerRunning) { 
+          timeLabelText.textContent = translations[lang].paused; 
+          timeValueText.classList.add('paused'); 
+        } else { 
+          timeLabelText.textContent = translations[lang].remaining; 
+          timeValueText.classList.remove('paused'); 
+        }
+        
+        const absDiff = Math.abs(diffMs); 
+        const hNum = Math.floor(absDiff / 3600000); 
+        const mNum = Math.floor((absDiff % 3600000) / 60000); 
+        const sNum = Math.floor((absDiff % 60000) / 1000);
+        
+        const hStr = hNum.toString().padStart(2, '0'); 
+        const mStr = mNum.toString().padStart(2, '0'); 
+        const sStr = sNum.toString().padStart(2, '0');
+        
+        const elH = document.getElementById('timeH'); 
+        const elM = document.getElementById('timeM'); 
+        const elS = document.getElementById('timeS');
+        let tabTimeStr = '';
+
+        if (hNum === 0) { 
+          elH.classList.add('hidden'); 
+          if (mNum === 0) { 
+            elM.classList.add('hidden'); 
+            elS.textContent = toNum(sStr); 
+            tabTimeStr = sStr; 
+          } else { 
+            elM.classList.remove('hidden'); 
+            elM.textContent = toNum(`${mStr}:`); 
+            elS.textContent = toNum(sStr); 
+            tabTimeStr = `${mStr}:${sStr}`; 
+          } 
+        } else { 
+          elH.classList.remove('hidden'); 
+          elM.classList.remove('hidden'); 
+          elH.textContent = toNum(`${hStr}:`); 
+          elM.textContent = toNum(`${mStr}:`); 
+          elS.textContent = toNum(sStr); 
+          tabTimeStr = `${hStr}:${mStr}:${sStr}`; 
+        }
+        
+        document.title = `${displayTitle.textContent} • ${toNum(tabTimeStr)}`;
+        
+        const finishTimeDate = new Date(now + diffMs); 
+        let fH = finishTimeDate.getHours(); 
+        const fM = finishTimeDate.getMinutes().toString().padStart(2, '0'); 
+        const fAMPM = fH >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص'); 
+        fH = fH % 12 || 12; 
+        const finishStr = toNum(`${fH}:${fM} ${fAMPM}`);
+        
+        let dateSuffix = ""; 
+        if (finishTimeDate.toDateString() !== new Date().toDateString()) { 
+          const tomorrow = new Date(); 
+          tomorrow.setDate(tomorrow.getDate() + 1); 
+          if (finishTimeDate.toDateString() === tomorrow.toDateString()) { 
+            dateSuffix = translations[lang].tomorrow; 
+          } else { 
+            dateSuffix = " (" + toNum(finishTimeDate.toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', {month: 'short', day: 'numeric'})) + ")"; 
+          } 
+        }
+        document.getElementById('finishTimeText').textContent = translations[lang].finishAt + finishStr + dateSuffix;
+
+        if (!ambientGlow.classList.contains("prayer-glow-active")) { 
+          if (diffMs > 0 && diffMs <= 60000 && isTimerRunning) { 
+            ambientGlow.style.transition = "opacity 1s linear"; 
+            ambientGlow.style.background = `radial-gradient(circle at center, var(--accent) 0%, transparent 80%)`; 
+            ambientGlow.style.opacity = ((1 - (diffMs / 60000)) * 0.4).toString(); 
+          } else if (diffMs > 60000 && !dragging) { 
+            ambientGlow.style.opacity = "0"; 
+          } 
+        }
+
+        const targetMins = nowMins + (diffMs / 60000); 
+        const realSAng = minsToAngle(nowMins); 
+        const realEAng = minsToAngle(targetMins); 
+        let arcSAng = realSAng, arcEAng = realEAng;
+        
+        if (diffMs >= 43200000) { arcEAng = arcSAng + 359.9; }
+        
+        const sPos = polarToCartesian(cx, cy, radius, realSAng); 
+        startHandle.setAttribute("cx", sPos.x); 
+        startHandle.setAttribute("cy", sPos.y);
+        
+        const ePos = polarToCartesian(cx, cy, dragging ? dragRadius : radius, realEAng); 
+        endHandle.setAttribute("cx", ePos.x); 
+        endHandle.setAttribute("cy", ePos.y);
+        
+        sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcSAng, arcEAng)); 
+        sleepArc.setAttribute("stroke", "url(#dynamicGrad)");
+        
+      } catch(error) {
+        console.warn("Live Timer tick safely bypassed an error:", error);
+      }
+    }
+
+    /* ==========================================
+       12. TIMER DRAG EVENTS
+       ========================================== */
+    timeValueText.addEventListener("click", () => { 
+      isTimerRunning = !isTimerRunning; 
+      if (isTimerRunning) timerEndTime = Date.now() + timerDurationMs; 
+      updateLiveTimer(); 
+    });
+
+    function getMouseData(e) { 
+      const rect = clockSvg.getBoundingClientRect(); 
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX; 
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY; 
+      const x = clientX - rect.left - rect.width / 2;
+      const y = clientY - rect.top - rect.height / 2; 
+      let ang = Math.atan2(y, x) * (180 / Math.PI) + 90; 
+      if (ang < 0) ang += 360; 
+      return { ang, dist: Math.hypot(x, y) * (400 / rect.width) }; 
+    }
+
+    function onPointerDown(e) { 
+      if (e.target === endHandle && !isBroken) { 
+        dragging = true; 
+        prevMouseAngle = null; 
+        isTimerRunning = false; 
+        rawTimerDurationMs = timerDurationMs; 
+        endHandle.classList.remove("snap-back"); 
+        dragString.style.opacity = "1"; 
+        e.target.classList.add("dragging"); 
+      } 
+    }
+
+    function onPointerMove(e) { 
+      if (!dragging || isBroken) return; 
+      e.preventDefault(); 
+      const { ang, dist } = getMouseData(e); 
+      
+      if (dist > 495) { triggerSnapEasterEgg(); return; } 
+      
+      dragRadius = Math.max(120, dist); 
+      
+      if (prevMouseAngle === null) { prevMouseAngle = ang; return; } 
+      
+      let deltaAngle = ang - prevMouseAngle; 
+      if (deltaAngle > 180) deltaAngle -= 360; 
+      if (deltaAngle < -180) deltaAngle += 360; 
+      
+      rawTimerDurationMs += deltaAngle * 2 * 60 * 1000; 
+      if (rawTimerDurationMs < 0) rawTimerDurationMs = 0; 
+      prevMouseAngle = ang; 
+      
+      if (dist < radius - 5) { 
+        const snapMs = 5 * 60 * 1000; 
+        timerDurationMs = Math.round(rawTimerDurationMs / snapMs) * snapMs; 
+      } else { 
+        timerDurationMs = rawTimerDurationMs; 
+      } 
+      originalDurationMs = timerDurationMs; 
+      updateLiveTimer(); 
+    }
+
+    function onPointerUp() { 
+      if (dragging && !isBroken) { 
+        dragging = false; 
+        prevMouseAngle = null; 
+        dragRadius = radius; 
+        isTimerRunning = true; 
+        timerEndTime = Date.now() + timerDurationMs; 
+        endHandle.classList.add("snap-back"); 
+        endHandle.classList.remove("dragging"); 
+        dragString.style.opacity = "0"; 
+        updateLiveTimer(); 
+      } 
+    }
+
+    /* ==========================================
+       13. ALADHAN API (PRAYERS & LOCATION)
+       ========================================== */
+    async function fetchPrayerTimes(city) {
+      try { 
+        currentCity = city; 
+        localStorage.setItem('idleCity', city); 
+        const tempUnit = lang === 'en' ? 'C' : 'م'; 
+        ambientWeather.textContent = toNum(`📍 29°${tempUnit} ${currentCity}`); 
+        
+        const date = new Date(); 
+        const dateStr = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`; 
+        
+        const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${city}&country=Saudi Arabia&method=4`); 
+        const data = await res.json(); 
+        const allTimes = data.data.timings; 
+        
+        prayerTimes = { 
+          Fajr: allTimes.Fajr, 
+          Dhuhr: allTimes.Dhuhr, 
+          Asr: allTimes.Asr, 
+          Maghrib: allTimes.Maghrib, 
+          Isha: allTimes.Isha 
+        }; 
+        calculateNextPrayer(); 
+      } catch (err) { 
+        prayerNameEl.textContent = lang === 'en' ? "Offline" : "غير متصل"; 
       }
     }
 
     function calculateNextPrayer() {
-      const now = new Date();
+      if(isTestGlowActive) return; 
+      
+      const now = new Date(); 
       let upcoming = null, minDiff = Infinity;
-
-      for (const [name, timeStr] of Object.entries(prayerTimes)) {
-        const [hours, mins] = timeStr.split(':');
-        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(mins), 0);
-        const iDate = new Date(pDate.getTime() + iqamaOffsets[name] * 60000); // Standard Iqamah offset
-
-        const diffMs = iDate.getTime() - now.getTime();
+      
+      for (const [name, timeStr] of Object.entries(prayerTimes)) { 
+        const [hours, mins] = timeStr.split(':'); 
+        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), parseInt(hours), parseInt(mins), 0); 
+        const iDate = new Date(pDate.getTime() + iqamaOffsets[name] * 60000); 
+        const diffMs = iDate.getTime() - now.getTime(); 
         if (diffMs > 0 && diffMs < minDiff) { 
           minDiff = diffMs; 
           upcoming = { name, azanDate: pDate, iqamaDate: iDate, timeStr }; 
-        }
-      }
-
-      if (!upcoming && prayerTimes.Fajr) {
-        const [hours, mins] = prayerTimes.Fajr.split(':');
-        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, parseInt(hours), parseInt(mins), 0);
-        const iDate = new Date(pDate.getTime() + iqamaOffsets.Fajr * 60000);
-        upcoming = { name: "Fajr", azanDate: pDate, iqamaDate: iDate, timeStr: prayerTimes.Fajr };
+        } 
       }
       
+      if (!upcoming && prayerTimes.Fajr) { 
+        const [hours, mins] = prayerTimes.Fajr.split(':'); 
+        const pDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, parseInt(hours), parseInt(mins), 0); 
+        const iDate = new Date(pDate.getTime() + iqamaOffsets.Fajr * 60000); 
+        upcoming = { name: "Fajr", azanDate: pDate, iqamaDate: iDate, timeStr: prayerTimes.Fajr }; 
+      } 
       nextPrayer = upcoming; 
       updatePrayerUI();
     }
 
     function updatePrayerUI() {
-      if (!nextPrayer) return;
-
-      const pName = translations[lang].prayerNames[nextPrayer.name];
-      const [h, m] = nextPrayer.timeStr.split(':');
-      let h12 = parseInt(h) % 12 || 12;
-      const ampm = parseInt(h) >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
+      if (!nextPrayer || isTestGlowActive) return; 
       
-      const nowMs = Date.now();
-      const azanMs = nextPrayer.azanDate.getTime();
+      const pName = translations[lang].prayerNames[nextPrayer.name]; 
+      const [h, m] = nextPrayer.timeStr.split(':'); 
+      let h12 = parseInt(h) % 12 || 12; 
+      const ampm = parseInt(h) >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص'); 
+      const nowMs = Date.now(); 
+      const azanMs = nextPrayer.azanDate.getTime(); 
       const iqamaMs = nextPrayer.iqamaDate.getTime();
-
-      if (nowMs >= iqamaMs) {
-          // Iqamah just passed, fetch the next prayer
-          calculateNextPrayer();
-          return;
+      
+      if (nowMs >= iqamaMs) { 
+        calculateNextPrayer(); 
+        return; 
       }
-
-      if (nowMs >= azanMs && nowMs < iqamaMs) {
-          // PHASE 2: Azan happened. Show Holy Glow and count down to Iqamah.
-          ambientGlow.classList.add("prayer-glow-active");
-          prayerNameEl.classList.add("prayer-text-highlight");
-          
-          prayerNameEl.textContent = translations[lang].iqamaFor + pName;
-          prayerTimeEl.textContent = "";
-          
-          const diffMs = iqamaMs - nowMs;
-          const mins = Math.floor(diffMs / 60000).toString().padStart(2, '0');
-          const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
-          
-          prayerCountdownEl.textContent = toNum(`(${mins}:${secs})`);
-          prayerCountdownEl.style.color = "#FFD700"; 
-      } else {
-          // PHASE 1: Waiting for Azan. Standard tracking.
-          ambientGlow.classList.remove("prayer-glow-active");
-          prayerNameEl.classList.remove("prayer-text-highlight");
-          
-          prayerNameEl.textContent = pName;
-          prayerTimeEl.textContent = toNum(`- ${h12}:${m} ${ampm}`);
-
-          const diffMs = azanMs - nowMs;
-          const hrs = Math.floor(diffMs / 3600000).toString().padStart(2, '0');
-          const mins = Math.floor((diffMs % 3600000) / 60000).toString().padStart(2, '0');
-          const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0');
-          
-          prayerCountdownEl.textContent = toNum(`(${lang === 'en' ? 'in' : 'خلال'} ${hrs}:${mins}:${secs})`);
-          prayerCountdownEl.style.color = currentTheme.handle; 
-      }
-    }
-
-    function renderQuickActions() {
-      const tGrid = document.getElementById('titlesGrid'); tGrid.innerHTML = '';
-      quickTitles.forEach(t => {
-        const btn = document.createElement('button'); btn.className = 'quick-btn'; btn.textContent = t;
-        btn.onclick = () => { titleInput.value = t; displayTitle.textContent = t; localStorage.setItem('idleTitle', t); document.title = t; }; 
-        tGrid.appendChild(btn);
-      });
-
-      const tmGrid = document.getElementById('timersGrid'); tmGrid.innerHTML = '';
-      const hLabel = lang === 'en' ? 'h' : 'س', mLabel = lang === 'en' ? 'm' : 'د';
       
-      quickTimers.forEach(m => {
-        const btn = document.createElement('button'); btn.className = 'quick-btn';
-        btn.textContent = m >= 60 ? (m % 60 === 0 ? toNum(m/60) + hLabel : toNum((m/60).toFixed(1)) + hLabel) : toNum(m) + mLabel;
-        btn.onclick = () => { 
-          originalDurationMs = m * 60000;
-          timerDurationMs = originalDurationMs;
-          rawTimerDurationMs = originalDurationMs; // FIX: Ensure raw syncs when quick buttons pressed
-          timerEndTime = Date.now() + timerDurationMs; 
-          isTimerRunning = true; 
-          updateLiveTimer(); 
-        }; 
-        tmGrid.appendChild(btn);
-      });
-    }
-
-    function editQuickTitles() {
-      const input = prompt(lang === 'en' ? "Edit Quick Titles (comma separated):" : "تعديل العناوين السريعة (مفصول بفاصلة):", quickTitles.join(", "));
-      if (input !== null) { quickTitles = input.split(',').map(s => s.trim()).filter(s => s); renderQuickActions(); }
-    }
-
-    function editQuickTimers() {
-      const input = prompt(lang === 'en' ? "Edit Quick Timers in minutes (comma separated):" : "تعديل المؤقتات بالدقائق (مفصول بفاصلة):", quickTimers.join(", "));
-      if (input !== null) { quickTimers = input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n)); renderQuickActions(); }
-    }
-
-    function applyTheme(themeObj) {
-      currentTheme = themeObj;
-      localStorage.setItem('idleTheme', themeObj.name);
-      
-      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active')); 
-      document.querySelector(`.theme-dot[data-key="${themeObj.name}"]`).classList.add('active');
-      
-      gradStart.setAttribute('stop-color', currentTheme.start); gradEnd.setAttribute('stop-color', currentTheme.end);
-      endHandle.setAttribute('fill', currentTheme.handle);
-      ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`;
-      
-      starLayer.style.setProperty('--star-color', currentTheme.handle);
-      if(nextPrayer && !ambientGlow.classList.contains("prayer-glow-active")) {
+      if (nowMs >= azanMs && nowMs < iqamaMs) { 
+        ambientGlow.classList.add("prayer-glow-active"); 
+        prayerNameEl.classList.add("prayer-text-highlight"); 
+        prayerNameEl.textContent = translations[lang].iqamaFor + pName; 
+        prayerTimeEl.textContent = ""; 
+        const diffMs = iqamaMs - nowMs; 
+        const mins = Math.floor(diffMs / 60000).toString().padStart(2, '0'); 
+        const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0'); 
+        prayerCountdownEl.textContent = toNum(`(${mins}:${secs})`); 
+        prayerCountdownEl.style.color = "#FFD700"; 
+      } else { 
+        ambientGlow.classList.remove("prayer-glow-active"); 
+        prayerNameEl.classList.remove("prayer-text-highlight"); 
+        prayerNameEl.textContent = pName; 
+        prayerTimeEl.textContent = toNum(`- ${h12}:${m} ${ampm}`); 
+        const diffMs = azanMs - nowMs; 
+        const hrs = Math.floor(diffMs / 3600000).toString().padStart(2, '0'); 
+        const mins = Math.floor((diffMs % 3600000) / 60000).toString().padStart(2, '0'); 
+        const secs = Math.floor((diffMs % 60000) / 1000).toString().padStart(2, '0'); 
+        prayerCountdownEl.textContent = toNum(`(${lang === 'en' ? 'in' : 'خلال'} ${hrs}:${mins}:${secs})`); 
         prayerCountdownEl.style.color = currentTheme.handle; 
       }
     }
 
-    const minsToAngle = (m) => ((m % 720) / 720) * 360;
-    const getNowMins = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
-
-    function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
-      const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
-      return { x: centerX + (radius * Math.cos(angleInRadians)), y: centerY + (radius * Math.sin(angleInRadians)) };
-    }
-
-    function describeArc(x, y, r, startAngle, endAngle) {
-      let diff = endAngle - startAngle; if (diff < 0) diff += 360; if (diff === 0) diff = 359.9; 
-      const start = polarToCartesian(x, y, r, startAngle); const end = polarToCartesian(x, y, r, endAngle);
-      const largeArcFlag = diff > 180 ? "1" : "0";
-      return ["M", start.x, start.y, "A", r, r, 0, largeArcFlag, 1, end.x, end.y].join(" ");
-    }
-
-    function drawTicks() {
-      for (let i = 0; i < 72; i++) {
-        if (i % 18 === 0) continue; 
-        const angle = i * 5, isHour = i % 3 === 0, r1 = isHour ? radius - 14 : radius - 20;
-        const p1 = polarToCartesian(cx, cy, r1, angle), p2 = polarToCartesian(cx, cy, radius - 4, angle);
-        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-        line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y); line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
-        line.setAttribute("stroke", isHour ? "rgba(120,120,120,0.5)" : "rgba(120,120,120,0.2)"); line.setAttribute("stroke-width", isHour ? "2" : "1");
-        ticksGroup.appendChild(line);
-      }
-    }
-
-    function triggerShootingStar() {
-      starLayer.style.setProperty('--star-color', currentTheme.handle);
-      shootingStar.classList.remove("shoot"); void shootingStar.offsetWidth; shootingStar.classList.add("shoot");
-      if (!ambientGlow.classList.contains("prayer-glow-active")) {
-          ambientGlow.style.transition = "opacity 0.2s"; ambientGlow.style.opacity = "0.7";
-          setTimeout(() => { ambientGlow.style.transition = "opacity 2s linear"; ambientGlow.style.opacity = "0"; }, 200);
-      }
-    }
-
-    function triggerSnapEasterEgg() {
-      isBroken = true; dragging = false; prevMouseAngle = null;
-      endHandle.classList.remove("dragging", "snap-back"); dragString.style.opacity = "0";
-      const hx = parseFloat(endHandle.getAttribute("cx")), hy = parseFloat(endHandle.getAttribute("cy"));
-      const dx = hx - cx, dy = hy - cy, flingX = cx + dx * 6, flingY = cy + dy * 6;
-      const throwCurve = "cubic-bezier(0.2, 0.8, 0.2, 1)", throwDuration = "2.5s";
-
-      ballTrail.style.transition = "none"; ballTrail.setAttribute("x1", hx); ballTrail.setAttribute("y1", hy); ballTrail.setAttribute("x2", hx); ballTrail.setAttribute("y2", hy); ballTrail.style.opacity = "0.8"; void ballTrail.offsetWidth;
-      endHandle.style.transition = `cx ${throwDuration} ${throwCurve}, cy ${throwDuration} ${throwCurve}`; endHandle.setAttribute("cx", flingX); endHandle.setAttribute("cy", flingY);
-      ballTrail.style.transition = `x2 ${throwDuration} ${throwCurve}, y2 ${throwDuration} ${throwCurve}, x1 ${throwDuration} 0.15s ${throwCurve}, y1 ${throwDuration} 0.15s ${throwCurve}, opacity 1s 1.5s ease-out`;
-      ballTrail.setAttribute("x2", flingX); ballTrail.setAttribute("y2", flingY); ballTrail.setAttribute("x1", flingX); ballTrail.setAttribute("y1", flingY); ballTrail.style.opacity = "0";
-
-      setTimeout(() => {
-        endHandle.style.transition = "none"; endHandle.style.opacity = "0"; dragRadius = radius; updateLiveTimer(); 
-        setTimeout(() => {
-          endHandle.style.transition = "opacity 0.5s ease"; endHandle.style.opacity = "1";
-          setTimeout(() => { endHandle.style.transition = ""; endHandle.classList.add("snap-back"); isBroken = false; }, 500);
-        }, 50);
-      }, 2500); 
-    }
-
-    function animateWobblyString() {
-      requestAnimationFrame(animateWobblyString);
-      if (isBroken) return; 
-      
-      const nowMins = getNowMins();
-      const targetMins = nowMins + (timerDurationMs / 60000); 
-      const base = polarToCartesian(cx, cy, radius, minsToAngle(targetMins));
-      
-      const hx = parseFloat(endHandle.getAttribute("cx")) || base.x, hy = parseFloat(endHandle.getAttribute("cy")) || base.y;
-      const dist = Math.hypot(hx - base.x, hy - base.y), centerDist = Math.hypot(hx - cx, hy - cy);
-
-      if (dist < 1) return; 
-
-      if (centerDist < radius - 5) {
-        dragString.style.strokeDasharray = "4 6"; dragString.style.strokeWidth = "2.5";
-        dragString.setAttribute("d", `M ${base.x} ${base.y} L ${hx} ${hy}`);
-      } else {
-        dragString.style.strokeDasharray = "none";
-        const stretch = Math.max(0, centerDist - radius);
-        dragString.style.strokeWidth = Math.max(0.5, 3 - stretch / 50).toString(); 
-        const wobble = Math.max(0, 20 - stretch * 0.15); 
-        
-        const pt1x = base.x + (hx - base.x) * 0.33, pt1y = base.y + (hy - base.y) * 0.33;
-        const pt2x = base.x + (hx - base.x) * 0.66, pt2y = base.y + (hy - base.y) * 0.66;
-        const nx = -(hy - base.y) / dist, ny = (hx - base.x) / dist, time = Date.now();
-        const activeWobble = dragging ? wobble : 0; 
-        const w1 = Math.sin(time / 250) * activeWobble, w2 = Math.sin((time / 250) + Math.PI/2) * activeWobble;
-
-        dragString.setAttribute("d", `M ${base.x} ${base.y} C ${pt1x + nx * w1} ${pt1y + ny * w1}, ${pt2x + nx * w2} ${pt2y + ny * w2}, ${hx} ${hy}`);
-      }
-    }
-
-    function updateLiveTimer() {
-      const now = Date.now();
-      const nowMins = getNowMins();
-      
-      let h = new Date().getHours(), m = new Date().getMinutes().toString().padStart(2, '0');
-      ambientClock.textContent = toNum(`${h % 12 || 12}:${m} ${h >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص')}`);
-      ambientDate.textContent = toNum(new Date().toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }));
-
-      updatePrayerUI();
-
-      if (isBroken) return; 
-
-      let diffMs;
-      if (isTimerRunning) {
-        diffMs = timerEndTime - now;
-        if (diffMs <= 0) {
-          isTimerRunning = false;
-          timerDurationMs = originalDurationMs;
-          rawTimerDurationMs = originalDurationMs;
-          diffMs = originalDurationMs;
-          triggerShootingStar();
-          if (isSpotifyPlaying) spotifyPause(); 
-        } else {
-          timerDurationMs = diffMs; 
-        }
-      } else {
-        diffMs = timerDurationMs;
-      }
-
-      if (!isTimerRunning) {
-          timeLabelText.textContent = translations[lang].paused;
-          timeValueText.classList.add('paused');
-      } else {
-          timeLabelText.textContent = translations[lang].remaining;
-          timeValueText.classList.remove('paused');
-      }
-      
-      // Ultra-Minimal "Glide" Logic
-      const absDiff = Math.abs(diffMs);
-      const hNum = Math.floor(absDiff / 3600000);
-      const mNum = Math.floor((absDiff % 3600000) / 60000);
-      const sNum = Math.floor((absDiff % 60000) / 1000);
-
-      const hStr = hNum.toString().padStart(2, '0');
-      const mStr = mNum.toString().padStart(2, '0');
-      const sStr = sNum.toString().padStart(2, '0');
-
-      const elH = document.getElementById('timeH');
-      const elM = document.getElementById('timeM');
-      const elS = document.getElementById('timeS');
-
-      let tabTimeStr = '';
-
-      if (hNum === 0) {
-        elH.classList.add('hidden');
-        if (mNum === 0) {
-          elM.classList.add('hidden');
-          elS.textContent = toNum(sStr);
-          tabTimeStr = sStr;
-        } else {
-          elM.classList.remove('hidden');
-          elM.textContent = toNum(`${mStr}:`);
-          elS.textContent = toNum(sStr);
-          tabTimeStr = `${mStr}:${sStr}`;
-        }
-      } else {
-        elH.classList.remove('hidden');
-        elM.classList.remove('hidden');
-        elH.textContent = toNum(`${hStr}:`);
-        elM.textContent = toNum(`${mStr}:`);
-        elS.textContent = toNum(sStr);
-        tabTimeStr = `${hStr}:${mStr}:${sStr}`;
-      }
-
-      document.title = `${displayTitle.textContent} • ${toNum(tabTimeStr)}`;
-      
-      // Calculate Finish Time with Date/Tomorrow checking
-      const finishTimeDate = new Date(now + diffMs);
-      let fH = finishTimeDate.getHours();
-      const fM = finishTimeDate.getMinutes().toString().padStart(2, '0');
-      const fAMPM = fH >= 12 ? (lang === 'en' ? 'PM' : 'م') : (lang === 'en' ? 'AM' : 'ص');
-      fH = fH % 12 || 12;
-      const finishStr = toNum(`${fH}:${fM} ${fAMPM}`);
-      
-      let dateSuffix = "";
-      if (finishTimeDate.toDateString() !== new Date().toDateString()) {
-          const tomorrow = new Date(); 
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          if (finishTimeDate.toDateString() === tomorrow.toDateString()) {
-              dateSuffix = translations[lang].tomorrow;
-          } else {
-              dateSuffix = " (" + toNum(finishTimeDate.toLocaleDateString(lang === 'en' ? 'en-US' : 'ar-SA', {month: 'short', day: 'numeric'})) + ")";
-          }
-      }
-      
-      document.getElementById('finishTimeText').textContent = translations[lang].finishAt + finishStr + dateSuffix;
-
-      if (!ambientGlow.classList.contains("prayer-glow-active")) {
-          if (diffMs > 0 && diffMs <= 60000 && isTimerRunning) {
-            ambientGlow.style.transition = "opacity 1s linear";
-            ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`;
-            ambientGlow.style.opacity = ((1 - (diffMs / 60000)) * 0.4).toString(); 
-          } else if (diffMs > 60000 && !dragging) { ambientGlow.style.opacity = "0"; }
-      }
-
-      const targetMins = nowMins + (diffMs / 60000);
-      const realSAng = minsToAngle(nowMins);
-      const realEAng = minsToAngle(targetMins);
-      let arcSAng = realSAng, arcEAng = realEAng;
-
-      if (diffMs >= 43200000) { arcEAng = arcSAng + 359.9; }
-
-      const sPos = polarToCartesian(cx, cy, radius, realSAng); startHandle.setAttribute("cx", sPos.x); startHandle.setAttribute("cy", sPos.y);
-      const ePos = polarToCartesian(cx, cy, dragging ? dragRadius : radius, realEAng); endHandle.setAttribute("cx", ePos.x); endHandle.setAttribute("cy", ePos.y);
-
-      sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcSAng, arcEAng)); 
-      sleepArc.setAttribute("stroke", "url(#dynamicGrad)");
-    }
-
-    timeValueText.addEventListener("click", () => {
-       isTimerRunning = !isTimerRunning;
-       if (isTimerRunning) timerEndTime = Date.now() + timerDurationMs;
-       updateLiveTimer();
-    });
-
-    function getMouseData(e) {
-      const rect = clockSvg.getBoundingClientRect();
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-      const x = clientX - rect.left - rect.width / 2, y = clientY - rect.top - rect.height / 2;
-      let ang = Math.atan2(y, x) * (180 / Math.PI) + 90; if (ang < 0) ang += 360;
-      return { ang, dist: Math.hypot(x, y) * (400 / rect.width) };
-    }
-
-    function onPointerDown(e) {
-      if (e.target === endHandle && !isBroken) {
-        dragging = true; prevMouseAngle = null; 
-        isTimerRunning = false; 
-        rawTimerDurationMs = timerDurationMs; // FIX: Sync raw tracker when grab starts
-        endHandle.classList.remove("snap-back"); dragString.style.opacity = "1"; e.target.classList.add("dragging");
-      }
-    }
-
-    function onPointerMove(e) {
-      if (!dragging || isBroken) return;
-      e.preventDefault();
-      const { ang, dist } = getMouseData(e);
-
-      if (dist > 495) { triggerSnapEasterEgg(); return; }
-
-      dragRadius = Math.max(120, dist);
-
-      if (prevMouseAngle === null) { prevMouseAngle = ang; return; }
-      let deltaAngle = ang - prevMouseAngle; if (deltaAngle > 180) deltaAngle -= 360; if (deltaAngle < -180) deltaAngle += 360;
-
-      // FIX: Apply continuous dragging math to raw tracker, not the snapped value
-      rawTimerDurationMs += deltaAngle * 2 * 60 * 1000; 
-      if (rawTimerDurationMs < 0) rawTimerDurationMs = 0;
-      prevMouseAngle = ang;
-
-      if (dist < radius - 5) {
-        const snapMs = 5 * 60 * 1000; 
-        timerDurationMs = Math.round(rawTimerDurationMs / snapMs) * snapMs; // Snap only the output
-      } else {
-        timerDurationMs = rawTimerDurationMs; // No snap, perfectly smooth
-      }
-      originalDurationMs = timerDurationMs;
-      updateLiveTimer(); 
-    }
-
-    function onPointerUp() {
-      if (dragging && !isBroken) {
-        dragging = false; prevMouseAngle = null; dragRadius = radius; 
-        isTimerRunning = true; timerEndTime = Date.now() + timerDurationMs;
-        endHandle.classList.add("snap-back"); endHandle.classList.remove("dragging"); dragString.style.opacity = "0"; 
-        updateLiveTimer(); 
-      }
-    }
-
-    // ==========================================
-    // 4. SPOTIFY AUTHENTICATION (PKCE FLOW)
-    // ==========================================
-    const generateRandomString = (length) => {
-      const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-      const values = crypto.getRandomValues(new Uint8Array(length));
-      return values.reduce((acc, x) => acc + possible[x % possible.length], "");
-    }
-
-    const sha256 = async (plain) => {
-      const encoder = new TextEncoder()
-      const data = encoder.encode(plain)
-      return window.crypto.subtle.digest('SHA-256', data)
-    }
-
-    const base64encode = (input) => {
-      return btoa(String.fromCharCode(...new Uint8Array(input)))
-        .replace(/=/g, '')
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_');
-    }
-
-    async function loginSpotify() {
-      const codeVerifier = generateRandomString(64);
-      window.localStorage.setItem('code_verifier', codeVerifier);
-      const hashed = await sha256(codeVerifier);
-      const codeChallenge = base64encode(hashed);
-
-      const authUrl = new URL("https://accounts.spotify.com/authorize");
-      const params = {
-        response_type: 'code',
-        client_id: SPOTIFY_CLIENT_ID,
-        scope: SPOTIFY_SCOPES,
-        code_challenge_method: 'S256',
-        code_challenge: codeChallenge,
-        redirect_uri: REDIRECT_URI,
-      };
-      authUrl.search = new URLSearchParams(params).toString();
-      window.location.href = authUrl.toString();
-    }
-
-    async function handleSpotifyCallback() {
-      const urlParams = new URLSearchParams(window.location.search);
-      let code = urlParams.get('code');
-
-      if (code) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-
-        const codeVerifier = localStorage.getItem('code_verifier');
-        const payload = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({
-            client_id: SPOTIFY_CLIENT_ID,
-            grant_type: 'authorization_code',
-            code: code,
-            redirect_uri: REDIRECT_URI,
-            code_verifier: codeVerifier,
-          }),
-        }
-
-        const body = await fetch("https://accounts.spotify.com/api/token", payload);
-        const response = await body.json();
-
-        if (response.access_token) {
-          spotifyToken = response.access_token;
-          spotifyTokenExpiry = Date.now() + (response.expires_in * 1000);
-          localStorage.setItem('spotify_token', spotifyToken);
-          localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
-          localStorage.setItem('spotify_refresh_token', response.refresh_token);
-        }
-      }
-    }
-
-    async function refreshSpotifyToken() {
-       const refreshToken = localStorage.getItem('spotify_refresh_token');
-       if (!refreshToken) return logoutSpotify();
-
-       const payload = {
-         method: 'POST',
-         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-         body: new URLSearchParams({
-           client_id: SPOTIFY_CLIENT_ID,
-           grant_type: 'refresh_token',
-           refresh_token: refreshToken
-         }),
-       }
-       const body = await fetch("https://accounts.spotify.com/api/token", payload);
-       const response = await body.json();
-       
-       if (response.access_token) {
-          spotifyToken = response.access_token;
-          spotifyTokenExpiry = Date.now() + (response.expires_in * 1000);
-          localStorage.setItem('spotify_token', spotifyToken);
-          localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
-          if (response.refresh_token) localStorage.setItem('spotify_refresh_token', response.refresh_token);
-       } else {
-          logoutSpotify();
-       }
-    }
-
-    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) {
-      if (!spotifyToken) return null;
-      if (Date.now() > spotifyTokenExpiry) await refreshSpotifyToken();
-      if (!spotifyToken) return null; 
-      
-      try {
-        const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, {
-          method: method,
-          headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
-          body: body ? JSON.stringify(body) : null
-        });
-
-        if (res.status === 401) { await refreshSpotifyToken(); return null; }
-        if (res.status === 204) return { no_content: true }; 
-        if (res.ok && method === 'GET') return await res.json();
-        return { success: true };
-      } catch (err) { console.error("Spotify API Error", err); return null; }
-    }
-
-    function logoutSpotify() {
-      spotifyToken = null;
-      localStorage.removeItem('spotify_token'); 
-      localStorage.removeItem('spotify_token_expiry');
-      localStorage.removeItem('spotify_refresh_token');
-      document.getElementById('spotifyLoginBlock').style.display = 'block';
-      document.getElementById('spotifyDeviceBlock').style.display = 'none';
-      document.getElementById('nowPlaying').classList.remove('active');
-      clearInterval(spotifyUpdateInterval);
-    }
-
-    async function updateSpotifyUI() {
-      if (!spotifyToken) return;
-      
-      document.getElementById('spotifyLoginBlock').style.display = 'none';
-      document.getElementById('spotifyDeviceBlock').style.display = 'block';
-
-      const data = await fetchSpotifyAPI('');
-      
-      const npDiv = document.getElementById("nowPlaying");
-      const eqBars = document.getElementById("eqBars");
-      const playBtn = document.getElementById("spPlayBtn");
-
-      if (!data || data.no_content || !data.item) {
-        npDiv.classList.remove('active');
-        isSpotifyPlaying = false;
+    function initializeLocation() {
+      // FIX: File protocol blocker check. Bypasses geolocation if local.
+      if (window.location.protocol === "file:") {
+        console.warn("Local file detected. Bypassing browser geolocation to prevent blocking.");
+        fetchPrayerTimes("Jeddah");
         return;
       }
 
-      document.getElementById("npTrack").textContent = data.item.name;
-      document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', ');
-      
-      if (data.item.album.images.length > 0) {
-        document.getElementById("npArt").src = data.item.album.images[0].url;
+      if ("geolocation" in navigator && !localStorage.getItem('idleCity')) { 
+        navigator.geolocation.getCurrentPosition(async (pos) => { 
+          try { 
+            const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`); 
+            const data = await res.json(); 
+            cityInput.value = data.city || data.locality || "Jeddah"; 
+            fetchPrayerTimes(cityInput.value); 
+          } catch (e) { 
+            fetchPrayerTimes("Jeddah"); 
+          } 
+        }, () => fetchPrayerTimes("Jeddah")); 
+      } else { 
+        fetchPrayerTimes(currentCity); 
       }
-
-      isSpotifyPlaying = data.is_playing;
-      playBtn.textContent = isSpotifyPlaying ? "⏸" : "▶";
-      
-      if (isSpotifyPlaying) eqBars.classList.add('playing');
-      else eqBars.classList.remove('playing');
-
-      npDiv.classList.add('active');
     }
 
-    async function getSpotifyDevices() {
-      if (!spotifyToken) return;
-      const data = await fetchSpotifyAPI('/devices');
-      if (!data || !data.devices) return;
-      
-      const select = document.getElementById("spDeviceSelect");
-      select.innerHTML = `<option value="" disabled selected>${translations[lang].selectDevice}</option>`;
-      
-      data.devices.forEach(dev => {
-        const option = document.createElement("option");
-        option.value = dev.id;
-        option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`;
-        if(dev.is_active) option.selected = true;
-        select.appendChild(option); 
-      });
-    }
-
-    async function spotifyTogglePlay() {
-      const method = isSpotifyPlaying ? 'pause' : 'play';
-      await fetchSpotifyAPI(`/${method}`, 'PUT');
-      setTimeout(updateSpotifyUI, 500); 
+    /* ==========================================
+       14. SPOTIFY PKCE AUTH
+       ========================================== */
+    const generateRandomString = (length) => { 
+      const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'; 
+      const values = crypto.getRandomValues(new Uint8Array(length)); 
+      return values.reduce((acc, x) => acc + possible[x % possible.length], ""); 
     }
     
-    async function spotifyPause() {
-      if(!spotifyToken) return;
-      await fetchSpotifyAPI('/pause', 'PUT');
-      setTimeout(updateSpotifyUI, 500); 
+    const sha256 = async (plain) => { 
+      const encoder = new TextEncoder(); 
+      const data = encoder.encode(plain); 
+      return window.crypto.subtle.digest('SHA-256', data); 
     }
-
-    async function spotifyAction(action) {
-      await fetchSpotifyAPI(`/${action}`, 'POST');
-      setTimeout(updateSpotifyUI, 800); 
+    
+    const base64encode = (input) => { 
+      return btoa(String.fromCharCode(...new Uint8Array(input))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_'); 
     }
-
-    async function spotifyTransfer(deviceId) {
-      if(!deviceId) return;
-      await fetchSpotifyAPI('', 'PUT', { device_ids: [deviceId] });
-      setTimeout(updateSpotifyUI, 1000);
+    
+    async function loginSpotify() { 
+      const codeVerifier = generateRandomString(64); 
+      window.localStorage.setItem('code_verifier', codeVerifier); 
+      const hashed = await sha256(codeVerifier); 
+      const codeChallenge = base64encode(hashed); 
+      
+      const authUrl = new URL("https://accounts.spotify.com/authorize"); 
+      const params = { 
+        response_type: 'code', 
+        client_id: SPOTIFY_CLIENT_ID, 
+        scope: SPOTIFY_SCOPES, 
+        code_challenge_method: 'S256', 
+        code_challenge: codeChallenge, 
+        redirect_uri: REDIRECT_URI, 
+      }; 
+      authUrl.search = new URLSearchParams(params).toString(); 
+      window.location.href = authUrl.toString(); 
     }
+    
+    async function handleSpotifyCallback() { 
+      const urlParams = new URLSearchParams(window.location.search); 
+      let code = urlParams.get('code'); 
+      if (code) { 
+        window.history.replaceState({}, document.title, window.location.pathname); 
+        const codeVerifier = localStorage.getItem('code_verifier'); 
+        const payload = { 
+          method: 'POST', 
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, 
+          body: new URLSearchParams({ 
+            client_id: SPOTIFY_CLIENT_ID, 
+            grant_type: 'authorization_code', 
+            code: code, 
+            redirect_uri: REDIRECT_URI, 
+            code_verifier: codeVerifier, 
+          }), 
+        }; 
+        const body = await fetch("https://accounts.spotify.com/api/token", payload); 
+        const response = await body.json(); 
+        if (response.access_token) { 
+          spotifyToken = response.access_token; 
+          spotifyTokenExpiry = Date.now() + (response.expires_in * 1000); 
+          localStorage.setItem('spotify_token', spotifyToken); 
+          localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry); 
+          localStorage.setItem('spotify_refresh_token', response.refresh_token); 
+        } 
+      } 
+    }
+    
+    async function refreshSpotifyToken() { 
+      const refreshToken = localStorage.getItem('spotify_refresh_token'); 
+      if (!refreshToken) return logoutSpotify(); 
+      const payload = { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, 
+        body: new URLSearchParams({ 
+          client_id: SPOTIFY_CLIENT_ID, 
+          grant_type: 'refresh_token', 
+          refresh_token: refreshToken 
+        }), 
+      }; 
+      const body = await fetch("https://accounts.spotify.com/api/token", payload); 
+      const response = await body.json(); 
+      if (response.access_token) { 
+        spotifyToken = response.access_token; 
+        spotifyTokenExpiry = Date.now() + (response.expires_in * 1000); 
+        localStorage.setItem('spotify_token', spotifyToken); 
+        localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry); 
+        if (response.refresh_token) localStorage.setItem('spotify_refresh_token', response.refresh_token); 
+      } else { 
+        logoutSpotify(); 
+      } 
+    }
+    
+    async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) { 
+      if (!spotifyToken) return null; 
+      if (Date.now() > spotifyTokenExpiry) await refreshSpotifyToken(); 
+      if (!spotifyToken) return null; 
+      try { 
+        const res = await fetch(`https://api.spotify.com/v1/me/player${endpoint}`, { 
+          method: method, 
+          headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' }, 
+          body: body ? JSON.stringify(body) : null 
+        }); 
+        if (res.status === 401) { await refreshSpotifyToken(); return null; } 
+        if (res.status === 204) return { no_content: true }; 
+        if (res.ok && method === 'GET') return await res.json(); 
+        return { success: true }; 
+      } catch (err) { 
+        console.error("Spotify API Error", err); return null; 
+      } 
+    }
+    
+    function logoutSpotify() { 
+      spotifyToken = null; 
+      localStorage.removeItem('spotify_token'); 
+      localStorage.removeItem('spotify_token_expiry'); 
+      localStorage.removeItem('spotify_refresh_token'); 
+      document.getElementById('spotifyLoginBlock').style.display = 'block'; 
+      document.getElementById('spotifyDeviceBlock').style.display = 'none'; 
+      document.getElementById('nowPlaying').classList.remove('active'); 
+      clearInterval(spotifyUpdateInterval); 
+    }
+    
+    async function updateSpotifyUI() { 
+      if (!spotifyToken) return; 
+      document.getElementById('spotifyLoginBlock').style.display = 'none'; 
+      document.getElementById('spotifyDeviceBlock').style.display = 'block'; 
+      
+      const data = await fetchSpotifyAPI(''); 
+      const npDiv = document.getElementById("nowPlaying"); 
+      const eqBars = document.getElementById("eqBars"); 
+      const playBtn = document.getElementById("spPlayBtn"); 
+      
+      if (!data || data.no_content || !data.item) { 
+        npDiv.classList.remove('active'); 
+        isSpotifyPlaying = false; 
+        return; 
+      } 
+      
+      document.getElementById("npTrack").textContent = data.item.name; 
+      document.getElementById("npArtist").textContent = data.item.artists.map(a => a.name).join(', '); 
+      
+      if (data.item.album.images.length > 0) { 
+        document.getElementById("npArt").src = data.item.album.images[0].url; 
+      } 
+      
+      isSpotifyPlaying = data.is_playing; 
+      playBtn.textContent = isSpotifyPlaying ? "⏸" : "▶"; 
+      
+      if (isSpotifyPlaying) eqBars.classList.add('playing'); 
+      else eqBars.classList.remove('playing'); 
+      
+      npDiv.classList.add('active'); 
+    }
+    
+    async function getSpotifyDevices() { 
+      if (!spotifyToken) return; 
+      const data = await fetchSpotifyAPI('/devices'); 
+      if (!data || !data.devices) return; 
+      
+      const select = document.getElementById("spDeviceSelect"); 
+      select.innerHTML = `<option value="" disabled selected>${translations[lang].selectDevice}</option>`; 
+      
+      data.devices.forEach(dev => { 
+        const option = document.createElement("option"); 
+        option.value = dev.id; 
+        option.textContent = `${dev.name} ${dev.is_active ? '(Active)' : ''}`; 
+        if(dev.is_active) option.selected = true; 
+        select.appendChild(option); 
+      }); 
+    }
+    
+    async function spotifyTogglePlay() { const method = isSpotifyPlaying ? 'pause' : 'play'; await fetchSpotifyAPI(`/${method}`, 'PUT'); setTimeout(updateSpotifyUI, 500); }
+    async function spotifyPause() { if(!spotifyToken) return; await fetchSpotifyAPI('/pause', 'PUT'); setTimeout(updateSpotifyUI, 500); }
+    async function spotifyAction(action) { await fetchSpotifyAPI(`/${action}`, 'POST'); setTimeout(updateSpotifyUI, 800); }
+    async function spotifyTransfer(deviceId) { if(!deviceId) return; await fetchSpotifyAPI('', 'PUT', { device_ids: [deviceId] }); setTimeout(updateSpotifyUI, 1000); }
 
-    // ==========================================
-    // 5. INITIAL EXECUTION SEQUENCE
-    // ==========================================
-    titleInput.value = localStorage.getItem('idleTitle') || "System Standby";
-    displayTitle.textContent = titleInput.value;
-    document.title = titleInput.value;
+    /* ==========================================
+       15. INITIALIZATION
+       ========================================== */
+    titleInput.value = localStorage.getItem('idleTitle') || "System Standby"; 
+    displayTitle.textContent = titleInput.value; 
+    document.title = titleInput.value; 
     cityInput.value = currentCity;
     
-    cityInput.addEventListener("keydown", (e) => {
-      if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim());
+    cityInput.addEventListener("keydown", (e) => { 
+      if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim()); 
     });
-
+    
     titleInput.addEventListener("input", (e) => { 
       displayTitle.textContent = e.target.value || " "; 
-      localStorage.setItem('idleTitle', e.target.value);
+      localStorage.setItem('idleTitle', e.target.value); 
+    });
+    
+    clockSvg.addEventListener("mousedown", onPointerDown); 
+    window.addEventListener("mousemove", onPointerMove); 
+    window.addEventListener("mouseup", onPointerUp);
+    
+    clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); 
+    window.addEventListener("touchmove", onPointerMove, {passive: false}); 
+    window.addEventListener("touchend", onPointerUp);
+    
+    Object.entries(themes).forEach(([key, colors]) => { 
+      const dot = document.createElement("div"); 
+      dot.className = `theme-dot`; 
+      dot.dataset.key = key; 
+      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`; 
+      dot.addEventListener('click', () => applyTheme(colors)); 
+      themeGrid.appendChild(dot); 
     });
 
-    clockSvg.addEventListener("mousedown", onPointerDown); window.addEventListener("mousemove", onPointerMove); window.addEventListener("mouseup", onPointerUp);
-    clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); window.addEventListener("touchmove", onPointerMove, {passive: false}); window.addEventListener("touchend", onPointerUp);
-
-    Object.entries(themes).forEach(([key, colors]) => {
-      const dot = document.createElement("div");
-      dot.className = `theme-dot`;
-      dot.dataset.key = key;
-      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`;
-      dot.addEventListener('click', () => applyTheme(colors));
-      themeGrid.appendChild(dot);
-    });
-
-    // Start UI
-    applyTheme(currentTheme);
-    setMode(currentMode);
-    setLanguage(lang);
+    // Boot Sequence
+    initTimeline(); 
+    renderV3UI(); 
+    applyTheme(currentTheme); 
+    setMode(currentMode); 
+    setLanguage(lang); 
     drawTicks(); 
     updateLiveTimer(); 
-    animateWobblyString();
+    animateWobblyString(); 
+    
+    // Core Engine Loop
     setInterval(updateLiveTimer, 1000);
-
-    // Start Location / Prayers
-    if ("geolocation" in navigator && !localStorage.getItem('idleCity')) {
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        try {
-          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&localityLanguage=en`);
-          const data = await res.json();
-          cityInput.value = data.city || data.locality || "Jeddah";
-          fetchPrayerTimes(cityInput.value);
-        } catch (e) { fetchPrayerTimes("Jeddah"); }
-      }, () => fetchPrayerTimes("Jeddah")); 
-    } else {
-      fetchPrayerTimes(currentCity);
-    }
-
-    // Run Spotify Logic AFTER UI is built
-    handleSpotifyCallback().then(() => {
-      if (spotifyToken) {
-        updateSpotifyUI();
-        getSpotifyDevices();
+    
+    // Safe Location Fetch
+    initializeLocation();
+    
+    // Spotify Boot
+    handleSpotifyCallback().then(() => { 
+      if (spotifyToken) { 
+        updateSpotifyUI(); 
+        getSpotifyDevices(); 
         spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); 
-      }
+      } 
     });
   </script>
 </body>
