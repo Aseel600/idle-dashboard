@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ambient OS | Dashboard (V3.7)</title>
+  <title>Ambient OS | Dashboard (V3.8)</title>
   <style>
     /* ==========================================
        1. CSS RESET & DYNAMIC VARIABLES
@@ -1059,7 +1059,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>Test Tools</span>
-      <span class="dev-version">v3.7</span>
+      <span class="dev-version">v3.8</span>
     </div>
     <button class="dev-btn" onclick="triggerShootingStar()">Shooting Star</button>
     <button class="dev-btn" onclick="playChime()">Play Chime</button>
@@ -1244,7 +1244,6 @@
       <circle id="endHandle" cx="200" cy="40" r="8" fill="#ffffff" class="handle snap-back" />
     </svg>
   </div>
-
   <script>
     /* ==========================================
        1. STATE & CONFIGURATION
@@ -1780,7 +1779,7 @@
       document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active')); 
       document.querySelector(`.theme-dot[data-key="${themeObj.name}"]`).classList.add('active'); 
       
-      // Target explicitly by ID to prevent global scope reference errors
+      // Target explicitly by ID
       document.getElementById('gradStart').setAttribute('stop-color', currentTheme.start); 
       document.getElementById('gradEnd').setAttribute('stop-color', currentTheme.end); 
       document.getElementById('endHandle').setAttribute('fill', currentTheme.handle); 
@@ -1795,25 +1794,9 @@
     }
 
     /* ==========================================
-       8. QUICK ACTIONS
+       8. QUICK ACTIONS (FIXED - NO GHOST TITLES)
        ========================================== */
     function renderQuickActions() {
-      const tGrid = document.getElementById('titlesGrid'); 
-      tGrid.innerHTML = ''; 
-      
-      quickTitles.forEach(t => { 
-        const btn = document.createElement('button'); 
-        btn.className = 'quick-btn'; 
-        btn.textContent = t; 
-        btn.onclick = () => { 
-          titleInput.value = t; 
-          displayTitle.textContent = t; 
-          localStorage.setItem('idleTitle', t); 
-          document.title = t; 
-        }; 
-        tGrid.appendChild(btn); 
-      });
-      
       const tmGrid = document.getElementById('timersGrid'); 
       tmGrid.innerHTML = ''; 
       const hLabel = lang === 'en' ? 'h' : 'س';
@@ -1833,14 +1816,6 @@
         }; 
         tmGrid.appendChild(btn); 
       });
-    }
-
-    function editQuickTitles() { 
-      const input = prompt(lang === 'en' ? "Edit Quick Titles (comma separated):" : "تعديل العناوين السريعة (مفصول بفاصلة):", quickTitles.join(", ")); 
-      if (input !== null) { 
-        quickTitles = input.split(',').map(s => s.trim()).filter(s => s); 
-        renderQuickActions(); 
-      } 
     }
 
     function editQuickTimers() { 
@@ -1967,7 +1942,7 @@
         endHandle.style.opacity = "0"; 
         dragRadius = radius; 
         
-        isBroken = false; 
+        isBroken = false; // Set safely FIRST
         try { updateLiveTimer(); } catch(e) {}
         
         setTimeout(() => { 
@@ -1994,7 +1969,6 @@
       const dist = Math.hypot(hx - base.x, hy - base.y);
       const centerDist = Math.hypot(hx - cx, hy - cy); 
       
-      // Make string dynamically visible only when there's distance and dragging
       if (dist < 1 && !dragging) { 
         dragString.style.opacity = "0"; 
         return; 
@@ -2156,7 +2130,7 @@
     }
 
     /* ==========================================
-       12. TIMER DRAG EVENTS
+       12. TIMER DRAG EVENTS (Negative Math Clamp)
        ========================================== */
     timeValueText.addEventListener("click", () => { 
       isTimerRunning = !isTimerRunning; 
@@ -2202,6 +2176,7 @@
       if (deltaAngle > 180) deltaAngle -= 360; 
       if (deltaAngle < -180) deltaAngle += 360; 
       
+      // Allow raw tracking to drop negative to maintain cursor lock
       rawTimerDurationMs += deltaAngle * 2 * 60 * 1000; 
       prevMouseAngle = ang; 
       
@@ -2336,6 +2311,7 @@
     }
 
     function initializeLocation() {
+      // Hard bypass for local files.
       if (window.location.protocol === "file:") {
         console.warn("Local file detected. Bypassing browser geolocation to prevent blocking.");
         fetchPrayerTimes("Jeddah");
@@ -2577,7 +2553,7 @@
     /* ==========================================
        15. IMMEDIATE BOOT SEQUENCE
        ========================================== */
-    // No more DOMContentLoaded wrapper. Run immediately.
+    // Code executes immediately - no "DOMContentLoaded" vault!
     
     titleInput.value = localStorage.getItem('idleTitle') || "System Standby"; 
     displayTitle.textContent = titleInput.value; 
