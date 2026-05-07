@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ambient OS | Dashboard (V3.6)</title>
+  <title>Ambient OS | Dashboard (V3.7)</title>
   <style>
     /* ==========================================
        1. CSS RESET & DYNAMIC VARIABLES
@@ -1059,7 +1059,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>Test Tools</span>
-      <span class="dev-version">v3.6</span>
+      <span class="dev-version">v3.7</span>
     </div>
     <button class="dev-btn" onclick="triggerShootingStar()">Shooting Star</button>
     <button class="dev-btn" onclick="playChime()">Play Chime</button>
@@ -1244,6 +1244,7 @@
       <circle id="endHandle" cx="200" cy="40" r="8" fill="#ffffff" class="handle snap-back" />
     </svg>
   </div>
+
   <script>
     /* ==========================================
        1. STATE & CONFIGURATION
@@ -1779,16 +1780,17 @@
       document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active')); 
       document.querySelector(`.theme-dot[data-key="${themeObj.name}"]`).classList.add('active'); 
       
-      gradStart.setAttribute('stop-color', currentTheme.start); 
-      gradEnd.setAttribute('stop-color', currentTheme.end); 
-      endHandle.setAttribute('fill', currentTheme.handle); 
-      ambientGlow.style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`; 
-      starLayer.style.setProperty('--star-color', currentTheme.handle); 
+      // Target explicitly by ID to prevent global scope reference errors
+      document.getElementById('gradStart').setAttribute('stop-color', currentTheme.start); 
+      document.getElementById('gradEnd').setAttribute('stop-color', currentTheme.end); 
+      document.getElementById('endHandle').setAttribute('fill', currentTheme.handle); 
+      document.getElementById('ambientGlow').style.background = `radial-gradient(circle at center, ${currentTheme.handle} 0%, transparent 80%)`; 
+      document.getElementById('starLayer').style.setProperty('--star-color', currentTheme.handle); 
       
       if (!activeTaskObj) document.documentElement.style.setProperty('--accent', currentTheme.handle); 
       
-      if (nextPrayer && !ambientGlow.classList.contains("prayer-glow-active") && !isTestGlowActive) { 
-        prayerCountdownEl.style.color = currentTheme.handle; 
+      if (nextPrayer && !document.getElementById('ambientGlow').classList.contains("prayer-glow-active") && !isTestGlowActive) { 
+        document.getElementById('prayerCountdown').style.color = currentTheme.handle; 
       } 
     }
 
@@ -1882,7 +1884,7 @@
     function drawTicks() { 
       const tg = document.getElementById("ticks");
       if (!tg) return;
-      tg.innerHTML = ''; // Clear just in case
+      tg.innerHTML = ''; 
       
       for (let i = 0; i < 72; i++) { 
         if (i % 18 === 0) continue; 
@@ -1898,8 +1900,6 @@
         line.setAttribute("y1", p1.y); 
         line.setAttribute("x2", p2.x); 
         line.setAttribute("y2", p2.y); 
-        
-        // Hardcoded visual styling logic to prevent missing lines
         line.setAttribute("stroke", isH ? "rgba(120,120,120,0.5)" : "rgba(120,120,120,0.2)"); 
         line.setAttribute("stroke-width", isH ? "2" : "1"); 
         tg.appendChild(line); 
@@ -1910,17 +1910,20 @@
        10. EFFECTS (STARS, SNAP, WOBBLE)
        ========================================== */
     function triggerShootingStar() { 
-      starLayer.style.setProperty('--star-color', activeTaskObj ? activeTaskObj.color : currentTheme.handle); 
-      shootingStar.classList.remove("shoot"); 
-      void shootingStar.offsetWidth; 
-      shootingStar.classList.add("shoot"); 
+      document.getElementById('starLayer').style.setProperty('--star-color', activeTaskObj ? activeTaskObj.color : currentTheme.handle); 
+      const ss = document.getElementById('shootingStar');
+      const ag = document.getElementById('ambientGlow');
       
-      if (!ambientGlow.classList.contains("prayer-glow-active")) { 
-        ambientGlow.style.transition = "opacity 0.2s"; 
-        ambientGlow.style.opacity = "0.7"; 
+      ss.classList.remove("shoot"); 
+      void ss.offsetWidth; 
+      ss.classList.add("shoot"); 
+      
+      if (!ag.classList.contains("prayer-glow-active")) { 
+        ag.style.transition = "opacity 0.2s"; 
+        ag.style.opacity = "0.7"; 
         setTimeout(() => { 
-          ambientGlow.style.transition = "opacity 2s linear"; 
-          ambientGlow.style.opacity = "0"; 
+          ag.style.transition = "opacity 2s linear"; 
+          ag.style.opacity = "0"; 
         }, 200); 
       } 
     }
@@ -1964,10 +1967,7 @@
         endHandle.style.opacity = "0"; 
         dragRadius = radius; 
         
-        // FIX: The engine logic flip. Tell the engine it is no longer broken before updating.
         isBroken = false; 
-        
-        // Safety wrap
         try { updateLiveTimer(); } catch(e) {}
         
         setTimeout(() => { 
@@ -1994,18 +1994,18 @@
       const dist = Math.hypot(hx - base.x, hy - base.y);
       const centerDist = Math.hypot(hx - cx, hy - cy); 
       
-      if (dist < 1) { 
+      // Make string dynamically visible only when there's distance and dragging
+      if (dist < 1 && !dragging) { 
         dragString.style.opacity = "0"; 
         return; 
       } 
       
+      dragString.style.opacity = "1";
       if (centerDist < radius - 5) { 
-        dragString.style.opacity = "1"; 
         dragString.style.strokeDasharray = "4 6"; 
         dragString.style.strokeWidth = "2.5"; 
         dragString.setAttribute("d", `M ${base.x} ${base.y} L ${hx} ${hy}`); 
       } else { 
-        dragString.style.opacity = "1"; 
         dragString.style.strokeDasharray = "none"; 
         
         const stretch = Math.max(0, centerDist - radius); 
@@ -2121,13 +2121,14 @@
         }
         document.getElementById('finishTimeText').textContent = translations[lang].finishAt + finishStr + dateSuffix;
 
-        if (!ambientGlow.classList.contains("prayer-glow-active")) { 
+        const ag = document.getElementById('ambientGlow');
+        if (!ag.classList.contains("prayer-glow-active")) { 
           if (diffMs > 0 && diffMs <= 60000 && isTimerRunning) { 
-            ambientGlow.style.transition = "opacity 1s linear"; 
-            ambientGlow.style.background = `radial-gradient(circle at center, var(--accent) 0%, transparent 80%)`; 
-            ambientGlow.style.opacity = ((1 - (diffMs / 60000)) * 0.4).toString(); 
+            ag.style.transition = "opacity 1s linear"; 
+            ag.style.background = `radial-gradient(circle at center, var(--accent) 0%, transparent 80%)`; 
+            ag.style.opacity = ((1 - (diffMs / 60000)) * 0.4).toString(); 
           } else if (diffMs > 60000 && !dragging) { 
-            ambientGlow.style.opacity = "0"; 
+            ag.style.opacity = "0"; 
           } 
         }
 
@@ -2155,7 +2156,7 @@
     }
 
     /* ==========================================
-       12. TIMER DRAG EVENTS (Negative Math Clamp)
+       12. TIMER DRAG EVENTS
        ========================================== */
     timeValueText.addEventListener("click", () => { 
       isTimerRunning = !isTimerRunning; 
@@ -2201,14 +2202,11 @@
       if (deltaAngle > 180) deltaAngle -= 360; 
       if (deltaAngle < -180) deltaAngle += 360; 
       
-      // FIX: Allow raw tracking to drop negative to maintain cursor lock
       rawTimerDurationMs += deltaAngle * 2 * 60 * 1000; 
       prevMouseAngle = ang; 
       
-      // Prevent extreme overflow
       if (rawTimerDurationMs < -3600000) rawTimerDurationMs = -3600000; 
       
-      // But clamp the visual calculation so it stops at 0
       let displayDuration = rawTimerDurationMs;
       if (displayDuration < 0) displayDuration = 0;
       
@@ -2338,7 +2336,6 @@
     }
 
     function initializeLocation() {
-      // FIX: Hard bypass for local files.
       if (window.location.protocol === "file:") {
         console.warn("Local file detected. Bypassing browser geolocation to prevent blocking.");
         fetchPrayerTimes("Jeddah");
@@ -2348,7 +2345,6 @@
       if ("geolocation" in navigator && !localStorage.getItem('idleCity')) { 
         let hasFired = false;
         
-        // Race Condition: 2 Second timeout
         const fallback = setTimeout(() => {
           if (!hasFired) {
             hasFired = true;
@@ -2491,7 +2487,7 @@
         if (res.ok && method === 'GET') return await res.json(); 
         return { success: true }; 
       } catch (err) { 
-        console.error("Spotify API Error", err); return null; 
+        return null; 
       } 
     }
     
@@ -2579,68 +2575,60 @@
     }
 
     /* ==========================================
-       15. INITIALIZATION (PROTECTED BOOT)
+       15. IMMEDIATE BOOT SEQUENCE
        ========================================== */
-    document.addEventListener('DOMContentLoaded', () => {
-      // Safe Init: Ensure SVG is fully rendered before injecting lines.
-      
-      titleInput.value = localStorage.getItem('idleTitle') || "System Standby"; 
-      displayTitle.textContent = titleInput.value; 
-      document.title = titleInput.value; 
-      cityInput.value = currentCity;
-      
-      cityInput.addEventListener("keydown", (e) => { 
-        if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim()); 
-      });
-      
-      titleInput.addEventListener("input", (e) => { 
-        displayTitle.textContent = e.target.value || " "; 
-        localStorage.setItem('idleTitle', e.target.value); 
-      });
-      
-      clockSvg.addEventListener("mousedown", onPointerDown); 
-      window.addEventListener("mousemove", onPointerMove); 
-      window.addEventListener("mouseup", onPointerUp);
-      
-      clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); 
-      window.addEventListener("touchmove", onPointerMove, {passive: false}); 
-      window.addEventListener("touchend", onPointerUp);
-      
-      Object.entries(themes).forEach(([key, colors]) => { 
-        const dot = document.createElement("div"); 
-        dot.className = `theme-dot`; 
-        dot.dataset.key = key; 
-        dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`; 
-        dot.addEventListener('click', () => applyTheme(colors)); 
-        themeGrid.appendChild(dot); 
-      });
+    // No more DOMContentLoaded wrapper. Run immediately.
+    
+    titleInput.value = localStorage.getItem('idleTitle') || "System Standby"; 
+    displayTitle.textContent = titleInput.value; 
+    document.title = titleInput.value; 
+    cityInput.value = currentCity;
+    
+    cityInput.addEventListener("keydown", (e) => { 
+      if (e.key === 'Enter') fetchPrayerTimes(e.target.value.trim()); 
+    });
+    
+    titleInput.addEventListener("input", (e) => { 
+      displayTitle.textContent = e.target.value || " "; 
+      localStorage.setItem('idleTitle', e.target.value); 
+    });
+    
+    clockSvg.addEventListener("mousedown", onPointerDown); 
+    window.addEventListener("mousemove", onPointerMove); 
+    window.addEventListener("mouseup", onPointerUp);
+    
+    clockSvg.addEventListener("touchstart", onPointerDown, {passive: false}); 
+    window.addEventListener("touchmove", onPointerMove, {passive: false}); 
+    window.addEventListener("touchend", onPointerUp);
+    
+    Object.entries(themes).forEach(([key, colors]) => { 
+      const dot = document.createElement("div"); 
+      dot.className = `theme-dot`; 
+      dot.dataset.key = key; 
+      dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`; 
+      dot.addEventListener('click', () => applyTheme(colors)); 
+      themeGrid.appendChild(dot); 
+    });
 
-      // Core UI Build
-      drawTicks(); // Drawing ticks safely after DOM is ready
-      initTimeline(); 
-      renderV3UI(); 
-      applyTheme(currentTheme); 
-      setMode(currentMode); 
-      setLanguage(lang); 
-      
-      // Initial Timer Logic
-      updateLiveTimer(); 
-      animateWobblyString(); 
-      
-      // Core loop
-      setInterval(updateLiveTimer, 1000);
-      
-      // Fail-safe location fetch
-      initializeLocation();
-      
-      // Spotify
-      handleSpotifyCallback().then(() => { 
-        if (spotifyToken) { 
-          updateSpotifyUI(); 
-          getSpotifyDevices(); 
-          spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); 
-        } 
-      });
+    drawTicks(); 
+    initTimeline(); 
+    renderV3UI(); 
+    applyTheme(currentTheme); 
+    setMode(currentMode); 
+    setLanguage(lang); 
+    
+    updateLiveTimer(); 
+    animateWobblyString(); 
+    setInterval(updateLiveTimer, 1000);
+    
+    initializeLocation();
+    
+    handleSpotifyCallback().then(() => { 
+      if (spotifyToken) { 
+        updateSpotifyUI(); 
+        getSpotifyDevices(); 
+        spotifyUpdateInterval = setInterval(updateSpotifyUI, 5000); 
+      } 
     });
 
   </script>
