@@ -29,6 +29,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   --now-playing-bg: rgba(15, 15, 18, 0.6);
   --sp-btn-color: #aaaaaa;
   --accent: #00c6ff;
+  --accent-contrast: #ffffff;
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
@@ -180,7 +181,7 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .timetable-title { font-size: 1.5rem; font-weight: bold; color: var(--text-primary); display: flex; align-items: center; gap: 15px; }
 .timetable-nav { display: flex; gap: 10px; }
 .nav-btn { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-weight: bold; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-.nav-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+.nav-btn:hover { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
 .close-timetable { background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; font-weight: bold; }
 .close-timetable:hover { color: white; background: #ff4757; border-color: #ff4757; }
 
@@ -253,7 +254,7 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .day-picker { display: flex; gap: 6px; justify-content: space-between; }
 .day-bubble { flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s; user-select: none; }
 .day-bubble:hover { border-color: var(--accent); color: var(--text-primary); }
-.day-bubble.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 10px var(--accent); }
+.day-bubble.active { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); box-shadow: 0 0 10px var(--accent); }
 
 .date-input { width: 100%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-primary); padding: 12px; border-radius: 8px; outline: none; font-size: 1rem; font-family: inherit; }
 .date-input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
@@ -261,13 +262,13 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .icon-picker-container { display: flex; flex-wrap: wrap; gap: 8px; max-height: 140px; overflow-y: auto; padding: 10px; scrollbar-width: none; -ms-overflow-style: none; }
 .icon-picker-container::-webkit-scrollbar { display: none; }
 .icon-option { flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; background: var(--input-bg); border: 1px solid var(--input-border); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-.icon-option.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.icon-option.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 10px var(--accent); color: var(--accent-contrast); }
 
 .icon-suggest-row { display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 6px 4px; scrollbar-width: none; -ms-overflow-style: none; }
 .icon-suggest-row::-webkit-scrollbar { display: none; }
 .icon-suggest-label { font-size: 0.68rem; color: var(--text-secondary); white-space: nowrap; flex-shrink: 0; }
 .icon-suggest-chip { flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 15%, transparent); border: 1px solid var(--accent); color: var(--accent); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-.icon-suggest-chip:hover { background: var(--accent); color: #fff; }
+.icon-suggest-chip:hover { background: var(--accent); color: var(--accent-contrast); }
 .icon-suggest-chip .icon-svg { width: 16px; height: 16px; }
 
 .mini-clock-container { width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
@@ -285,7 +286,7 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .color-swatch.active { border-color: white; transform: scale(1.15); box-shadow: 0 0 12px currentColor; }
 .modal-btns { display: flex; gap: 10px; margin-top: 5px; }
 .modal-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
-.modal-btn.save { background: var(--accent); color: white; }
+.modal-btn.save { background: var(--accent); color: var(--accent-contrast); }
 .modal-btn.cancel { background: var(--input-bg); color: var(--text-secondary); border: 1px solid var(--input-border); }
 .modal-btn.save.danger { background: #ff4757; }
 
@@ -333,7 +334,7 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .title-input:focus { border-color: rgba(120, 120, 120, 0.3); }
 .input-row { display: flex; gap: 8px; }
 .input-row input { flex: 1; }
-.add-task-btn { width: 100%; background: var(--accent); color: #ffffff; border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: filter 0.2s, transform 0.2s, box-shadow 0.2s; }
+.add-task-btn { width: 100%; background: var(--accent); color: var(--accent-contrast); border: none; padding: 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; cursor: pointer; transition: filter 0.2s, transform 0.2s, box-shadow 0.2s; }
 .add-task-btn:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); }
 .add-task-btn:active { transform: translateY(0); filter: brightness(0.95); }
 .add-task-btn.secondary { background: var(--input-bg); color: var(--text-primary); border: 1px solid var(--input-border); }
@@ -358,7 +359,7 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .slider-bg { position: absolute; top: 3px; left: 3px; width: calc(50% - 3px); height: calc(100% - 6px); background: var(--accent); border-radius: 8px; z-index: 1; transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
 body[dir="rtl"] .slider-bg { left: auto; right: 3px; }
 .slider-opt { flex: 1; text-align: center; z-index: 2; color: var(--text-secondary); font-size: 0.8rem; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
-.slider-opt.active { color: #ffffff; }
+.slider-opt.active { color: var(--accent-contrast); }
 .slide-second { transform: translateX(100%); }
 body[dir="rtl"] .slide-second { transform: translateX(-100%); }
 

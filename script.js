@@ -1402,13 +1402,12 @@ function toggleClockElement(elementClassOrId, btnEl) {
 function setClockFace(faceType, btnEl) {
   document.querySelectorAll('#clockFaceGrid .clock-toggle-btn').forEach(btn => btn.classList.remove('active-lang'));
   btnEl.classList.add('active-lang');
-  document.querySelectorAll('.clock-face-classic, .clock-face-radar, .clock-face-numbers').forEach(el => {
+  document.querySelectorAll('.clock-face-classic, .clock-face-radar').forEach(el => {
     el.style.display = 'none';
     el.style.opacity = '0';
   });
   if (faceType === 'default') {
-    document.querySelector('.clock-face-numbers').style.display = 'block';
-    document.querySelector('.clock-face-numbers').style.opacity = '1';
+    // Numbers visibility is controlled independently by the Numbers toggle
   } else if (faceType === 'classic') {
     document.querySelector('.clock-face-classic').style.display = 'block';
     document.querySelector('.clock-face-classic').style.opacity = '1';
@@ -1426,6 +1425,15 @@ function setArcStyle(mode, btnEl) {
   renderTaskArcs();
 }
 
+function getContrastColor(hexColor) {
+  const hex = hexColor.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.6 ? '#111111' : '#ffffff';
+}
+
 function applyTheme(themeObj) {
   currentTheme = themeObj;
   localStorage.setItem('idleTheme', themeObj.name);
@@ -1433,6 +1441,7 @@ function applyTheme(themeObj) {
   const dot = document.querySelector(`.theme-dot[data-key="${themeObj.name}"]`);
   if (dot) dot.classList.add('active');
   document.documentElement.style.setProperty('--accent', currentTheme.handle);
+  document.documentElement.style.setProperty('--accent-contrast', getContrastColor(currentTheme.handle));
   if (document.getElementById('gradStart')) {
     document.getElementById('gradStart').setAttribute('stop-color', currentTheme.start);
     document.getElementById('gradEnd').setAttribute('stop-color', currentTheme.end);
@@ -2395,15 +2404,51 @@ async function handleSpotifyCallback() {
     }
   }
 }
+async function refreshSpotifyToken() {
+  const refreshToken = localStorage.getItem('spotify_refresh_token');
+  if (!refreshToken) return false;
+  try {
+    const body = await fetch("https://accounts.spotify.com/api/token", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ client_id: SPOTIFY_CLIENT_ID, grant_type: 'refresh_token', refresh_token: refreshToken })
+    });
+    const response = await body.json();
+    if (response.access_token) {
+      spotifyToken = response.access_token;
+      spotifyTokenExpiry = Date.now() + (response.expires_in * 1000);
+      localStorage.setItem('spotify_token', spotifyToken);
+      localStorage.setItem('spotify_token_expiry', spotifyTokenExpiry);
+      if (response.refresh_token) localStorage.setItem('spotify_refresh_token', response.refresh_token);
+      return true;
+    }
+  } catch (err) { /* network failure, treat as not refreshed */ }
+  return false;
+}
 async function fetchSpotifyAPI(endpoint, method = 'GET', body = null) {
   if (!spotifyToken) return null;
+  if (Date.now() >= Number(spotifyTokenExpiry)) {
+    const refreshed = await refreshSpotifyToken();
+    if (!refreshed) return null;
+  }
   try {
     const res = await fetch(`https://api.spotify.com/v1${endpoint}`, {
       method: method,
       headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : null
     });
-    if (res.status === 401) { return null; }
+    if (res.status === 401) {
+      const refreshed = await refreshSpotifyToken();
+      if (!refreshed) return null;
+      const retryRes = await fetch(`https://api.spotify.com/v1${endpoint}`, {
+        method: method,
+        headers: { 'Authorization': `Bearer ${spotifyToken}`, 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : null
+      });
+      if (retryRes.status === 204) return { no_content: true };
+      if (retryRes.ok && method === 'GET') return await retryRes.json();
+      return retryRes.ok ? { success: true } : null;
+    }
     if (res.status === 204) return { no_content: true };
     if (res.ok && method === 'GET') return await res.json();
     return { success: true };
