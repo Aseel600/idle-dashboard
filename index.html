@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <title>Ambient OS | Dashboard (V6.2)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <svg style="display:none;">
+    <defs>
+      <symbol id="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+      <symbol id="icon-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.7A4 4 0 0 0 6.5 19h11z"/></symbol>
+      <symbol id="icon-mosque" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 3H10l2-3z"/><path d="M7 21v-6a5 5 0 0 1 10 0v6"/><line x1="4" y1="21" x2="20" y2="21"/><line x1="4" y1="10" x2="4" y2="21"/><line x1="20" y1="10" x2="20" y2="21"/><circle cx="4" cy="8" r="1.5"/><circle cx="20" cy="8" r="1.5"/></symbol>
+      <symbol id="icon-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z"/></symbol>
+      <symbol id="icon-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+      <symbol id="icon-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l2.83-2.83a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0L4.1 13.83a5 5 0 0 0 7.07 7.07l1.5-1.5"/></symbol>
+      <symbol id="icon-package" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><line x1="12" y1="13" x2="12" y2="21"/></symbol>
+      <symbol id="icon-play-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-sparkle" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></symbol>
+      <symbol id="icon-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 3.2"/></symbol>
+      <symbol id="icon-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+      <symbol id="icon-dumbbell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6.5" y1="12" x2="17.5" y2="12"/><rect x="2" y="9" width="3" height="6" rx="1"/><rect x="19" y="9" width="3" height="6" rx="1"/><rect x="5" y="7" width="2.5" height="10" rx="1"/><rect x="16.5" y="7" width="2.5" height="10" rx="1"/></symbol>
+      <symbol id="icon-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><line x1="2" y1="13" x2="22" y2="13"/></symbol>
+      <symbol id="icon-gamepad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="5"/><line x1="7" y1="10" x2="7" y2="14"/><line x1="5" y1="12" x2="9" y2="12"/><circle cx="16" cy="10.5" r="1" fill="currentColor"/><circle cx="18.5" cy="13" r="1" fill="currentColor"/></symbol>
+      <symbol id="icon-moon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4" y1="12" x2="2" y2="12"/><line x1="22" y1="12" x2="20" y2="12"/><line x1="5.6" y1="5.6" x2="4.2" y2="4.2"/><line x1="19.8" y1="19.8" x2="18.4" y2="18.4"/><line x1="5.6" y1="18.4" x2="4.2" y2="19.8"/><line x1="19.8" y1="4.2" x2="18.4" y2="5.6"/></symbol>
+      <symbol id="icon-hash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></symbol>
+      <symbol id="icon-clock-hand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-clock-hour-hand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="15" y2="16"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-tick-marks" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-dasharray="1 2.5"/></symbol>
+      <symbol id="icon-clock-face" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="12" x2="12" y2="7"/><line x1="12" y1="12" x2="15.5" y2="13.5"/></symbol>
+      <symbol id="icon-radar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" stroke-dasharray="1 2"/><line x1="12" y1="12" x2="18" y2="8"/></symbol>
+      <symbol id="icon-utensils" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="2" x2="6" y2="22"/><line x1="3" y1="2" x2="3" y2="9"/><line x1="9" y1="2" x2="9" y2="9"/><line x1="3" y1="9" x2="9" y2="9"/><line x1="18" y1="2" x2="18" y2="22"/><line x1="15" y1="2" x2="15" y2="7"/><line x1="21" y1="2" x2="21" y2="7"/></symbol>
+      <symbol id="icon-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 5a2 2 0 0 1 2-2h6v18H4a2 2 0 0 1-2-2V5z"/><path d="M22 5a2 2 0 0 0-2-2h-6v18h6a2 2 0 0 0 2-2V5z"/></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+      <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+      <symbol id="icon-skip-back" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19,20 9,12 19,4"/><rect x="4" y="4" width="2" height="16"/></symbol>
+      <symbol id="icon-skip-forward" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5,4 15,12 5,20"/><rect x="18" y="4" width="2" height="16"/></symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="6,4 20,12 6,20"/></symbol>
+      <symbol id="icon-pause" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
+      <symbol id="icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></symbol>
+      <symbol id="icon-clipboard-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></symbol>
+      <symbol id="icon-repeat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></symbol>
+      <symbol id="icon-zap" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="13,2 3,14 11,14 9,22 21,10 13,10"/></symbol>
+      <symbol id="icon-chevron-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6,9 12,15 18,9"/></symbol>
+      <symbol id="icon-circle-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-rings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></symbol>
+      <symbol id="icon-contrast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-daynight" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="4" fill="currentColor" stroke="none"/><path d="M19 15a4 4 0 1 1-3-6.5"/></symbol>
+
+      <symbol id="icon-laptop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="1"/><line x1="2" y1="20" x2="22" y2="20"/></symbol>
+      <symbol id="icon-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3,7 12,13 21,7"/></symbol>
+      <symbol id="icon-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></symbol>
+      <symbol id="icon-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="20" y2="20"/><rect x="6" y="12" width="3" height="8"/><rect x="11" y="7" width="3" height="13"/><rect x="16" y="14" width="3" height="6"/></symbol>
+      <symbol id="icon-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-clipboard-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><rect x="9" y="1" width="6" height="4" rx="1"/><polyline points="9,13 11,15 15,10"/></symbol>
+      <symbol id="icon-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><rect x="9" y="17" width="6" height="5"/></symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></symbol>
+      <symbol id="icon-pill" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="10" width="18" height="8" rx="4" transform="rotate(-45 12 12)"/><line x1="9" y1="9" x2="15" y2="15"/></symbol>
+      <symbol id="icon-stethoscope" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v6a4 4 0 0 0 8 0V3"/><circle cx="18" cy="15" r="3"/><path d="M10 13a5 5 0 0 0 5 5"/></symbol>
+      <symbol id="icon-droplet" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2c4 5 7 9 7 13a7 7 0 0 1-14 0c0-4 3-8 7-13z"/></symbol>
+      <symbol id="icon-activity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,12 7,12 10,20 14,4 17,12 22,12"/></symbol>
+      <symbol id="icon-bike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M6 17l5-10h3l4 10"/><line x1="11" y1="7" x2="15" y2="7"/></symbol>
+      <symbol id="icon-tooth" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3c-2 0-4 1.5-4 4 0 2 1 3 1 5 0 3-1 6-1 8 0 1 1 1 1.5 0 .8-1.6 1.5-4 2.5-4s1.7 2.4 2.5 4c.5 1 1.5 1 1.5 0 0-2-1-5-1-8 0-2 1-3 1-5 0-2.5-2-4-4-4z"/></symbol>
+      <symbol id="icon-coffee" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8z"/><path d="M17 9h1a3 3 0 0 1 0 6h-1"/><line x1="7" y1="3" x2="7" y2="5"/><line x1="11" y1="3" x2="11" y2="5"/></symbol>
+      <symbol id="icon-pizza" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l9-4 9 4-9 15L3 6z"/><circle cx="12" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="13" r="1" fill="currentColor" stroke="none"/><circle cx="14" cy="13" r="1" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-cake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="12" width="16" height="8" rx="1"/><line x1="4" y1="16" x2="20" y2="16"/><line x1="8" y1="12" x2="8" y2="7"/><line x1="12" y1="12" x2="12" y2="6"/><line x1="16" y1="12" x2="16" y2="7"/></symbol>
+      <symbol id="icon-shopping-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="18" cy="21" r="1" fill="currentColor" stroke="none"/><path d="M2 3h3l2.6 12.4a2 2 0 0 0 2 1.6H18a2 2 0 0 0 2-1.6L22 8H6"/></symbol>
+      <symbol id="icon-wine" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8l-1 8a3 3 0 0 1-6 0z"/><line x1="12" y1="14" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></symbol>
+      <symbol id="icon-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><rect x="9" y="14" width="6" height="6"/></symbol>
+      <symbol id="icon-bed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20v-8a3 3 0 0 1 3-3h14a3 3 0 0 1 3 3v8"/><line x1="2" y1="17" x2="22" y2="17"/><line x1="2" y1="20" x2="2" y2="14"/><line x1="22" y1="20" x2="22" y2="14"/><rect x="4" y="10" width="6" height="4" rx="1"/></symbol>
+      <symbol id="icon-broom" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="20" y1="4" x2="10" y2="14"/><path d="M4 20l4-1 6-6-3-3-6 6-1 4z"/></symbol>
+      <symbol id="icon-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="7" r="3"/><line x1="9.5" y1="9.5" x2="19" y2="19"/><line x1="16" y1="16" x2="19" y2="13"/></symbol>
+      <symbol id="icon-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="4"/><line x1="10" y1="12" x2="20" y2="2"/><line x1="16" y1="6" x2="19" y2="9"/><line x1="13" y1="9" x2="16" y2="12"/></symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,6 5,6 21,6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
+      <symbol id="icon-plane" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+      <symbol id="icon-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17h1l1.5-5A2 2 0 0 1 7.4 10h9.2a2 2 0 0 1 1.9 1.4L20 17h1"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><line x1="5" y1="17" x2="19" y2="17"/></symbol>
+      <symbol id="icon-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+      <symbol id="icon-luggage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="7" width="14" height="13" rx="2"/><path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3"/><line x1="9" y1="11" x2="9" y2="16"/><line x1="15" y1="11" x2="15" y2="16"/></symbol>
+      <symbol id="icon-train" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3"/><circle cx="9" cy="13" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="13" r="1" fill="currentColor" stroke="none"/><line x1="5" y1="9" x2="19" y2="9"/><path d="M8 21l-2 2M16 21l2 2"/></symbol>
+      <symbol id="icon-ship" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15h18l-2 5a2 2 0 0 1-2 1.5H7A2 2 0 0 1 5 20l-2-5z"/><line x1="6" y1="15" x2="6" y2="4"/><path d="M6 6h9l3 9"/></symbol>
+      <symbol id="icon-compass" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polygon points="15,9 13,13 9,15 11,11" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><circle cx="17" cy="9" r="2.5"/><path d="M17 21v-2a4 4 0 0 0-1-2.6"/></symbol>
+      <symbol id="icon-gift" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="12" rx="1"/><line x1="3" y1="14" x2="21" y2="14"/><line x1="12" y1="9" x2="12" y2="21"/><path d="M12 9C10 5 6 5 6 8s3 1 6 1zM12 9c2-4 6-4 6-1s-3 1-6 1z"/></symbol>
+      <symbol id="icon-message-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v12H8l-4 4z"/></symbol>
+      <symbol id="icon-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/></symbol>
+      <symbol id="icon-party" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l6-14 10 10-14 4z"/><circle cx="17" cy="4" r="1" fill="currentColor" stroke="none"/><circle cx="20" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="14" cy="3" r="1" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="icon-dollar-sign" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6H10a3.5 3.5 0 0 0 0 7h4a3.5 3.5 0 0 1 0 7H7"/></symbol>
+      <symbol id="icon-credit-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></symbol>
+      <symbol id="icon-piggy-bank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a7 7 0 0 1 7-7h4a5 5 0 0 1 5 5v1l2 2-2 1v2a2 2 0 0 1-2 2h-1v2h-3v-2H9a5 5 0 0 1-5-5z"/><circle cx="16" cy="10" r="0.8" fill="currentColor" stroke="none"/><line x1="4" y1="12" x2="2" y2="12"/></symbol>
+      <symbol id="icon-receipt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-2-1.5L14 22l-2-1.5L10 22l-2-1.5L6 22z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="13" y2="15"/></symbol>
+      <symbol id="icon-trending-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3,17 9,11 13,15 21,7"/><polyline points="14,7 21,7 21,14"/></symbol>
+      <symbol id="icon-graduation-cap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><line x1="22" y1="9" x2="22" y2="15"/></symbol>
+      <symbol id="icon-backpack" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8V6a5 5 0 0 1 10 0v2"/><rect x="5" y="8" width="14" height="13" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><rect x="9" y="8" width="6" height="4"/></symbol>
+      <symbol id="icon-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12,2 15,9 22,9.5 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.5 9,9"/></symbol>
+      <symbol id="icon-alarm-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><line x1="12" y1="13" x2="12" y2="9"/><line x1="12" y1="13" x2="15" y2="15"/><line x1="5" y1="3" x2="2" y2="6"/><line x1="19" y1="3" x2="22" y2="6"/><line x1="9" y1="3" x2="15" y2="3"/></symbol>
+      <symbol id="icon-umbrella" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12a10 10 0 0 1 20 0z"/><line x1="12" y1="12" x2="12" y2="19"/><path d="M9 19a3 3 0 0 0 6 0"/></symbol>
+      <symbol id="icon-paw" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/><path d="M6 15a3 3 0 0 1 3-4h6a3 3 0 0 1 3 4c0 2-2.5 4-6 4s-6-2-6-4z"/></symbol>
+      <symbol id="icon-baby" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/><circle cx="9" cy="6" r="0.5" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="0.5" fill="currentColor" stroke="none"/><path d="M10 9a2 2 0 0 0 4 0"/></symbol>
+      <symbol id="icon-tree" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L6 10h3l-4 6h4l-3 6h12l-3-6h4l-4-6h3z"/><line x1="12" y1="22" x2="12" y2="18"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="dev-menu" id="devMenu">
+    <div class="dev-header" id="devHeader">
+      <span>QA Tools</span>
+      <span class="dev-version">v6.2</span>
+    </div>
+    <div class="dev-btn-grid">
+      <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
+      <button class="dev-btn" onclick="playChime()"><svg class="icon-svg"><use href="#icon-bell"></use></svg><span>Play Chime</span></button>
+      <button class="dev-btn" onclick="triggerSnapEasterEgg()"><svg class="icon-svg"><use href="#icon-zap"></use></svg><span>Trigger Snap</span></button>
+      <button class="dev-btn" onclick="testHolyGlow()" id="glowBtn"><svg class="icon-svg"><use href="#icon-mosque"></use></svg><span id="glowBtnLabel">Azan Glow</span></button>
+    </div>
+
+    <div class="dev-checklist-history">
+    <hr style="border: 1px solid rgba(255, 71, 87, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#ff4757; font-weight:bold; text-align:center; margin-bottom: 5px;">V4.7 CHECKLIST</div>
+
+    <label class="qa-item"><input type="checkbox"> Timeline Tasks Visible</label>
+    <label class="qa-item"><input type="checkbox"> Hover Tooltips on Tasks</label>
+    <label class="qa-item"><input type="checkbox"> Widget Toggles (Right Panel)</label>
+    <label class="qa-item"><input type="checkbox"> Clock Elements Toggle</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V4.8 WIDGET OVERHAUL &amp; QA</div>
+
+    <label class="qa-item"><input type="checkbox"> Left Panel Scrolls (Hidden Scrollbar)</label>
+    <label class="qa-item"><input type="checkbox"> Left Panel Bottom Padding (No Clipping)</label>
+    <label class="qa-item"><input type="checkbox"> Widget Chevron Rotates on Expand</label>
+    <label class="qa-item"><input type="checkbox"> Widget Collapse Animates Smoothly</label>
+    <label class="qa-item"><input type="checkbox"> Schedule Expanded: Remaining Tasks List</label>
+    <label class="qa-item"><input type="checkbox"> Weather Expanded: Hourly Breakdown</label>
+    <label class="qa-item"><input type="checkbox"> Prayer Expanded: All 5 Prayers + Highlight</label>
+    <label class="qa-item"><input type="checkbox"> World Clock Expanded: Extra Timezones</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Expanded: Progress Bar</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Expanded: Volume Slider</label>
+    <label class="qa-item"><input type="checkbox"> Dev Menu No Longer Clips Off-Screen</label>
+
+    <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V4.9 CALENDAR OVERHAUL &amp; QA</div>
+
+    <label class="qa-item"><input type="checkbox"> Left Panel Fluid on 4K (No Card Clipping)</label>
+    <label class="qa-item"><input type="checkbox"> Dev Menu ⚙ Toggle Hides/Unhides Menu</label>
+    <label class="qa-item"><input type="checkbox"> Modal: Location Field</label>
+    <label class="qa-item"><input type="checkbox"> Modal: All-Day Toggle Hides Time Picker</label>
+    <label class="qa-item"><input type="checkbox"> Modal: Separate Start/End Date</label>
+    <label class="qa-item"><input type="checkbox"> Modal: Time Zone Dropdown</label>
+    <label class="qa-item"><input type="checkbox"> Modal: Repeat (Daily/Weekly/Monthly/Yearly)</label>
+    <label class="qa-item"><input type="checkbox"> Modal: Alert / Reminder Dropdown</label>
+    <label class="qa-item"><input type="checkbox"> Modal: Show Reminder in Timeline Toggle</label>
+    <label class="qa-item"><input type="checkbox"> Modal: URL &amp; Notes Fields</label>
+    <label class="qa-item"><input type="checkbox"> Weekly/Monthly/Yearly Repeats Render Correctly</label>
+    <label class="qa-item"><input type="checkbox"> Multi-Day Events Span Timetable Correctly</label>
+    <label class="qa-item"><input type="checkbox"> Timeline Shows 🔔 Reminder Markers</label>
+    <label class="qa-item"><input type="checkbox"> Active Event Sets Clock Title + Countdown to End Time</label>
+
+    <hr style="border: 1px solid rgba(155, 89, 182, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#9b59b6; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.0 ROUTINES &amp; MANAGER QA</div>
+
+    <label class="qa-item"><input type="checkbox"> Repeat Dropdown Readable (Dark Theme)</label>
+    <label class="qa-item"><input type="checkbox"> Category Icons No Longer Squished</label>
+    <label class="qa-item"><input type="checkbox"> Routine Toggle Hides Dates, Shows Day Bubbles</label>
+    <label class="qa-item"><input type="checkbox"> Routine Saves &amp; Recurs on Selected Days</label>
+    <label class="qa-item"><input type="checkbox"> Prayer Interrupts Active Routine/Event on Clock</label>
+    <label class="qa-item"><input type="checkbox"> Clock Resumes Routine/Event After Iqamah Ends</label>
+    <label class="qa-item"><input type="checkbox"> Schedule Manager Lists Events/Routines/Reminders</label>
+    <label class="qa-item"><input type="checkbox"> Schedule Manager Edit Button Works</label>
+    <label class="qa-item"><input type="checkbox"> Schedule Manager Delete Button Works</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.1 SVG ICONS &amp; MODAL FIX</div>
+
+    <label class="qa-item"><input type="checkbox"> Category Icon Row No Longer Squished</label>
+    <label class="qa-item"><input type="checkbox"> Widget Header Icons Are SVG (Recolor w/ Theme)</label>
+    <label class="qa-item"><input type="checkbox"> Zen/Dev Toggle Icons Are SVG</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Controls Are SVG</label>
+    <label class="qa-item"><input type="checkbox"> Legacy Emoji Task Icons Still Render Correctly</label>
+    <label class="qa-item"><input type="checkbox"> Edit Task Correctly Re-Selects Saved Icon</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.2 ICON EXPANSION &amp; GLOW FIX</div>
+
+    <label class="qa-item"><input type="checkbox"> Active Icon Glow Not Clipped in Category Picker</label>
+    <label class="qa-item"><input type="checkbox"> Widget Card Hover Glow Not Clipped in Left Panel</label>
+    <label class="qa-item"><input type="checkbox"> Category Picker Scrolls as Wrapping Grid (57 icons)</label>
+    <label class="qa-item"><input type="checkbox"> Typing Event Name Shows Icon Suggestions</label>
+    <label class="qa-item"><input type="checkbox"> Clicking Suggestion Chip Selects That Icon</label>
+    <label class="qa-item"><input type="checkbox"> All 50 New Icons Render Without Errors</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.3 AM/PM ARC STYLES</div>
+
+    <label class="qa-item"><input type="checkbox"> Original Mode Matches Prior Behavior</label>
+    <label class="qa-item"><input type="checkbox"> Dual Track: AM Inner Ring, PM Outer Ring</label>
+    <label class="qa-item"><input type="checkbox"> Dual Track: Overlap Shows Color-Mix Blend</label>
+    <label class="qa-item"><input type="checkbox"> Dimmed: Off-Period Events Fade Correctly</label>
+    <label class="qa-item"><input type="checkbox"> Dimmed: Updates Live at Noon/Midnight</label>
+    <label class="qa-item"><input type="checkbox"> Day/Night: Sun/Moon Badge on Each Arc</label>
+    <label class="qa-item"><input type="checkbox"> Selected Style Persists After Reload</label>
+
+    <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.4 THEMED DIALOGS</div>
+
+    <label class="qa-item"><input type="checkbox"> Save Task Validation Uses Themed Alert</label>
+    <label class="qa-item"><input type="checkbox"> Delete Task Uses Themed Confirm (Red)</label>
+    <label class="qa-item"><input type="checkbox"> Delete Schedule Item Uses Themed Confirm</label>
+    <label class="qa-item"><input type="checkbox"> Edit Reminder Uses Themed Prompt</label>
+    <label class="qa-item"><input type="checkbox"> Delete Reminder Uses Themed Confirm</label>
+    <label class="qa-item"><input type="checkbox"> No Native Browser Alert/Confirm/Prompt Remains</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.5 ESCAPE KEY</div>
+
+    <label class="qa-item"><input type="checkbox"> Esc Cancels Themed Dialog (Alert/Confirm/Prompt)</label>
+    <label class="qa-item"><input type="checkbox"> Esc Closes Task Modal</label>
+    <label class="qa-item"><input type="checkbox"> Esc Closes Timetable</label>
+    <label class="qa-item"><input type="checkbox"> Esc Closes Schedule Manager</label>
+    <label class="qa-item"><input type="checkbox"> Esc Closes Innermost Overlay First When Stacked</label>
+
+    <hr style="border: 1px solid rgba(155, 89, 182, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#9b59b6; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.6 CLOCK CUSTOMIZATION REDESIGN</div>
+
+    <label class="qa-item"><input type="checkbox"> Toggle Tiles Show Clear Active/Inactive State</label>
+    <label class="qa-item"><input type="checkbox"> Numbers Toggle Works</label>
+    <label class="qa-item"><input type="checkbox"> Minute Hand Toggle Works</label>
+    <label class="qa-item"><input type="checkbox"> New: Hour Hand Toggle Works</label>
+    <label class="qa-item"><input type="checkbox"> New: Tick Marks Toggle Works</label>
+
+    <hr style="border: 1px solid rgba(155, 89, 182, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#9b59b6; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.7 CLOCK FACE STYLE REDESIGN</div>
+
+    <label class="qa-item"><input type="checkbox"> Default/Classic/Radar Tiles Show Clear Selected State</label>
+    <label class="qa-item"><input type="checkbox"> Selecting a Face Style Deselects the Others</label>
+    <label class="qa-item"><input type="checkbox"> Clock Face Actually Switches on Click</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.8 RIGHT PANEL &amp; DEV MENU OVERHAUL</div>
+
+    <label class="qa-item"><input type="checkbox"> Dev Menu Buttons Are Icon Tiles</label>
+    <label class="qa-item"><input type="checkbox"> Azan Glow Button Label Updates (Icon Stays)</label>
+    <label class="qa-item"><input type="checkbox"> Checklist History Scrolls Independently of Buttons</label>
+    <label class="qa-item"><input type="checkbox"> Widget Manager Tiles Show Icon + Clear Hide State</label>
+    <label class="qa-item"><input type="checkbox"> Widget Toggle Still Hides/Shows Correct Widget</label>
+    <label class="qa-item"><input type="checkbox"> AM/PM Arc Style Tiles Match New Design</label>
+    <label class="qa-item"><input type="checkbox"> Arc Style Selection Still Persists After Reload</label>
+    <label class="qa-item"><input type="checkbox"> Widget Chevrons Are SVG, Rotate on Expand</label>
+
+    <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V5.9 FULL ARABIC LOCALIZATION</div>
+
+    <label class="qa-item"><input type="checkbox"> Task Modal Fully Arabic (Labels, Placeholders, Selects, Buttons)</label>
+    <label class="qa-item"><input type="checkbox"> Routine Day Bubbles Show Arabic Letters</label>
+    <label class="qa-item"><input type="checkbox"> Left Panel Widgets Fully Arabic</label>
+    <label class="qa-item"><input type="checkbox"> World Clock Cities Translated</label>
+    <label class="qa-item"><input type="checkbox"> Right Panel Sections Fully Arabic</label>
+    <label class="qa-item"><input type="checkbox"> New Event/Edit Event Modal Title Switches Live</label>
+    <label class="qa-item"><input type="checkbox"> System Standby / Offline Strings Switch Live</label>
+    <label class="qa-item"><input type="checkbox"> Timetable Gregorian/Hijri Button Refreshes on Lang Switch</label>
+    <label class="qa-item"><input type="checkbox"> Switching Language Mid-Task Doesn't Lose Active Task Title</label>
+
+    <hr style="border: 1px solid rgba(0, 198, 255, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#00c6ff; font-weight:bold; text-align:center; margin-bottom: 5px;">V6.0 DUAL TRACK REDESIGN</div>
+
+    <label class="qa-item"><input type="checkbox"> AM Ring (Blue) and PM Ring (Red) Visible as Full Guide Tracks</label>
+    <label class="qa-item"><input type="checkbox"> Tracks Cross in X Pattern at 12 O'Clock</label>
+    <label class="qa-item"><input type="checkbox"> Now-Handle Sits on Correct Track for Current AM/PM</label>
+    <label class="qa-item"><input type="checkbox"> Timer End-Handle Sits on Correct Track for Target AM/PM</label>
+    <label class="qa-item"><input type="checkbox"> Dragging Still Free-Floats (Stretchy Easter Egg Unaffected)</label>
+    <label class="qa-item"><input type="checkbox"> Wobbly String Rests Flat When Timer Not Being Dragged</label>
+
+    <hr style="border: 1px solid rgba(255, 71, 87, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#ff4757; font-weight:bold; text-align:center; margin-bottom: 5px;">V6.1 BUG AUDIT &amp; DUAL TRACK V2</div>
+
+    <label class="qa-item"><input type="checkbox"> BUG: Spotify API URL Was Missing https:// and /v1 (Fixed)</label>
+    <label class="qa-item"><input type="checkbox"> Playback Device Dropdown Now Lists Real Devices</label>
+    <label class="qa-item"><input type="checkbox"> Selecting a Device Actually Transfers Playback</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Play/Pause/Skip/Volume/Progress Now Actually Work</label>
+    <label class="qa-item"><input type="checkbox"> Dual Track Rings Sit Outside Clock Face (No Clutter w/ Ticks)</label>
+    <label class="qa-item"><input type="checkbox"> Dual Track Colors No Longer Clash w/ Red=Danger Convention</label>
+    <label class="qa-item"><input type="checkbox"> AM/PM Text Labels Visible on Each Ring</label>
+    <label class="qa-item"><input type="checkbox"> AM/PM Labels Localize With Language Switch</label>
+
+    <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V6.2 PROFESSIONAL AUDIT PASS</div>
+
+    <label class="qa-item"><input type="checkbox"> Corrupted localStorage No Longer Crashes Entire App</label>
+    <label class="qa-item"><input type="checkbox"> Alert Reminders Actually Fire (Chime + Toast) at Set Time</label>
+    <label class="qa-item"><input type="checkbox"> Reminder Toast Appears and Auto-Dismisses</label>
+    <label class="qa-item"><input type="checkbox"> Task Location Shows in Schedule Manager + Tooltips</label>
+    <label class="qa-item"><input type="checkbox"> Task Notes Show as Hover Tooltip in Schedule Manager</label>
+    <label class="qa-item"><input type="checkbox"> Task URL Shows as Clickable Link in Schedule Manager</label>
+    <label class="qa-item"><input type="checkbox"> Task/Goal Names Escaped (No Stored HTML Injection)</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Controls, Zen/Dev Toggle, Nav Buttons Have aria-label</label>
+    <label class="qa-item"><input type="checkbox"> Widget Headers Keyboard-Focusable and Enter/Space Activates</label>
+    <label class="qa-item"><input type="checkbox"> Icon Picker / Color Swatches / Day Bubbles Keyboard-Accessible</label>
+    <label class="qa-item"><input type="checkbox"> Focus-Visible Outline Shows on Keyboard Navigation</label>
+    <label class="qa-item"><input type="checkbox"> Favicon Shows in Browser Tab</label>
+    <label class="qa-item"><input type="checkbox"> Layout Doesn't Overlap/Break Below ~1100px Width</label>
+    <label class="qa-item"><input type="checkbox"> Layout Still Usable Below 760px (Left Panel Hidden Gracefully)</label>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal-content">
+      <div class="modal-header" id="modalHeaderTitle" data-i18n="newEvent">New Event</div>
+
+      <input type="text" class="title-input" id="newTaskName" placeholder="Title" data-i18n-placeholder="titlePlaceholder" />
+      <input type="text" class="title-input" id="newTaskLocation" placeholder="Location" data-i18n-placeholder="location" />
+
+      <div class="modal-field-row" id="allDayFieldRow">
+        <span class="mfr-label" data-i18n="allDay">All-day</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="taskAllDay" onchange="handleAllDayToggle()">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="routine">Routine</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="taskIsRoutine" onchange="handleRoutineToggle()">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div id="dateFieldsBlock">
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="starts">Starts</div>
+        <input type="date" class="date-input" id="newTaskDate" />
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="ends">Ends</div>
+        <input type="date" class="date-input" id="newTaskEndDate" />
+      </div>
+
+      <div id="routineDaysBlock" style="display:none;">
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="repeatOnDays">Repeat on Days</div>
+        <div class="day-picker" id="routineDayPicker">
+          <div class="day-bubble" data-day="0" onclick="toggleRoutineDay(0, this)">S</div>
+          <div class="day-bubble" data-day="1" onclick="toggleRoutineDay(1, this)">M</div>
+          <div class="day-bubble" data-day="2" onclick="toggleRoutineDay(2, this)">T</div>
+          <div class="day-bubble" data-day="3" onclick="toggleRoutineDay(3, this)">W</div>
+          <div class="day-bubble" data-day="4" onclick="toggleRoutineDay(4, this)">T</div>
+          <div class="day-bubble" data-day="5" onclick="toggleRoutineDay(5, this)">F</div>
+          <div class="day-bubble" data-day="6" onclick="toggleRoutineDay(6, this)">S</div>
+        </div>
+      </div>
+
+      <div class="mini-clock-container" id="miniClockContainer">
+        <svg class="mini-clock-svg" id="miniClock" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="80" class="mini-bg" />
+          <path id="miniArc" class="mini-arc" d="" />
+          <circle id="miniStartH" cx="100" cy="20" r="8" fill="#ffffff" class="mini-handle" />
+          <circle id="miniEndH" cx="100" cy="20" r="8" fill="#ffffff" class="mini-handle" />
+        </svg>
+        <div class="mini-time-display">
+          <div class="mini-time-text" id="miniTimeStart">12:00 AM</div>
+          <div class="mini-time-sub" data-i18n="to">to</div>
+          <div class="mini-time-text" id="miniTimeEnd">01:00 AM</div>
+        </div>
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="timeZone">Time Zone</div>
+      <select class="modal-select" id="newTaskTimezone"></select>
+
+      <div id="repeatFieldBlock">
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="repeatLabel">Repeat</div>
+        <select class="modal-select" id="newTaskRepeat">
+          <option value="none" data-i18n="repeatNever">Never</option>
+          <option value="daily" data-i18n="repeatDaily">Every Day</option>
+          <option value="weekly" data-i18n="repeatWeekly">Every Week</option>
+          <option value="monthly" data-i18n="repeatMonthly">Every Month</option>
+          <option value="yearly" data-i18n="repeatYearly">Every Year</option>
+        </select>
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="alertLabel">Alert</div>
+      <select class="modal-select" id="newTaskAlert">
+        <option value="none" data-i18n="alertNone">None</option>
+        <option value="attime" data-i18n="alertAtTime">At time of event</option>
+        <option value="5" data-i18n="alert5">5 minutes before</option>
+        <option value="10" data-i18n="alert10">10 minutes before</option>
+        <option value="15" data-i18n="alert15">15 minutes before</option>
+        <option value="30" data-i18n="alert30">30 minutes before</option>
+        <option value="60" data-i18n="alert60">1 hour before</option>
+        <option value="1440" data-i18n="alert1440">1 day before</option>
+      </select>
+
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="showReminderTimeline">Show reminder in timeline</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="taskShowReminderInTimeline">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;" data-i18n="categoryIcon">Category Icon</div>
+      <div class="icon-suggest-row" id="iconSuggestRow" style="display:none;"></div>
+      <div class="icon-picker-container" id="iconPickerContainer">
+        <div class="icon-option active" data-icon="pencil" onclick="selectTaskIcon('pencil', this)"><svg class="icon-svg"><use href="#icon-pencil"></use></svg></div>
+        <div class="icon-option" data-icon="dumbbell" onclick="selectTaskIcon('dumbbell', this)"><svg class="icon-svg"><use href="#icon-dumbbell"></use></svg></div>
+        <div class="icon-option" data-icon="briefcase" onclick="selectTaskIcon('briefcase', this)"><svg class="icon-svg"><use href="#icon-briefcase"></use></svg></div>
+        <div class="icon-option" data-icon="gamepad" onclick="selectTaskIcon('gamepad', this)"><svg class="icon-svg"><use href="#icon-gamepad"></use></svg></div>
+        <div class="icon-option" data-icon="moon" onclick="selectTaskIcon('moon', this)"><svg class="icon-svg"><use href="#icon-moon"></use></svg></div>
+        <div class="icon-option" data-icon="utensils" onclick="selectTaskIcon('utensils', this)"><svg class="icon-svg"><use href="#icon-utensils"></use></svg></div>
+        <div class="icon-option" data-icon="book" onclick="selectTaskIcon('book', this)"><svg class="icon-svg"><use href="#icon-book"></use></svg></div>
+        <div class="icon-option" data-icon="laptop" onclick="selectTaskIcon('laptop', this)"><svg class="icon-svg"><use href="#icon-laptop"></use></svg></div>
+        <div class="icon-option" data-icon="mail" onclick="selectTaskIcon('mail', this)"><svg class="icon-svg"><use href="#icon-mail"></use></svg></div>
+        <div class="icon-option" data-icon="phone" onclick="selectTaskIcon('phone', this)"><svg class="icon-svg"><use href="#icon-phone"></use></svg></div>
+        <div class="icon-option" data-icon="chart" onclick="selectTaskIcon('chart', this)"><svg class="icon-svg"><use href="#icon-chart"></use></svg></div>
+        <div class="icon-option" data-icon="target" onclick="selectTaskIcon('target', this)"><svg class="icon-svg"><use href="#icon-target"></use></svg></div>
+        <div class="icon-option" data-icon="clipboard-check" onclick="selectTaskIcon('clipboard-check', this)"><svg class="icon-svg"><use href="#icon-clipboard-check"></use></svg></div>
+        <div class="icon-option" data-icon="building" onclick="selectTaskIcon('building', this)"><svg class="icon-svg"><use href="#icon-building"></use></svg></div>
+        <div class="icon-option" data-icon="heart" onclick="selectTaskIcon('heart', this)"><svg class="icon-svg"><use href="#icon-heart"></use></svg></div>
+        <div class="icon-option" data-icon="pill" onclick="selectTaskIcon('pill', this)"><svg class="icon-svg"><use href="#icon-pill"></use></svg></div>
+        <div class="icon-option" data-icon="stethoscope" onclick="selectTaskIcon('stethoscope', this)"><svg class="icon-svg"><use href="#icon-stethoscope"></use></svg></div>
+        <div class="icon-option" data-icon="droplet" onclick="selectTaskIcon('droplet', this)"><svg class="icon-svg"><use href="#icon-droplet"></use></svg></div>
+        <div class="icon-option" data-icon="activity" onclick="selectTaskIcon('activity', this)"><svg class="icon-svg"><use href="#icon-activity"></use></svg></div>
+        <div class="icon-option" data-icon="bike" onclick="selectTaskIcon('bike', this)"><svg class="icon-svg"><use href="#icon-bike"></use></svg></div>
+        <div class="icon-option" data-icon="tooth" onclick="selectTaskIcon('tooth', this)"><svg class="icon-svg"><use href="#icon-tooth"></use></svg></div>
+        <div class="icon-option" data-icon="coffee" onclick="selectTaskIcon('coffee', this)"><svg class="icon-svg"><use href="#icon-coffee"></use></svg></div>
+        <div class="icon-option" data-icon="pizza" onclick="selectTaskIcon('pizza', this)"><svg class="icon-svg"><use href="#icon-pizza"></use></svg></div>
+        <div class="icon-option" data-icon="cake" onclick="selectTaskIcon('cake', this)"><svg class="icon-svg"><use href="#icon-cake"></use></svg></div>
+        <div class="icon-option" data-icon="shopping-cart" onclick="selectTaskIcon('shopping-cart', this)"><svg class="icon-svg"><use href="#icon-shopping-cart"></use></svg></div>
+        <div class="icon-option" data-icon="wine" onclick="selectTaskIcon('wine', this)"><svg class="icon-svg"><use href="#icon-wine"></use></svg></div>
+        <div class="icon-option" data-icon="home" onclick="selectTaskIcon('home', this)"><svg class="icon-svg"><use href="#icon-home"></use></svg></div>
+        <div class="icon-option" data-icon="bed" onclick="selectTaskIcon('bed', this)"><svg class="icon-svg"><use href="#icon-bed"></use></svg></div>
+        <div class="icon-option" data-icon="broom" onclick="selectTaskIcon('broom', this)"><svg class="icon-svg"><use href="#icon-broom"></use></svg></div>
+        <div class="icon-option" data-icon="wrench" onclick="selectTaskIcon('wrench', this)"><svg class="icon-svg"><use href="#icon-wrench"></use></svg></div>
+        <div class="icon-option" data-icon="key" onclick="selectTaskIcon('key', this)"><svg class="icon-svg"><use href="#icon-key"></use></svg></div>
+        <div class="icon-option" data-icon="trash" onclick="selectTaskIcon('trash', this)"><svg class="icon-svg"><use href="#icon-trash"></use></svg></div>
+        <div class="icon-option" data-icon="plane" onclick="selectTaskIcon('plane', this)"><svg class="icon-svg"><use href="#icon-plane"></use></svg></div>
+        <div class="icon-option" data-icon="car" onclick="selectTaskIcon('car', this)"><svg class="icon-svg"><use href="#icon-car"></use></svg></div>
+        <div class="icon-option" data-icon="map-pin" onclick="selectTaskIcon('map-pin', this)"><svg class="icon-svg"><use href="#icon-map-pin"></use></svg></div>
+        <div class="icon-option" data-icon="luggage" onclick="selectTaskIcon('luggage', this)"><svg class="icon-svg"><use href="#icon-luggage"></use></svg></div>
+        <div class="icon-option" data-icon="train" onclick="selectTaskIcon('train', this)"><svg class="icon-svg"><use href="#icon-train"></use></svg></div>
+        <div class="icon-option" data-icon="ship" onclick="selectTaskIcon('ship', this)"><svg class="icon-svg"><use href="#icon-ship"></use></svg></div>
+        <div class="icon-option" data-icon="compass" onclick="selectTaskIcon('compass', this)"><svg class="icon-svg"><use href="#icon-compass"></use></svg></div>
+        <div class="icon-option" data-icon="users" onclick="selectTaskIcon('users', this)"><svg class="icon-svg"><use href="#icon-users"></use></svg></div>
+        <div class="icon-option" data-icon="gift" onclick="selectTaskIcon('gift', this)"><svg class="icon-svg"><use href="#icon-gift"></use></svg></div>
+        <div class="icon-option" data-icon="message-circle" onclick="selectTaskIcon('message-circle', this)"><svg class="icon-svg"><use href="#icon-message-circle"></use></svg></div>
+        <div class="icon-option" data-icon="camera" onclick="selectTaskIcon('camera', this)"><svg class="icon-svg"><use href="#icon-camera"></use></svg></div>
+        <div class="icon-option" data-icon="party" onclick="selectTaskIcon('party', this)"><svg class="icon-svg"><use href="#icon-party"></use></svg></div>
+        <div class="icon-option" data-icon="dollar-sign" onclick="selectTaskIcon('dollar-sign', this)"><svg class="icon-svg"><use href="#icon-dollar-sign"></use></svg></div>
+        <div class="icon-option" data-icon="credit-card" onclick="selectTaskIcon('credit-card', this)"><svg class="icon-svg"><use href="#icon-credit-card"></use></svg></div>
+        <div class="icon-option" data-icon="piggy-bank" onclick="selectTaskIcon('piggy-bank', this)"><svg class="icon-svg"><use href="#icon-piggy-bank"></use></svg></div>
+        <div class="icon-option" data-icon="receipt" onclick="selectTaskIcon('receipt', this)"><svg class="icon-svg"><use href="#icon-receipt"></use></svg></div>
+        <div class="icon-option" data-icon="trending-up" onclick="selectTaskIcon('trending-up', this)"><svg class="icon-svg"><use href="#icon-trending-up"></use></svg></div>
+        <div class="icon-option" data-icon="graduation-cap" onclick="selectTaskIcon('graduation-cap', this)"><svg class="icon-svg"><use href="#icon-graduation-cap"></use></svg></div>
+        <div class="icon-option" data-icon="backpack" onclick="selectTaskIcon('backpack', this)"><svg class="icon-svg"><use href="#icon-backpack"></use></svg></div>
+        <div class="icon-option" data-icon="star" onclick="selectTaskIcon('star', this)"><svg class="icon-svg"><use href="#icon-star"></use></svg></div>
+        <div class="icon-option" data-icon="alarm-clock" onclick="selectTaskIcon('alarm-clock', this)"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg></div>
+        <div class="icon-option" data-icon="umbrella" onclick="selectTaskIcon('umbrella', this)"><svg class="icon-svg"><use href="#icon-umbrella"></use></svg></div>
+        <div class="icon-option" data-icon="paw" onclick="selectTaskIcon('paw', this)"><svg class="icon-svg"><use href="#icon-paw"></use></svg></div>
+        <div class="icon-option" data-icon="baby" onclick="selectTaskIcon('baby', this)"><svg class="icon-svg"><use href="#icon-baby"></use></svg></div>
+        <div class="icon-option" data-icon="tree" onclick="selectTaskIcon('tree', this)"><svg class="icon-svg"><use href="#icon-tree"></use></svg></div>
+        <div class="icon-option" data-icon="sun" onclick="selectTaskIcon('sun', this)"><svg class="icon-svg"><use href="#icon-sun"></use></svg></div>
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="calendarColor">Calendar Color</div>
+      <div class="color-grid">
+        <div class="color-swatch active" style="color: #ff4757;" onclick="selectTaskColor('#ff4757', this)"></div>
+        <div class="color-swatch" style="color: #ffa502;" onclick="selectTaskColor('#ffa502', this)"></div>
+        <div class="color-swatch" style="color: #eccc68;" onclick="selectTaskColor('#eccc68', this)"></div>
+        <div class="color-swatch" style="color: #7bed9f;" onclick="selectTaskColor('#7bed9f', this)"></div>
+        <div class="color-swatch" style="color: #2ed573;" onclick="selectTaskColor('#2ed573', this)"></div>
+        <div class="color-swatch" style="color: #1e90ff;" onclick="selectTaskColor('#1e90ff', this)"></div>
+        <div class="color-swatch" style="color: #5352ed;" onclick="selectTaskColor('#5352ed', this)"></div>
+        <div class="color-swatch" style="color: #3742fa;" onclick="selectTaskColor('#3742fa', this)"></div>
+        <div class="color-swatch" style="color: #9b59b6;" onclick="selectTaskColor('#9b59b6', this)"></div>
+        <div class="color-swatch" style="color: #ff6b81;" onclick="selectTaskColor('#ff6b81', this)"></div>
+        <div class="color-swatch" style="color: #ffffff;" onclick="selectTaskColor('#ffffff', this)"></div>
+        <div class="color-swatch" style="color: #888888;" onclick="selectTaskColor('#888888', this)"></div>
+      </div>
+
+      <input type="text" class="title-input" id="newTaskUrl" placeholder="URL" data-i18n-placeholder="urlPlaceholder" />
+      <textarea class="modal-textarea" id="newTaskNotes" placeholder="Notes" data-i18n-placeholder="notesPlaceholder"></textarea>
+
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeTaskModal()" data-i18n="cancel">Cancel</button>
+        <button class="modal-btn cancel" id="deleteTaskBtn" style="display:none; border-color:#ff4757; color:#ff4757;" onclick="deleteCurrentTask()" data-i18n="delete">Delete</button>
+        <button class="modal-btn save" onclick="saveScheduledTask()" data-i18n="saveTask">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="timetable-modal" id="timetableModal">
+    <div class="timetable-container">
+      <div class="timetable-header">
+        <div class="timetable-title">
+          <span id="ttMonthYear">May 2026</span>
+          <div class="timetable-nav">
+            <button class="nav-btn" onclick="changeWeek(-1)" aria-label="Previous week">‹</button>
+            <button class="nav-btn" onclick="changeWeek(1)" aria-label="Next week">›</button>
+          </div>
+        </div>
+        <div style="display: flex; gap: 15px;">
+          <button class="close-timetable" onclick="toggleCalendarType()" id="calTypeBtn">Gregorian</button>
+          <button class="close-timetable" onclick="closeTimetable()" aria-label="Close"><svg class="icon-svg"><use href="#icon-x"></use></svg></button>
+        </div>
+      </div>
+      <div class="timetable-scroll-area">
+        <div class="timetable-grid" id="timetableGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timetable-modal" id="scheduleManagerModal">
+    <div class="timetable-container schedule-manager-container">
+      <div class="timetable-header">
+        <div class="timetable-title"><span data-i18n="scheduleManager">Schedule Manager</span></div>
+        <button class="close-timetable" onclick="closeScheduleManager()" aria-label="Close"><svg class="icon-svg"><use href="#icon-x"></use></svg></button>
+      </div>
+      <div class="timetable-scroll-area">
+        <div class="schedule-manager-body" id="scheduleManagerList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="customDialogModal">
+    <div class="modal-content dialog-content">
+      <div class="modal-header" id="dialogTitle">Confirm</div>
+      <div class="dialog-message" id="dialogMessage"></div>
+      <input type="text" class="title-input" id="dialogPromptInput" style="display:none;" />
+      <div class="modal-btns">
+        <button class="modal-btn cancel" id="dialogCancelBtn" onclick="resolveDialog(false)">Cancel</button>
+        <button class="modal-btn save" id="dialogOkBtn" onclick="resolveDialog(true)">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div id="starLayer" class="star-layer">
+    <div id="ambientGlow" class="ambient-glow"></div>
+    <div id="shootingStar" class="shooting-star"></div>
+  </div>
+
+  <div class="timeline-container" id="timelineContainer">
+    <div class="timeline-reticle" id="timelineReticleText">12:00 PM</div>
+    <div class="timeline-tape" id="timelineTape">
+      <div class="timeline-core-line"></div>
+    </div>
+  </div>
+
+  <div class="horizon-scoreboard" id="horizonScoreboard"></div>
+
+  <div class="left-panel">
+    
+    <div class="widget-card clickable" id="wgSchedule" onclick="openTimetable()">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgSchedule', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-calendar"></use></svg></span> <span data-i18n="widgetSchedule">Schedule</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
+      <div class="weather-temp" id="widgetDateNum">8</div>
+      <div class="weather-sub">
+        <span id="widgetDayName">Friday</span>
+        <span id="widgetNextTask" style="color: var(--accent);">No upcoming tasks</span>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="widget-task-list" id="widgetScheduleList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card" id="wgWeather">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgWeather', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-cloud"></use></svg></span> <span data-i18n="widgetWeather">Weather</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
+      <div class="weather-temp" id="weatherTemp">--°</div>
+      <div class="weather-sub">
+        <span><span data-i18n="rainLabel">Rain</span>: <span id="weatherRain">--%</span></span>
+        <span><span data-i18n="uvLabel">UV</span>: <span id="weatherUV">--</span></span>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="weather-hourly-list" id="weatherHourlyList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card" id="wgPrayer">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgPrayer', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-mosque"></use></svg></span> <span data-i18n="widgetNextPrayer">Next Prayer</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
+      <div class="prayer-live-time" id="widgetPrayerName" data-i18n="loadingText">Loading...</div>
+      <div class="weather-sub">
+        <span id="widgetPrayerTime">--:--</span>
+        <span id="widgetPrayerCountdown">--:--:--</span>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="prayer-list" id="prayerExpandedList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card" id="wgWorldClock">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgWorldClock', event)">
+        <span class="widget-icon"><svg class="icon-svg"><use href="#icon-globe"></use></svg></span> <span data-i18n="widgetWorldClock">World Clock</span>
+        <select id="worldClockSelect" onchange="updateWorldClock()" onclick="event.stopPropagation()" style="margin-left:auto; background:transparent; color:var(--text-secondary); border:none; outline:none; cursor:pointer; font-size: 0.75rem; font-weight: bold;">
+          <option value="Europe/London" data-i18n="london">London</option>
+          <option value="America/New_York" data-i18n="newYork">New York</option>
+          <option value="Asia/Tokyo" data-i18n="tokyo">Tokyo</option>
+          <option value="Asia/Dubai" data-i18n="dubaiCity">Dubai</option>
+          <option value="Australia/Sydney" data-i18n="sydney">Sydney</option>
+          <option value="Europe/Paris" data-i18n="paris">Paris</option>
+        </select>
+        <span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span>
+      </div>
+      <div class="world-clock-time" id="worldClockTime">--:-- AM</div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="world-clock-extra">
+            <div class="wc-extra-row"><span data-i18n="losAngeles">Los Angeles</span><span id="wcExtraLA">--:--</span></div>
+            <div class="wc-extra-row"><span data-i18n="berlin">Berlin</span><span id="wcExtraBerlin">--:--</span></div>
+            <div class="wc-extra-row"><span data-i18n="singapore">Singapore</span><span id="wcExtraSGP">--:--</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card" id="wgSpotify">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgSpotify', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-music"></use></svg></span> <span data-i18n="widgetNowPlaying">Now Playing</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
+      <img src="" alt="Art" class="sp-widget-art" id="spWidgetArt" style="display:none;">
+      <div style="text-align: center; font-weight: bold; font-size: 0.9rem;" id="spWidgetTrack" data-i18n="notConnected">Not Connected</div>
+      <div style="text-align: center; font-size: 0.7rem; color: var(--text-secondary);" id="spWidgetArtist" data-i18n="loginInSettings">Login in settings</div>
+      <div class="sp-widget-controls">
+        <button class="sp-btn" onclick="spotifyAction('previous')" aria-label="Previous track"><svg class="icon-svg"><use href="#icon-skip-back"></use></svg></button>
+        <button class="sp-btn play-pause" id="spWidgetPlay" onclick="spotifyTogglePlay()" aria-label="Play or pause"><svg class="icon-svg"><use href="#icon-play"></use></svg></button>
+        <button class="sp-btn" onclick="spotifyAction('next')" aria-label="Next track"><svg class="icon-svg"><use href="#icon-skip-forward"></use></svg></button>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="sp-progress-row">
+            <span class="sp-time" id="spWidgetElapsed">0:00</span>
+            <div class="sp-progress-track"><div class="sp-progress-fill" id="spProgressFill"></div></div>
+            <span class="sp-time" id="spWidgetDuration">0:00</span>
+          </div>
+          <div class="sp-volume-row">
+            <span class="sp-volume-icon"><svg class="icon-svg"><use href="#icon-volume"></use></svg></span>
+            <input type="range" id="spVolumeSlider" class="sp-volume-slider" min="0" max="100" value="50" oninput="spotifyVolumeInput()" onchange="spotifySetVolume(this.value)" onclick="event.stopPropagation()">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card" id="wgLinks">
+      <div class="widget-header"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-link"></use></svg></span> <span data-i18n="widgetQuickLinks">Quick Links</span></div>
+      <div id="quickLinksList" style="display: flex; flex-direction: column; gap: 8px;">
+        <a href="https://github.com" target="_blank" class="quick-link-item"><svg class="icon-svg"><use href="#icon-package"></use></svg> GitHub</a>
+        <a href="https://youtube.com" target="_blank" class="quick-link-item"><svg class="icon-svg"><use href="#icon-play-circle"></use></svg> YouTube</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="zen-toggle" onclick="toggleFocusMode()" title="Toggle Focus Mode" data-i18n-title="toggleFocusMode" role="button" tabindex="0" aria-label="Toggle Focus Mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFocusMode();}"><svg class="icon-svg"><use href="#icon-sparkle"></use></svg></div>
+  <div class="dev-toggle" onclick="toggleDevMenu()" title="Toggle QA Dev Menu" data-i18n-title="toggleDevMenu" role="button" tabindex="0" aria-label="Toggle QA Dev Menu" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDevMenu();}"><svg class="icon-svg"><use href="#icon-gear"></use></svg></div>
+
+  <div class="side-panel">
+    <div class="panel-tab">‹</div>
+
+    <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="tasksGoals">Tasks & Goals</div>
+    <button class="add-task-btn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
+    <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openScheduleManager()"><svg class="icon-svg"><use href="#icon-clipboard-list"></use></svg> <span data-i18n="scheduleManager">Schedule Manager</span></button>
+
+    <div class="input-row" style="margin-top: 10px;">
+      <input type="text" class="title-input" id="newGoalName" placeholder="Daily Goal (e.g. Gym)..." data-i18n-placeholder="dailyGoalPlaceholder" />
+      <button class="add-task-btn" style="margin-top:0; width: 60px;" onclick="addDailyGoal()" data-i18n="add">Add</button>
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-header" data-i18n="widgetManager">Widget Manager</div>
+    <div class="clock-toggle-grid" id="widgetTogglesGrid" style="grid-template-columns: repeat(3, 1fr);">
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgSchedule', this)">
+        <svg class="icon-svg"><use href="#icon-calendar"></use></svg>
+        <span data-i18n="widgetSchedule">Schedule</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgWeather', this)">
+        <svg class="icon-svg"><use href="#icon-cloud"></use></svg>
+        <span data-i18n="widgetWeather">Weather</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgPrayer', this)">
+        <svg class="icon-svg"><use href="#icon-mosque"></use></svg>
+        <span data-i18n="widgetNextPrayer">Prayer</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgWorldClock', this)">
+        <svg class="icon-svg"><use href="#icon-globe"></use></svg>
+        <span data-i18n="widgetWorldClock">World</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgSpotify', this)">
+        <svg class="icon-svg"><use href="#icon-music"></use></svg>
+        <span data-i18n="widgetNowPlaying">Music</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgLinks', this)">
+        <svg class="icon-svg"><use href="#icon-link"></use></svg>
+        <span data-i18n="widgetQuickLinks">Links</span>
+      </button>
+    </div>
+
+    <div class="panel-header" data-i18n="clockCustomization">Clock Customization</div>
+    <div class="clock-toggle-grid">
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('clock-face-numbers', this)">
+        <svg class="icon-svg"><use href="#icon-hash"></use></svg>
+        <span data-i18n="numbersLabel">Numbers</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('classicMin', this)">
+        <svg class="icon-svg"><use href="#icon-clock-hand"></use></svg>
+        <span data-i18n="minuteHand">Minute Hand</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('classicHour', this)">
+        <svg class="icon-svg"><use href="#icon-clock-hour-hand"></use></svg>
+        <span data-i18n="hourHand">Hour Hand</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('ticks', this)">
+        <svg class="icon-svg"><use href="#icon-tick-marks"></use></svg>
+        <span data-i18n="tickMarks">Tick Marks</span>
+      </button>
+    </div>
+
+    <div class="panel-header" data-i18n="accentColor">Ambient Theme</div>
+    <div class="theme-grid" id="themeGrid"></div>
+
+    <div class="panel-header" data-i18n="clockFaceStyle">Clock Face Style</div>
+    <div class="clock-toggle-grid" id="clockFaceGrid" style="grid-template-columns: repeat(3, 1fr);">
+      <button class="clock-toggle-btn active-lang" onclick="setClockFace('default', this)">
+        <svg class="icon-svg"><use href="#icon-clock-face"></use></svg>
+        <span data-i18n="defaultLabel">Default</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="setClockFace('classic', this)">
+        <svg class="icon-svg"><use href="#icon-clock-hand"></use></svg>
+        <span data-i18n="classicLabel">Classic</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="setClockFace('radar', this)">
+        <svg class="icon-svg"><use href="#icon-radar"></use></svg>
+        <span data-i18n="radarLabel">Radar</span>
+      </button>
+    </div>
+
+    <div class="panel-header" data-i18n="arcStyle">AM/PM Arc Style</div>
+    <div class="clock-toggle-grid" id="arcStyleGrid" style="grid-template-columns: 1fr 1fr;">
+      <button class="clock-toggle-btn active-lang" onclick="setArcStyle('original', this)">
+        <svg class="icon-svg"><use href="#icon-circle-dot"></use></svg>
+        <span data-i18n="originalLabel">Original</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="setArcStyle('dualtrack', this)">
+        <svg class="icon-svg"><use href="#icon-rings"></use></svg>
+        <span data-i18n="dualTrack">Dual Track</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="setArcStyle('dimmed', this)">
+        <svg class="icon-svg"><use href="#icon-contrast"></use></svg>
+        <span data-i18n="dimmedLabel">Dimmed</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="setArcStyle('daynight', this)">
+        <svg class="icon-svg"><use href="#icon-daynight"></use></svg>
+        <span data-i18n="dayNight">Day / Night</span>
+      </button>
+    </div>
+
+    <hr class="panel-divider">
+
+    <div class="panel-header" data-i18n="language">Language / اللغة</div>
+    <div class="slider-container" onclick="toggleLang()">
+      <div id="langSliderBg" class="slider-bg"></div>
+      <div id="langEnOpt" class="slider-opt active">English</div>
+      <div id="langArOpt" class="slider-opt">العربية</div>
+    </div>
+
+    <div class="panel-header" data-i18n="displayMode">Display Mode</div>
+    <div class="slider-container" onclick="toggleMode()">
+      <div id="modeSliderBg" class="slider-bg"></div>
+      <div id="modeDarkOpt" class="slider-opt active" data-i18n="dark">Dark</div>
+      <div id="modeLightOpt" class="slider-opt" data-i18n="light">Light</div>
+    </div>
+
+    <div class="panel-header" data-i18n="location">Location</div>
+    <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City" data-i18n-placeholder="enterCity" />
+    
+    <div class="panel-header" data-i18n="displayTitle">Display Title</div>
+    <input type="text" class="title-input" id="titleInput" value="System Standby" />
+    
+    <div class="panel-header"><span data-i18n="quickTimers">Quick Timers</span></div>
+    <div class="quick-grid tight" id="timersGrid"></div>
+    
+    <div class="panel-header" data-i18n="musicIntegration">Music (Spotify)</div>
+    <div id="spotifyLoginBlock">
+      <button class="spotify-btn-brand" onclick="loginSpotify()" data-i18n="loginSpotify">Log in with Spotify</button>
+    </div>
+    <div id="spotifyDeviceBlock" style="display: none;">
+      <div class="panel-header" style="font-size: 0.7rem;" data-i18n="devices">Playback Device</div>
+      <select class="title-input sp-device-select" id="spDeviceSelect" onchange="spotifyTransfer(this.value)">
+        <option data-i18n="loadingDevices">Loading devices...</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="container" id="mainClockContainer">
+    <div class="display-title timer-ui-element" id="displayTitle" style="font-weight: bold;">System Standby</div>
+    
+    <svg id="clock" viewBox="0 0 400 400" class="face-default">
+      <defs>
+        <linearGradient id="dynamicGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop id="gradStart" offset="0%" stop-color="#00c6ff" />
+          <stop id="gradEnd" offset="100%" stop-color="#0072ff" />
+        </linearGradient>
+      </defs>
+
+      <circle cx="200" cy="200" r="170" class="clock-bg" stroke-width="4" />
+      <g id="scheduleArcsGroup"></g>
+      <circle cx="200" cy="200" r="154" class="clock-inner" />
+      
+      <g id="ticks"></g>
+      
+      <g class="clock-face-numbers" id="clock-face-numbers">
+        <text id="lbl12" class="clock-text" x="200" y="62" text-anchor="middle" font-size="14" font-weight="bold">12</text>
+        <text id="lbl3" class="clock-text" x="342" y="205" text-anchor="middle" font-size="14" font-weight="bold">3</text>
+        <text id="lbl6" class="clock-text" x="200" y="348" text-anchor="middle" font-size="14" font-weight="bold">6</text>
+        <text id="lbl9" class="clock-text" x="58" y="205" text-anchor="middle" font-size="14" font-weight="bold">9</text>
+      </g>
+
+      <g class="clock-face-classic" style="display:none; opacity:0; pointer-events:none;">
+        <line id="classicHour" x1="200" y1="200" x2="200" y2="110" stroke="var(--text-primary)" stroke-width="4" stroke-linecap="round"/>
+        <line id="classicMin" x1="200" y1="200" x2="200" y2="80" stroke="var(--text-secondary)" stroke-width="2" stroke-linecap="round"/>
+      </g>
+      
+      <circle class="clock-face-radar" cx="200" cy="200" r="154" fill="url(#dynamicGrad)" opacity="0.1" style="display:none; pointer-events:none;" />
+
+      <path id="sleepArc" fill="none" stroke="url(#dynamicGrad)" stroke-width="8" stroke-linecap="round" />
+
+      <text id="idleClockText" class="idle-clock-element idle-clock-time" x="200" y="210" text-anchor="middle">12:00</text>
+      <text id="idleAmPmText" class="idle-clock-element idle-clock-ampm" x="200" y="240" text-anchor="middle">PM</text>
+
+      <text id="timeValueText" class="clock-value timer-ui-element" x="200" y="195" text-anchor="middle" font-size="40" font-weight="bold" title="Click to Pause/Play" data-i18n-title="clickToPausePlay">
+        <tspan id="timeH" class="time-part">00:</tspan><tspan id="timeM" class="time-part">00:</tspan><tspan id="timeS" class="time-part">00</tspan>
+      </text>
+      <text id="timeLabelText" class="clock-text timer-ui-element" x="200" y="225" text-anchor="middle" font-size="11" letter-spacing="3" data-i18n="remaining">REMAINING</text>
+      <text id="finishTimeText" class="clock-text timer-ui-element" x="200" y="265" text-anchor="middle" font-size="12" fill="#888888" style="opacity: 0.6; display:none;">Finish at: --:--</text>
+
+      <circle id="startHandle" class="timer-ui-element playhead" cx="200" cy="40" r="6" fill="transparent" stroke="#ffffff" stroke-width="3" />
+      <path id="dragString" class="timer-ui-element drag-string" d="" fill="none" stroke="rgba(200, 200, 200, 0.6)" stroke-width="2.5" stroke-linecap="round" />
+      <line id="ballTrail" class="timer-ui-element ball-trail" stroke="url(#dynamicGrad)" stroke-width="6" stroke-linecap="round" x1="0" y1="0" x2="0" y2="0" />
+      <circle id="endHandle" class="timer-ui-element handle snap-back" cx="200" cy="40" r="8" fill="#ffffff" />
+    </svg>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
