@@ -115,6 +115,7 @@ const translations = {
     widgetWorldClock: "World Clock",
     widgetNowPlaying: "Now Playing",
     widgetQuickLinks: "Quick Links",
+    widgetTimeline: "Timeline",
     rainLabel: "Rain",
     uvLabel: "UV",
     notConnected: "Not Connected",
@@ -218,6 +219,7 @@ const translations = {
     widgetWorldClock: "الساعة العالمية",
     widgetNowPlaying: "قيد التشغيل",
     widgetQuickLinks: "روابط سريعة",
+    widgetTimeline: "الجدول الزمني",
     rainLabel: "المطر",
     uvLabel: "الأشعة فوق البنفسجية",
     notConnected: "غير متصل",
@@ -453,6 +455,20 @@ const themeGrid = document.getElementById("themeGrid");
 const devMenu = document.getElementById("devMenu");
 
 /* ==========================================
+   2b. DEV MENU IP GATE (client-side visibility only, not real security)
+   ========================================== */
+const DEV_MENU_ALLOWED_IP = "93.112.153.30";
+let devMenuIpAllowed = true;
+fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => {
+  devMenuIpAllowed = data.ip === DEV_MENU_ALLOWED_IP;
+  if (!devMenuIpAllowed) {
+    devMenu.style.display = 'none';
+    const devToggleBtn = document.querySelector('.dev-toggle');
+    if (devToggleBtn) devToggleBtn.style.display = 'none';
+  }
+}).catch(() => { /* IP lookup failed (offline/blocked) - leave dev menu visible */ });
+
+/* ==========================================
    3. AMBIENT IDLE TRACKING
    ========================================== */
 function resetIdleTimer() {
@@ -505,11 +521,18 @@ window.addEventListener('mousemove', (e) => {
 window.addEventListener('mouseup', () => devDrag = false);
 
 function toggleDevMenu() {
+  if (!devMenuIpAllowed) return;
   const hidden = devMenu.classList.toggle('dev-menu-hidden');
   localStorage.setItem('devMenuHidden', hidden ? '1' : '0');
 }
 if (localStorage.getItem('devMenuHidden') === '1') {
   devMenu.classList.add('dev-menu-hidden');
+}
+if (localStorage.getItem('timelineHidden') === '1') {
+  const tlEl = document.getElementById('timelineContainer');
+  const tlBtn = document.getElementById('timelineToggleBtn');
+  if (tlEl) tlEl.classList.add('tl-hidden');
+  if (tlBtn) tlBtn.classList.remove('active-lang');
 }
 
 let isTestGlowActive = false;
@@ -1372,6 +1395,13 @@ function toggleWidgetExpand(widgetId, e) {
   const card = document.getElementById(widgetId);
   if (!card) return;
   card.classList.toggle('expanded');
+}
+function toggleTimeline(btnEl) {
+  const el = document.getElementById('timelineContainer');
+  if (!el) return;
+  const hidden = el.classList.toggle('tl-hidden');
+  localStorage.setItem('timelineHidden', hidden ? '1' : '0');
+  btnEl.classList.toggle('active-lang', !hidden);
 }
 function toggleWidget(widgetId, btnEl) {
   const widget = document.getElementById(widgetId);
