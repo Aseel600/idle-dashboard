@@ -31,6 +31,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
   --accent: #00c6ff;
   --accent-contrast: #ffffff;
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --timeline-shadow: rgba(0, 0, 0, 0.6);
 }
 
 body.light-mode {
@@ -47,6 +48,7 @@ body.light-mode {
   --now-playing-bg: rgba(255, 255, 255, 0.7);
   --sp-btn-color: #666666;
   --glass-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --timeline-shadow: rgba(0, 0, 0, 0.12);
 }
 
 body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, rgba(120, 120, 120, 0.05), transparent 40%), var(--bg-color-main); color: var(--text-primary); overflow: hidden; user-select: none; transition: direction 0.3s ease, background-color 0.4s ease; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
@@ -61,7 +63,7 @@ body[dir="rtl"] .dev-menu { right: auto; left: 20px; }
 /* ==========================================
    3. ZEN / FOCUS MODE
    ========================================== */
-body.focus-mode .side-panel, body.focus-mode .horizon-scoreboard, body.focus-mode .left-panel, body.focus-mode .timeline-container, body.focus-mode .dev-menu { opacity: 0 !important; pointer-events: none !important; }
+body.focus-mode .side-panel, body.focus-mode .horizon-scoreboard, body.focus-mode .left-panel, body.focus-mode .left-panel-fade, body.focus-mode .timeline-container, body.focus-mode .dev-menu { opacity: 0 !important; pointer-events: none !important; }
 
 .zen-toggle { position: fixed; bottom: 24px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: var(--input-bg); border: 1px solid var(--input-border); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; transition: all 0.3s ease; backdrop-filter: blur(10px); }
 .zen-toggle:hover { color: var(--text-primary); border-color: var(--accent); transform: scale(1.1); }
@@ -111,7 +113,22 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .quick-link-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; background: var(--input-bg); color: var(--text-primary); text-decoration: none; font-size: 0.85rem; font-weight: bold; transition: background 0.2s ease; }
 .quick-link-item:hover { background: rgba(120, 120, 120, 0.2); }
 
-.sp-widget-art { width: 100%; aspect-ratio: 1; border-radius: 12px; background: #222; object-fit: cover; margin-bottom: 5px; }
+.sp-widget-art { width: 100%; height: 100%; border-radius: 12px; background: #222; object-fit: cover; display: block; }
+.sp-art-swipe { position: relative; width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; margin-bottom: 5px; touch-action: pan-y; cursor: grab; background: #181818; }
+.sp-art-swipe:active { cursor: grabbing; }
+.sp-art-track { display: flex; width: 300%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+.sp-art-track.dragging { transition: none; }
+.sp-art-slide { width: 33.3333%; height: 100%; flex-shrink: 0; position: relative; }
+.sp-art-slide-hidden-mode { display: flex; align-items: center; justify-content: center; background: var(--input-bg); }
+.sp-art-slide-hidden-mode .icon-svg { width: 32px; height: 32px; color: var(--text-secondary); opacity: 0.5; }
+.sp-lyrics-scroll { width: 100%; height: 100%; overflow: hidden; background: linear-gradient(145deg, #1a1a1a, #000); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; position: relative; }
+.sp-lyrics-inner { display: flex; flex-direction: column; align-items: center; gap: 10px; transition: transform 0.3s ease; width: 100%; }
+.sp-lyrics-line { font-size: 0.7rem; color: rgba(255, 255, 255, 0.35); text-align: center; line-height: 1.3; transition: color 0.3s ease, transform 0.3s ease, font-size 0.3s ease; padding: 0 8px; }
+.sp-lyrics-line.active { color: #ffffff; font-weight: bold; font-size: 0.8rem; }
+.sp-lyrics-empty { font-size: 0.7rem; color: rgba(255, 255, 255, 0.4); text-align: center; padding: 0 16px; }
+.sp-art-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 6px; }
+.sp-art-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--input-border); cursor: pointer; transition: 0.2s; }
+.sp-art-dot.active { background: var(--accent); width: 16px; border-radius: 3px; }
 .sp-widget-controls { display: flex; justify-content: center; gap: 15px; margin-top: 5px; }
 .sp-btn { background: none; border: none; color: var(--sp-btn-color); cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
 .sp-btn:hover { color: var(--text-primary); transform: scale(1.1); }
@@ -305,8 +322,44 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 /* ==========================================
    8. HORIZONTAL TIMELINE HUD
    ========================================== */
-.timeline-container { position: fixed; top: 0; left: 0; width: 100%; height: 90px; background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent); mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); z-index: 80; pointer-events: none; transition: opacity 0.5s ease; }
+.timeline-container { position: fixed; top: 0; left: 0; width: 100%; height: 90px; background: linear-gradient(to bottom, var(--timeline-shadow), transparent); mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent); z-index: 80; pointer-events: none; transition: opacity 0.5s ease, background 0.4s ease; }
 .timeline-container.tl-hidden { display: none; }
+.widget-card.wg-boot-hidden { display: none; }
+
+.left-panel-fade { position: fixed; left: 24px; top: 100px; width: 300px; height: 36px; z-index: 61; pointer-events: none; -webkit-mask-image: linear-gradient(to bottom, black, transparent); mask-image: linear-gradient(to bottom, black, transparent); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); background: linear-gradient(to bottom, color-mix(in srgb, var(--bg-color-main) 55%, transparent), transparent); transition: background 0.4s ease; }
+body[dir="rtl"] .left-panel-fade { left: auto; right: 24px; }
+
+/* ==========================================
+   13. ONBOARDING TUTORIAL
+   ========================================== */
+.tutorial-overlay { position: fixed; inset: 0; z-index: 20000; display: none; }
+.tutorial-overlay.active { display: block; }
+.tutorial-spotlight { position: fixed; border-radius: 14px; border: 2px solid var(--accent); box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.72); transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1), left 0.4s cubic-bezier(0.4, 0, 0.2, 1), width 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease; pointer-events: none; }
+.tutorial-spotlight.no-target { opacity: 0; }
+.tutorial-tooltip { position: fixed; width: 300px; max-width: calc(100vw - 40px); background: var(--bg-color-panel); backdrop-filter: blur(16px); border: 1px solid var(--input-border); border-radius: 14px; padding: 18px 20px; box-shadow: var(--glass-shadow); transition: top 0.4s cubic-bezier(0.4, 0, 0.2, 1), left 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 20002; }
+.tutorial-tooltip.centered { top: 50% !important; left: 50% !important; transform: translate(-50%, -50%); text-align: center; }
+.tutorial-close { position: absolute; top: 10px; right: 10px; width: 24px; height: 24px; border-radius: 50%; background: transparent; border: none; color: var(--text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.tutorial-close .icon-svg { width: 14px; height: 14px; }
+.tutorial-close:hover { color: var(--text-primary); background: var(--input-bg); }
+.tutorial-title { font-size: 1.05rem; font-weight: bold; color: var(--text-primary); margin-bottom: 8px; padding-right: 20px; }
+.tutorial-tooltip.centered .tutorial-title { padding-right: 0; }
+.tutorial-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px; }
+.tutorial-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.tutorial-dots { display: flex; gap: 5px; }
+.tutorial-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--input-border); transition: 0.2s; }
+.tutorial-dot.active { background: var(--accent); width: 16px; border-radius: 3px; }
+.tutorial-btns { display: flex; gap: 8px; }
+.tutorial-btn { padding: 7px 14px; border-radius: 8px; font-size: 0.8rem; font-weight: bold; cursor: pointer; border: 1px solid var(--input-border); transition: 0.2s; }
+.tutorial-btn.primary { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+.tutorial-btn.primary:hover { filter: brightness(1.1); }
+.tutorial-btn.secondary { background: transparent; color: var(--text-secondary); }
+.tutorial-btn.secondary:hover { color: var(--text-primary); border-color: var(--accent); }
+.tutorial-arrow { position: absolute; width: 12px; height: 12px; background: var(--bg-color-panel); border: 1px solid var(--input-border); transform: rotate(45deg); display: none; }
+.tutorial-tooltip.arrow-top .tutorial-arrow { display: block; top: -7px; left: 50%; margin-left: -6px; border-right: none; border-bottom: none; }
+.tutorial-tooltip.arrow-bottom .tutorial-arrow { display: block; bottom: -7px; left: 50%; margin-left: -6px; border-left: none; border-top: none; }
+.tutorial-tooltip.arrow-left .tutorial-arrow { display: block; left: -7px; top: 50%; margin-top: -6px; border-right: none; border-top: none; }
+.tutorial-tooltip.arrow-right .tutorial-arrow { display: block; right: -7px; top: 50%; margin-top: -6px; border-left: none; border-bottom: none; }
+.side-panel.tutorial-force-open { transform: translateX(0) !important; }
 
 .cd-manager-toolbar { display: flex; gap: 8px; padding: 12px 20px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--input-border); }
 .cd-manager-toolbar .title-input, .cd-manager-toolbar .modal-select { margin: 0; }
@@ -314,7 +367,7 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .timeline-reticle { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); font-family: monospace; font-size: 1.4rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 15px var(--accent); z-index: 85; display: flex; flex-direction: column; align-items: center; transition: color 0.4s, text-shadow 0.4s; }
 .timeline-reticle::after { content: '▼'; font-size: 0.8rem; margin-top: -2px; }
 .timeline-tape { position: absolute; top: 55px; height: 35px; width: 4320px; transition: transform 0.2s linear; }
-.timeline-core-line { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: rgba(255, 255, 255, 0.15); }
+.timeline-core-line { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--input-border); }
 .timeline-dot { position: absolute; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: translateX(-50%); }
 .timeline-label { position: absolute; top: 12px; transform: translateX(-50%); font-size: 0.75rem; color: rgba(255, 255, 255, 0.5); font-weight: bold; white-space: nowrap; }
 
@@ -327,7 +380,7 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 /* ==========================================
    9. RIGHT SIDE PANEL
    ========================================== */
-.side-panel { position: fixed; right: 0; top: 0; bottom: 0; transform: translateX(calc(100% - 40px)); background: var(--bg-color-panel); backdrop-filter: blur(16px); border-left: 1px solid var(--input-border); padding: 40px 30px 30px 50px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), background 0.4s, border-color 0.4s; z-index: 100; display: flex; flex-direction: column; gap: 24px; width: 320px; overflow-y: auto; }
+.side-panel { position: fixed; right: 0; top: 0; bottom: 0; transform: translateX(calc(100% - 40px)); background: var(--bg-color-panel); backdrop-filter: blur(16px); border-left: 1px solid var(--input-border); padding: 40px 30px 90px 50px; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1), background 0.4s, border-color 0.4s; z-index: 100; display: flex; flex-direction: column; gap: 24px; width: 320px; overflow-y: auto; }
 .side-panel::-webkit-scrollbar { width: 6px; }
 .side-panel::-webkit-scrollbar-thumb { background: rgba(120, 120, 120, 0.2); border-radius: 10px; }
 .side-panel:hover { transform: translateX(0); }
@@ -416,11 +469,13 @@ svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 3
    ========================================== */
 @media (max-width: 1100px) {
   .left-panel { width: 240px; }
+  .left-panel-fade { width: 240px; }
   .container { max-width: 420px; }
 }
 
 @media (max-width: 760px) {
   .left-panel { display: none; }
+  .left-panel-fade { display: none; }
   .timeline-container { display: none; }
   .horizon-scoreboard { display: none; }
   .container { max-width: 92vw; padding: 10px; }

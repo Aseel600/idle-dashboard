@@ -11,8 +11,8 @@ let isSpotifyPlaying = false;
 let spotifyUpdateInterval;
 
 const cx = 200, cy = 200, radius = 162;
-const DUAL_TRACK_AM_R = radius + 16;
-const DUAL_TRACK_PM_R = radius + 32;
+const DUAL_TRACK_AM_R = radius + 14;
+const DUAL_TRACK_PM_R = radius + 28;
 const DUAL_TRACK_AM_COLOR = "#ffa502";
 const DUAL_TRACK_PM_COLOR = "#5352ed";
 let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = false;
@@ -152,6 +152,29 @@ const translations = {
     enterTitleFirst: "Please enter a title.",
     confirmDeleteCountdown: "Delete this countdown?",
     selectedCount: "selected",
+    tutWelcomeTitle: "Welcome to Ambient OS 👋",
+    tutWelcomeBody: "A quick tour of what this dashboard can do. You can skip anytime — Escape or the X always closes this.",
+    tutClockTitle: "Your Live Clock",
+    tutClockBody: "The centerpiece. Drag the glowing dot around the edge to quickly set a countdown or alarm.",
+    tutWidgetsTitle: "Widgets Panel",
+    tutWidgetsBody: "Weather, prayer times, world clock, Spotify, and more can live here — but everything starts hidden so your view stays clean.",
+    tutPanelTitle: "Settings Panel",
+    tutPanelBody: "Hover this edge (or tap it on touch devices) to slide out the settings panel.",
+    tutWidgetManagerTitle: "Widget Manager",
+    tutWidgetManagerBody: "Toggle any widget on or off here. Your choices are saved automatically.",
+    tutAddTaskTitle: "Tasks, Routines & Countdowns",
+    tutAddTaskBody: "Add one-off tasks, recurring routines, or countdowns to future events — all shown on the clock face and timeline.",
+    tutThemeTitle: "Make It Yours",
+    tutThemeBody: "Pick an accent color, clock face style, and AM/PM style that fits your taste.",
+    tutTimelineTitle: "24-Hour Timeline",
+    tutTimelineBody: "A live strip across the top shows your whole day at a glance.",
+    tutZenTitle: "Focus Mode",
+    tutZenBody: "Hide every panel for a distraction-free ambient display. Click again to bring it all back.",
+    tutFinishTitle: "You're All Set!",
+    tutFinishBody: "That's the tour. Explore, customize, and enjoy your ambient dashboard.",
+    tutNext: "Next",
+    tutBack: "Back",
+    tutFinish: "Finish",
     rainLabel: "Rain",
     uvLabel: "UV",
     notConnected: "Not Connected",
@@ -292,6 +315,29 @@ const translations = {
     enterTitleFirst: "الرجاء إدخال عنوان.",
     confirmDeleteCountdown: "حذف هذا العداد؟",
     selectedCount: "محدد",
+    tutWelcomeTitle: "مرحبًا بك في Ambient OS 👋",
+    tutWelcomeBody: "جولة سريعة فيما تقدمه هذه اللوحة. يمكنك التخطي في أي وقت — زر Escape أو علامة X يغلقان الجولة دائمًا.",
+    tutClockTitle: "ساعتك الحية",
+    tutClockBody: "العنصر المركزي. اسحب النقطة المتوهجة حول الحافة لضبط عد تنازلي أو منبه بسرعة.",
+    tutWidgetsTitle: "لوحة الأدوات",
+    tutWidgetsBody: "الطقس، أوقات الصلاة، الساعة العالمية، Spotify والمزيد يمكن أن تظهر هنا — لكنها تبدأ مخفية للحفاظ على واجهة نظيفة.",
+    tutPanelTitle: "لوحة الإعدادات",
+    tutPanelBody: "مرر المؤشر فوق هذه الحافة (أو المس على الأجهزة اللمسية) لإظهار لوحة الإعدادات.",
+    tutWidgetManagerTitle: "إدارة الأدوات",
+    tutWidgetManagerBody: "فعّل أو أوقف أي أداة من هنا. يتم حفظ اختيارك تلقائيًا.",
+    tutAddTaskTitle: "المهام والروتين والعدادات",
+    tutAddTaskBody: "أضف مهام لمرة واحدة، روتينات متكررة، أو عدادات تنازلية لأحداث قادمة — تظهر جميعها على وجه الساعة والجدول الزمني.",
+    tutThemeTitle: "اجعلها خاصة بك",
+    tutThemeBody: "اختر لون التمييز، نمط وجه الساعة، ونمط AM/PM الذي يناسب ذوقك.",
+    tutTimelineTitle: "الجدول الزمني على مدار 24 ساعة",
+    tutTimelineBody: "شريط حي أعلى الشاشة يعرض يومك بالكامل بنظرة واحدة.",
+    tutZenTitle: "وضع التركيز",
+    tutZenBody: "أخفِ كل اللوحات لعرض غامر بلا تشتيت. اضغط مرة أخرى لإعادة كل شيء.",
+    tutFinishTitle: "أنت جاهز الآن!",
+    tutFinishBody: "هذه كانت الجولة. استكشف، خصص، واستمتع بلوحتك الأمبيانت.",
+    tutNext: "التالي",
+    tutBack: "رجوع",
+    tutFinish: "إنهاء",
     rainLabel: "المطر",
     uvLabel: "الأشعة فوق البنفسجية",
     notConnected: "غير متصل",
@@ -872,6 +918,7 @@ document.getElementById('dialogPromptInput').addEventListener('keydown', (e) => 
 
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (document.getElementById('tutorialOverlay').classList.contains('active')) { endTutorial(); return; }
   if (document.getElementById('customDialogModal').classList.contains('active')) { resolveDialog(false); return; }
   if (document.getElementById('taskModal').classList.contains('active')) { closeTaskModal(); return; }
   if (document.getElementById('timetableModal').classList.contains('active')) { closeTimetable(); return; }
@@ -1268,72 +1315,49 @@ function renderTaskArcs() {
 
   if (arcStyleMode === 'dualtrack') {
     const amR = DUAL_TRACK_AM_R, pmR = DUAL_TRACK_PM_R;
-    const gapDeg = 9;
     const svgNS = "http://www.w3.org/2000/svg";
 
-    const amRing = document.createElementNS(svgNS, "path");
-    amRing.setAttribute("d", describeArc(cx, cy, amR, gapDeg, 360 - gapDeg));
+    const amRing = document.createElementNS(svgNS, "circle");
+    amRing.setAttribute("cx", cx); amRing.setAttribute("cy", cy); amRing.setAttribute("r", amR);
     amRing.setAttribute("fill", "none");
     amRing.setAttribute("stroke", DUAL_TRACK_AM_COLOR);
-    amRing.setAttribute("stroke-width", "2.5");
-    amRing.style.opacity = "0.45";
+    amRing.setAttribute("stroke-width", "2");
+    amRing.style.opacity = "0.3";
     grp.appendChild(amRing);
 
-    const pmRing = document.createElementNS(svgNS, "path");
-    pmRing.setAttribute("d", describeArc(cx, cy, pmR, gapDeg, 360 - gapDeg));
+    const pmRing = document.createElementNS(svgNS, "circle");
+    pmRing.setAttribute("cx", cx); pmRing.setAttribute("cy", cy); pmRing.setAttribute("r", pmR);
     pmRing.setAttribute("fill", "none");
     pmRing.setAttribute("stroke", DUAL_TRACK_PM_COLOR);
-    pmRing.setAttribute("stroke-width", "2.5");
+    pmRing.setAttribute("stroke-width", "2");
+    pmRing.setAttribute("stroke-dasharray", "1 5");
+    pmRing.setAttribute("stroke-linecap", "round");
     pmRing.style.opacity = "0.45";
     grp.appendChild(pmRing);
 
-    const outerLeft = polarToCartesian(cx, cy, pmR, -gapDeg);
-    const outerRight = polarToCartesian(cx, cy, pmR, gapDeg);
-    const innerLeft = polarToCartesian(cx, cy, amR, -gapDeg);
-    const innerRight = polarToCartesian(cx, cy, amR, gapDeg);
-    const crossPeakY = Math.min(outerLeft.y, outerRight.y, innerLeft.y, innerRight.y) - 5;
-
-    const cross1 = document.createElementNS(svgNS, "path");
-    cross1.setAttribute("d", `M ${outerLeft.x} ${outerLeft.y} Q ${cx} ${crossPeakY} ${innerRight.x} ${innerRight.y}`);
-    cross1.setAttribute("fill", "none");
-    cross1.setAttribute("stroke", "var(--text-secondary)");
-    cross1.setAttribute("stroke-width", "2");
-    cross1.setAttribute("stroke-linecap", "round");
-    cross1.style.opacity = "0.7";
-    grp.appendChild(cross1);
-
-    const cross2 = document.createElementNS(svgNS, "path");
-    cross2.setAttribute("d", `M ${outerRight.x} ${outerRight.y} Q ${cx} ${crossPeakY} ${innerLeft.x} ${innerLeft.y}`);
-    cross2.setAttribute("fill", "none");
-    cross2.setAttribute("stroke", "var(--text-secondary)");
-    cross2.setAttribute("stroke-width", "2");
-    cross2.setAttribute("stroke-linecap", "round");
-    cross2.style.opacity = "0.7";
-    grp.appendChild(cross2);
-
-    const amLabelPos = polarToCartesian(cx, cy, amR, 180);
-    const amLabel = document.createElementNS(svgNS, "text");
-    amLabel.setAttribute("x", amLabelPos.x);
-    amLabel.setAttribute("y", amLabelPos.y + 3);
-    amLabel.setAttribute("text-anchor", "middle");
-    amLabel.setAttribute("font-size", "9");
-    amLabel.setAttribute("font-weight", "bold");
-    amLabel.setAttribute("fill", DUAL_TRACK_AM_COLOR);
-    amLabel.style.opacity = "0.9";
-    amLabel.textContent = lang === 'en' ? 'AM' : 'ص';
-    grp.appendChild(amLabel);
-
-    const pmLabelPos = polarToCartesian(cx, cy, pmR, 180);
-    const pmLabel = document.createElementNS(svgNS, "text");
-    pmLabel.setAttribute("x", pmLabelPos.x);
-    pmLabel.setAttribute("y", pmLabelPos.y + 3);
-    pmLabel.setAttribute("text-anchor", "middle");
-    pmLabel.setAttribute("font-size", "9");
-    pmLabel.setAttribute("font-weight", "bold");
-    pmLabel.setAttribute("fill", DUAL_TRACK_PM_COLOR);
-    pmLabel.style.opacity = "0.9";
-    pmLabel.textContent = lang === 'en' ? 'PM' : 'م';
-    grp.appendChild(pmLabel);
+    const makeBadge = (r, color, iconId, textLabel) => {
+      const pos = polarToCartesian(cx, cy, r, 180);
+      const g = document.createElementNS(svgNS, "g");
+      g.style.opacity = "0.95";
+      const badge = document.createElementNS(svgNS, "circle");
+      badge.setAttribute("cx", pos.x); badge.setAttribute("cy", pos.y); badge.setAttribute("r", "9");
+      badge.setAttribute("fill", "var(--bg-color-panel)");
+      badge.setAttribute("stroke", color);
+      badge.setAttribute("stroke-width", "1.5");
+      g.appendChild(badge);
+      const iconUse = document.createElementNS(svgNS, "use");
+      iconUse.setAttribute("href", `#${iconId}`);
+      iconUse.setAttribute("x", pos.x - 6); iconUse.setAttribute("y", pos.y - 6);
+      iconUse.setAttribute("width", "12"); iconUse.setAttribute("height", "12");
+      iconUse.setAttribute("color", color);
+      g.appendChild(iconUse);
+      const title = document.createElementNS(svgNS, "title");
+      title.textContent = textLabel;
+      g.appendChild(title);
+      grp.appendChild(g);
+    };
+    makeBadge(amR, DUAL_TRACK_AM_COLOR, "icon-sun", lang === 'en' ? 'AM ring' : 'حلقة صباحاً');
+    makeBadge(pmR, DUAL_TRACK_PM_COLOR, "icon-moon", lang === 'en' ? 'PM ring' : 'حلقة مساءً');
 
     ['am', 'pm'].forEach(period => {
       const group = todayTasks.filter(x => (period === 'am') === x.isAM);
@@ -1477,19 +1501,32 @@ function toggleTimeline(btnEl) {
   localStorage.setItem('timelineHidden', hidden ? '1' : '0');
   btnEl.classList.toggle('active-lang', !hidden);
 }
+const ALL_WIDGET_IDS = ['wgSchedule', 'wgWeather', 'wgPrayer', 'wgWorldClock', 'wgSpotify', 'wgLinks', 'wgCountdown'];
+let visibleWidgets = new Set(safeParseJSON('idleVisibleWidgets', []));
+
+function applyWidgetVisibility() {
+  ALL_WIDGET_IDS.forEach(id => {
+    const card = document.getElementById(id);
+    if (card) card.classList.toggle('wg-boot-hidden', !visibleWidgets.has(id));
+  });
+  document.querySelectorAll('#widgetTogglesGrid .clock-toggle-btn').forEach(btn => {
+    const match = (btn.getAttribute('onclick') || '').match(/toggleWidget\('([^']+)'/);
+    if (match) btn.classList.toggle('active-lang', visibleWidgets.has(match[1]));
+  });
+}
 function toggleWidget(widgetId, btnEl) {
   const widget = document.getElementById(widgetId);
-  if (widget) {
-    if (widget.style.display === "none" || widget.style.opacity === "0") {
-      widget.style.display = "flex";
-      widget.style.opacity = "1";
-      btnEl.classList.add("active-lang");
-    } else {
-      widget.style.display = "none";
-      widget.style.opacity = "0";
-      btnEl.classList.remove("active-lang");
-    }
+  if (!widget) return;
+  if (visibleWidgets.has(widgetId)) {
+    visibleWidgets.delete(widgetId);
+    widget.classList.add('wg-boot-hidden');
+    btnEl.classList.remove('active-lang');
+  } else {
+    visibleWidgets.add(widgetId);
+    widget.classList.remove('wg-boot-hidden');
+    btnEl.classList.add('active-lang');
   }
+  localStorage.setItem('idleVisibleWidgets', JSON.stringify(Array.from(visibleWidgets)));
 }
 function toggleClockElement(elementClassOrId, btnEl) {
   const element = document.querySelector(`.${elementClassOrId}`) || document.getElementById(elementClassOrId);
@@ -1605,6 +1642,7 @@ function setLanguage(selectedLang) {
     document.getElementById('cdModalHeaderTitle').textContent = editingCountdownId ? translations[lang].editCountdown : translations[lang].newCountdown;
   }
   if (document.getElementById('countdownManagerModal').classList.contains('active')) renderCountdownManagerList();
+  if (tutorialActive) showTutorialStep(tutorialStepIndex);
 }
 
 function refreshDayBubbleLetters() {
@@ -2256,6 +2294,7 @@ function updateLiveTimer() {
     checkV3Logic();
     checkReminders(new Date(now));
     checkCountdownNotifications(new Date(now));
+    if (spotifyToken) updateSpotifyLyricsHighlight();
     updateTimelineHUD();
 
     if (isTimerRunning || originalDurationMs > 0 || activeTaskObj) { mainClockContainer.classList.add('timer-active'); }
@@ -2595,6 +2634,9 @@ async function updateSpotifyUI() {
     if (fillEl) fillEl.style.width = '0%';
     if (elapsedEl) elapsedEl.textContent = '0:00';
     if (durationEl) durationEl.textContent = '0:00';
+    spotifyLyricsTrackKey = null;
+    spotifyLyricsData = null;
+    renderSpotifyLyricsUI();
     return;
   }
   trackEl.textContent = data.item.name;
@@ -2614,6 +2656,15 @@ async function updateSpotifyUI() {
   if (durationEl) durationEl.textContent = toNum(msToClock(data.item.duration_ms || 0));
   if (volumeEl && !spVolumeDragging && data.device && typeof data.device.volume_percent === 'number') {
     volumeEl.value = data.device.volume_percent;
+  }
+
+  spotifyProgressMsBase = data.progress_ms || 0;
+  spotifyProgressBaseTime = Date.now();
+  spotifyDurationMs = data.item.duration_ms || 0;
+  const trackKey = `${data.item.name}::${data.item.artists.map(a => a.name).join(',')}`;
+  if (trackKey !== spotifyLyricsTrackKey) {
+    spotifyLyricsTrackKey = trackKey;
+    fetchSpotifyLyrics(data.item);
   }
 }
 async function fetchSpotifyDevices() {
@@ -2662,6 +2713,148 @@ async function spotifyAction(action) {
   await fetchSpotifyAPI(`/me/player/${action}`, 'POST');
   setTimeout(updateSpotifyUI, 800);
 }
+
+/* ==========================================
+   13a. SPOTIFY ALBUM ART SWIPE (cover / lyrics / hidden)
+   ========================================== */
+let spotifyArtMode = parseInt(localStorage.getItem('spotifyArtMode') || '0', 10);
+let spotifyLyricsTrackKey = null;
+let spotifyLyricsData = null;
+let spotifyLyricsFetchToken = 0;
+let spotifyProgressMsBase = 0;
+let spotifyProgressBaseTime = Date.now();
+let spotifyDurationMs = 0;
+let spotifyActiveLyricIndex = -1;
+
+function setSpotifyArtMode(mode) {
+  spotifyArtMode = mode;
+  localStorage.setItem('spotifyArtMode', String(mode));
+  const track = document.getElementById('spArtTrack');
+  if (track) track.style.transform = `translateX(-${mode * 33.3333}%)`;
+  document.querySelectorAll('#spArtDots .sp-art-dot').forEach((dot, i) => dot.classList.toggle('active', i === mode));
+}
+
+function parseLRC(text) {
+  const lines = text.split('\n');
+  const timeRe = /\[(\d{2}):(\d{2}(?:\.\d+)?)\]/g;
+  const result = [];
+  lines.forEach(line => {
+    const matches = [...line.matchAll(timeRe)];
+    if (matches.length === 0) return;
+    const content = line.replace(timeRe, '').trim();
+    if (!content) return;
+    matches.forEach(m => {
+      const mins = parseInt(m[1], 10), secs = parseFloat(m[2]);
+      result.push({ time: mins * 60 + secs, text: content });
+    });
+  });
+  return result.sort((a, b) => a.time - b.time);
+}
+
+function renderSpotifyLyricsUI() {
+  const inner = document.getElementById('spLyricsInner');
+  if (!inner) return;
+  inner.innerHTML = '';
+  spotifyActiveLyricIndex = -1;
+  if (!spotifyLyricsData || spotifyLyricsData === 'none') {
+    const empty = document.createElement('div');
+    empty.className = 'sp-lyrics-empty';
+    empty.textContent = lang === 'en' ? 'No lyrics found for this track' : 'لا توجد كلمات لهذه الأغنية';
+    inner.appendChild(empty);
+    return;
+  }
+  if (spotifyLyricsData.plain) {
+    const p = document.createElement('div');
+    p.className = 'sp-lyrics-line active';
+    p.style.whiteSpace = 'pre-line';
+    p.textContent = spotifyLyricsData.plain;
+    inner.appendChild(p);
+    return;
+  }
+  spotifyLyricsData.forEach(line => {
+    const el = document.createElement('div');
+    el.className = 'sp-lyrics-line';
+    el.textContent = line.text;
+    inner.appendChild(el);
+  });
+}
+
+async function fetchSpotifyLyrics(item) {
+  const myToken = ++spotifyLyricsFetchToken;
+  spotifyLyricsData = null;
+  renderSpotifyLyricsUI();
+  const params = new URLSearchParams({
+    track_name: item.name,
+    artist_name: (item.artists || []).map(a => a.name).join(', '),
+    album_name: (item.album && item.album.name) || '',
+    duration: Math.round((item.duration_ms || 0) / 1000)
+  });
+  try {
+    const res = await fetch(`https://lrclib.net/api/get?${params.toString()}`);
+    if (myToken !== spotifyLyricsFetchToken) return;
+    if (!res.ok) { spotifyLyricsData = 'none'; renderSpotifyLyricsUI(); return; }
+    const data = await res.json();
+    if (myToken !== spotifyLyricsFetchToken) return;
+    if (data.syncedLyrics) spotifyLyricsData = parseLRC(data.syncedLyrics);
+    else if (data.plainLyrics) spotifyLyricsData = { plain: data.plainLyrics };
+    else spotifyLyricsData = 'none';
+  } catch (e) {
+    if (myToken !== spotifyLyricsFetchToken) return;
+    spotifyLyricsData = 'none';
+  }
+  renderSpotifyLyricsUI();
+}
+
+function updateSpotifyLyricsHighlight() {
+  if (!Array.isArray(spotifyLyricsData) || spotifyLyricsData.length === 0) return;
+  const inner = document.getElementById('spLyricsInner');
+  if (!inner) return;
+  const elapsedMs = isSpotifyPlaying ? spotifyProgressMsBase + (Date.now() - spotifyProgressBaseTime) : spotifyProgressMsBase;
+  const elapsedSec = elapsedMs / 1000;
+  let idx = -1;
+  for (let i = 0; i < spotifyLyricsData.length; i++) {
+    if (spotifyLyricsData[i].time <= elapsedSec) idx = i;
+    else break;
+  }
+  if (idx === spotifyActiveLyricIndex) return;
+  spotifyActiveLyricIndex = idx;
+  const lines = inner.querySelectorAll('.sp-lyrics-line');
+  lines.forEach((el, i) => el.classList.toggle('active', i === idx));
+  if (idx >= 0 && lines[idx]) {
+    const offset = lines[idx].offsetTop - inner.parentElement.clientHeight / 2 + lines[idx].clientHeight / 2;
+    inner.style.transform = `translateY(-${Math.max(0, offset)}px)`;
+  }
+}
+
+(function initSpotifyArtSwipe() {
+  const swipe = document.getElementById('spArtSwipe');
+  const track = document.getElementById('spArtTrack');
+  if (!swipe || !track) return;
+  let startX = 0, currentX = 0, dragging = false;
+  const onStart = (x) => { dragging = true; startX = x; currentX = x; track.classList.add('dragging'); };
+  const onMove = (x) => {
+    if (!dragging) return;
+    currentX = x;
+    const deltaPct = ((currentX - startX) / swipe.clientWidth) * 33.3333;
+    track.style.transform = `translateX(calc(-${spotifyArtMode * 33.3333}% + ${currentX - startX}px))`;
+  };
+  const onEnd = () => {
+    if (!dragging) return;
+    dragging = false;
+    track.classList.remove('dragging');
+    const deltaX = currentX - startX;
+    let newMode = spotifyArtMode;
+    if (deltaX > 40 && spotifyArtMode > 0) newMode = spotifyArtMode - 1;
+    else if (deltaX < -40 && spotifyArtMode < 2) newMode = spotifyArtMode + 1;
+    setSpotifyArtMode(newMode);
+  };
+  swipe.addEventListener('mousedown', (e) => { onStart(e.clientX); e.preventDefault(); });
+  window.addEventListener('mousemove', (e) => onMove(e.clientX));
+  window.addEventListener('mouseup', onEnd);
+  swipe.addEventListener('touchstart', (e) => onStart(e.touches[0].clientX), { passive: true });
+  swipe.addEventListener('touchmove', (e) => onMove(e.touches[0].clientX), { passive: true });
+  swipe.addEventListener('touchend', onEnd);
+})();
 
 /* ==========================================
    13b. COUNTDOWN WIDGET (mimics "Countdown" by Find Appiness)
@@ -3134,6 +3327,126 @@ function fireCountdownAlert(ev, key) {
 }
 
 /* ==========================================
+   13c. ONBOARDING TUTORIAL
+   ========================================== */
+const TUTORIAL_STEPS = [
+  { target: null, titleKey: 'tutWelcomeTitle', bodyKey: 'tutWelcomeBody' },
+  { target: '#clock', placement: 'bottom', titleKey: 'tutClockTitle', bodyKey: 'tutClockBody' },
+  { target: '.left-panel', placement: 'right', titleKey: 'tutWidgetsTitle', bodyKey: 'tutWidgetsBody' },
+  { target: '.panel-tab', placement: 'left', titleKey: 'tutPanelTitle', bodyKey: 'tutPanelBody' },
+  { target: '#widgetTogglesGrid', placement: 'left', titleKey: 'tutWidgetManagerTitle', bodyKey: 'tutWidgetManagerBody', forcePanel: true },
+  { target: '#addTaskBtn', placement: 'left', titleKey: 'tutAddTaskTitle', bodyKey: 'tutAddTaskBody', forcePanel: true },
+  { target: '#themeGrid', placement: 'left', titleKey: 'tutThemeTitle', bodyKey: 'tutThemeBody', forcePanel: true },
+  { target: '#timelineContainer', placement: 'bottom', titleKey: 'tutTimelineTitle', bodyKey: 'tutTimelineBody' },
+  { target: '.zen-toggle', placement: 'left', titleKey: 'tutZenTitle', bodyKey: 'tutZenBody' },
+  { target: null, titleKey: 'tutFinishTitle', bodyKey: 'tutFinishBody' }
+];
+let tutorialStepIndex = 0;
+let tutorialForcedPanelOpen = false;
+let tutorialActive = false;
+
+function positionTutorialUI(step) {
+  const spotlight = document.getElementById('tutorialSpotlight');
+  const tooltip = document.getElementById('tutorialTooltip');
+  tooltip.classList.remove('arrow-top', 'arrow-bottom', 'arrow-left', 'arrow-right', 'centered');
+
+  const el = step.target ? document.querySelector(step.target) : null;
+  if (!el) {
+    spotlight.classList.add('no-target');
+    tooltip.classList.add('centered');
+    return;
+  }
+  spotlight.classList.remove('no-target');
+  const rect = el.getBoundingClientRect();
+  const pad = 8;
+  spotlight.style.top = (rect.top - pad) + 'px';
+  spotlight.style.left = (rect.left - pad) + 'px';
+  spotlight.style.width = (rect.width + pad * 2) + 'px';
+  spotlight.style.height = (rect.height + pad * 2) + 'px';
+
+  const placement = step.placement || 'bottom';
+  const gap = 16;
+  const tw = tooltip.offsetWidth || 300;
+  const th = tooltip.offsetHeight || 120;
+  let top, left;
+  if (placement === 'bottom') {
+    top = rect.bottom + pad + gap;
+    left = rect.left + rect.width / 2 - tw / 2;
+    tooltip.classList.add('arrow-top');
+  } else if (placement === 'top') {
+    top = rect.top - pad - gap - th;
+    left = rect.left + rect.width / 2 - tw / 2;
+    tooltip.classList.add('arrow-bottom');
+  } else if (placement === 'left') {
+    top = rect.top + rect.height / 2 - th / 2;
+    left = rect.left - pad - gap - tw;
+    tooltip.classList.add('arrow-right');
+  } else {
+    top = rect.top + rect.height / 2 - th / 2;
+    left = rect.right + pad + gap;
+    tooltip.classList.add('arrow-left');
+  }
+  const margin = 12;
+  top = Math.max(margin, Math.min(top, window.innerHeight - th - margin));
+  left = Math.max(margin, Math.min(left, window.innerWidth - tw - margin));
+  tooltip.style.top = top + 'px';
+  tooltip.style.left = left + 'px';
+}
+
+function showTutorialStep(i) {
+  const step = TUTORIAL_STEPS[i];
+  if (!step) { endTutorial(); return; }
+  tutorialStepIndex = i;
+  const sidePanel = document.getElementById('sidePanel');
+  const needsPanel = !!step.forcePanel;
+  const panelStateChanging = needsPanel !== tutorialForcedPanelOpen;
+  tutorialForcedPanelOpen = needsPanel;
+  sidePanel.classList.toggle('tutorial-force-open', needsPanel);
+
+  document.getElementById('tutorialTitle').textContent = translations[lang][step.titleKey] || '';
+  document.getElementById('tutorialBody').textContent = translations[lang][step.bodyKey] || '';
+  document.getElementById('tutorialBackBtn').style.visibility = i === 0 ? 'hidden' : 'visible';
+  document.getElementById('tutorialBackBtn').textContent = translations[lang].tutBack;
+  document.getElementById('tutorialNextBtn').textContent = (i === TUTORIAL_STEPS.length - 1) ? translations[lang].tutFinish : translations[lang].tutNext;
+
+  const dotsEl = document.getElementById('tutorialDots');
+  dotsEl.innerHTML = '';
+  TUTORIAL_STEPS.forEach((_, idx) => {
+    const dot = document.createElement('div');
+    dot.className = 'tutorial-dot' + (idx === i ? ' active' : '');
+    dotsEl.appendChild(dot);
+  });
+
+  if (panelStateChanging) setTimeout(() => positionTutorialUI(step), 450);
+  else requestAnimationFrame(() => positionTutorialUI(step));
+}
+function nextTutorialStep() {
+  if (tutorialStepIndex >= TUTORIAL_STEPS.length - 1) { endTutorial(); return; }
+  showTutorialStep(tutorialStepIndex + 1);
+}
+function prevTutorialStep() {
+  if (tutorialStepIndex <= 0) return;
+  showTutorialStep(tutorialStepIndex - 1);
+}
+function startTutorial(force) {
+  if (!force && localStorage.getItem('hasSeenTutorial') === '1') return;
+  tutorialActive = true;
+  tutorialForcedPanelOpen = false;
+  document.getElementById('tutorialOverlay').classList.add('active');
+  showTutorialStep(0);
+}
+function endTutorial() {
+  tutorialActive = false;
+  document.getElementById('tutorialOverlay').classList.remove('active');
+  document.getElementById('sidePanel').classList.remove('tutorial-force-open');
+  tutorialForcedPanelOpen = false;
+  localStorage.setItem('hasSeenTutorial', '1');
+}
+window.addEventListener('resize', () => {
+  if (tutorialActive) positionTutorialUI(TUTORIAL_STEPS[tutorialStepIndex]);
+});
+
+/* ==========================================
    14. BOOT SEQUENCE
    ========================================== */
 titleInput.value = localStorage.getItem('idleTitle') || translations[lang].systemStandby;
@@ -3204,10 +3517,13 @@ applyTheme(currentTheme);
 setMode(currentMode);
 setLanguage(lang);
 updateWorldClock();
+applyWidgetVisibility();
+setSpotifyArtMode(spotifyArtMode);
 renderCountdownPickers();
 populateCountdownTagFilter();
 renderCountdownWidget();
 checkCountdownImportFromURL();
+setTimeout(() => startTutorial(false), 1000);
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);

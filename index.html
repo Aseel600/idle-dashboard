@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V6.6)</title>
+  <title>Ambient OS | Dashboard (V6.7)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -98,6 +98,8 @@
       <symbol id="icon-graduation-cap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/><line x1="22" y1="9" x2="22" y2="15"/></symbol>
       <symbol id="icon-backpack" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8V6a5 5 0 0 1 10 0v2"/><rect x="5" y="8" width="14" height="13" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><rect x="9" y="8" width="6" height="4"/></symbol>
       <symbol id="icon-star" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12,2 15,9 22,9.5 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9.5 9,9"/></symbol>
+      <symbol id="icon-help-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 4.8 1c0 1.5-2.3 1.8-2.3 3.5"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+      <symbol id="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.6 18.6 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
       <symbol id="icon-alarm-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><line x1="12" y1="13" x2="12" y2="9"/><line x1="12" y1="13" x2="15" y2="15"/><line x1="5" y1="3" x2="2" y2="6"/><line x1="19" y1="3" x2="22" y2="6"/><line x1="9" y1="3" x2="15" y2="3"/></symbol>
       <symbol id="icon-umbrella" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12a10 10 0 0 1 20 0z"/><line x1="12" y1="12" x2="12" y2="19"/><path d="M9 19a3 3 0 0 0 6 0"/></symbol>
       <symbol id="icon-paw" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/><path d="M6 15a3 3 0 0 1 3-4h6a3 3 0 0 1 3 4c0 2-2.5 4-6 4s-6-2-6-4z"/></symbol>
@@ -109,13 +111,14 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v6.6</span>
+      <span class="dev-version">v6.7</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
       <button class="dev-btn" onclick="playChime()"><svg class="icon-svg"><use href="#icon-bell"></use></svg><span>Play Chime</span></button>
       <button class="dev-btn" onclick="triggerSnapEasterEgg()"><svg class="icon-svg"><use href="#icon-zap"></use></svg><span>Trigger Snap</span></button>
       <button class="dev-btn" onclick="testHolyGlow()" id="glowBtn"><svg class="icon-svg"><use href="#icon-mosque"></use></svg><span id="glowBtnLabel">Azan Glow</span></button>
+      <button class="dev-btn" onclick="startTutorial(true)"><svg class="icon-svg"><use href="#icon-help-circle"></use></svg><span>Start Tutorial</span></button>
     </div>
 
     <div class="dev-checklist-history">
@@ -336,6 +339,17 @@
     <label class="qa-item"><input type="checkbox"> Added Prominent "+ Add Countdown" Button (No Longer Requires Finding the Widget)</label>
     <label class="qa-item"><input type="checkbox"> Verified Countdown Save Logic Actually Persists to localStorage</label>
     <label class="qa-item"><input type="checkbox"> leesa.site HTTPS Certificate Issued and Enforced (Fixes Spotify Login)</label>
+
+    <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V6.7 UX OVERHAUL PASS</div>
+
+    <label class="qa-item"><input type="checkbox"> Zen Toggle No Longer Overlaps Side-Panel Content (Spotify Device Dropdown Fix)</label>
+    <label class="qa-item"><input type="checkbox"> Widgets Off By Default, Toggle Choice Persisted Per-User</label>
+    <label class="qa-item"><input type="checkbox"> Timeline Shadow Theme-Aware (No Longer Muddy in Light Mode)</label>
+    <label class="qa-item"><input type="checkbox"> Left-Panel Top Edge Fades/Blurs Instead of Hard-Cutting Widgets</label>
+    <label class="qa-item"><input type="checkbox"> Dual-Track Clock Redesigned: No More Crossing Lines, Sun/Moon Badges, Dashed PM Ring</label>
+    <label class="qa-item"><input type="checkbox"> First-Time Onboarding Tutorial with Spotlight + Arrows (Dev Menu Replay Button)</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Album Art: Swipeable Cover / Synced Lyrics (LRCLIB) / Hidden Modes</label>
     </div>
   </div>
 
@@ -683,6 +697,23 @@
 
   <div class="toast-container" id="toastContainer"></div>
 
+  <div class="tutorial-overlay" id="tutorialOverlay">
+    <div class="tutorial-spotlight" id="tutorialSpotlight"></div>
+    <div class="tutorial-tooltip" id="tutorialTooltip">
+      <div class="tutorial-arrow" id="tutorialArrow"></div>
+      <button class="tutorial-close" onclick="endTutorial()" aria-label="Close tutorial"><svg class="icon-svg"><use href="#icon-x"></use></svg></button>
+      <div class="tutorial-title" id="tutorialTitle"></div>
+      <div class="tutorial-body" id="tutorialBody"></div>
+      <div class="tutorial-footer">
+        <div class="tutorial-dots" id="tutorialDots"></div>
+        <div class="tutorial-btns">
+          <button class="tutorial-btn secondary" id="tutorialBackBtn" onclick="prevTutorialStep()">Back</button>
+          <button class="tutorial-btn primary" id="tutorialNextBtn" onclick="nextTutorialStep()">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="starLayer" class="star-layer">
     <div id="ambientGlow" class="ambient-glow"></div>
     <div id="shootingStar" class="shooting-star"></div>
@@ -699,7 +730,7 @@
 
   <div class="left-panel">
     
-    <div class="widget-card clickable" id="wgSchedule" onclick="openTimetable()">
+    <div class="widget-card clickable wg-boot-hidden" id="wgSchedule" onclick="openTimetable()">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgSchedule', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-calendar"></use></svg></span> <span data-i18n="widgetSchedule">Schedule</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
       <div class="weather-temp" id="widgetDateNum">8</div>
       <div class="weather-sub">
@@ -713,7 +744,7 @@
       </div>
     </div>
 
-    <div class="widget-card" id="wgWeather">
+    <div class="widget-card wg-boot-hidden" id="wgWeather">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgWeather', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-cloud"></use></svg></span> <span data-i18n="widgetWeather">Weather</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
       <div class="weather-temp" id="weatherTemp">--°</div>
       <div class="weather-sub">
@@ -727,7 +758,7 @@
       </div>
     </div>
 
-    <div class="widget-card" id="wgPrayer">
+    <div class="widget-card wg-boot-hidden" id="wgPrayer">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgPrayer', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-mosque"></use></svg></span> <span data-i18n="widgetNextPrayer">Next Prayer</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
       <div class="prayer-live-time" id="widgetPrayerName" data-i18n="loadingText">Loading...</div>
       <div class="weather-sub">
@@ -741,7 +772,7 @@
       </div>
     </div>
 
-    <div class="widget-card" id="wgWorldClock">
+    <div class="widget-card wg-boot-hidden" id="wgWorldClock">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgWorldClock', event)">
         <span class="widget-icon"><svg class="icon-svg"><use href="#icon-globe"></use></svg></span> <span data-i18n="widgetWorldClock">World Clock</span>
         <select id="worldClockSelect" onchange="updateWorldClock()" onclick="event.stopPropagation()" style="margin-left:auto; background:transparent; color:var(--text-secondary); border:none; outline:none; cursor:pointer; font-size: 0.75rem; font-weight: bold;">
@@ -766,9 +797,28 @@
       </div>
     </div>
 
-    <div class="widget-card" id="wgSpotify">
+    <div class="widget-card wg-boot-hidden" id="wgSpotify">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgSpotify', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-music"></use></svg></span> <span data-i18n="widgetNowPlaying">Now Playing</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
-      <img src="" alt="Art" class="sp-widget-art" id="spWidgetArt" style="display:none;">
+      <div class="sp-art-swipe" id="spArtSwipe" onclick="event.stopPropagation()">
+        <div class="sp-art-track" id="spArtTrack">
+          <div class="sp-art-slide">
+            <img src="" alt="Art" class="sp-widget-art" id="spWidgetArt" style="display:none;">
+          </div>
+          <div class="sp-art-slide">
+            <div class="sp-lyrics-scroll" id="spLyricsScroll">
+              <div class="sp-lyrics-inner" id="spLyricsInner"></div>
+            </div>
+          </div>
+          <div class="sp-art-slide sp-art-slide-hidden-mode">
+            <svg class="icon-svg"><use href="#icon-eye-off"></use></svg>
+          </div>
+        </div>
+      </div>
+      <div class="sp-art-dots" id="spArtDots">
+        <div class="sp-art-dot active" onclick="event.stopPropagation(); setSpotifyArtMode(0)" aria-label="Cover art"></div>
+        <div class="sp-art-dot" onclick="event.stopPropagation(); setSpotifyArtMode(1)" aria-label="Lyrics"></div>
+        <div class="sp-art-dot" onclick="event.stopPropagation(); setSpotifyArtMode(2)" aria-label="Hide art"></div>
+      </div>
       <div style="text-align: center; font-weight: bold; font-size: 0.9rem;" id="spWidgetTrack" data-i18n="notConnected">Not Connected</div>
       <div style="text-align: center; font-size: 0.7rem; color: var(--text-secondary);" id="spWidgetArtist" data-i18n="loginInSettings">Login in settings</div>
       <div class="sp-widget-controls">
@@ -791,7 +841,7 @@
       </div>
     </div>
 
-    <div class="widget-card" id="wgLinks">
+    <div class="widget-card wg-boot-hidden" id="wgLinks">
       <div class="widget-header"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-link"></use></svg></span> <span data-i18n="widgetQuickLinks">Quick Links</span></div>
       <div id="quickLinksList" style="display: flex; flex-direction: column; gap: 8px;">
         <a href="https://github.com" target="_blank" class="quick-link-item"><svg class="icon-svg"><use href="#icon-package"></use></svg> GitHub</a>
@@ -799,7 +849,7 @@
       </div>
     </div>
 
-    <div class="widget-card clickable" id="wgCountdown" onclick="openCountdownManager()">
+    <div class="widget-card clickable wg-boot-hidden" id="wgCountdown" onclick="openCountdownManager()">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgCountdown', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg></span> <span data-i18n="widgetCountdown">Countdown</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
       <div class="weather-temp" id="cdWidgetDays">--</div>
       <div class="weather-sub">
@@ -814,15 +864,16 @@
     </div>
 
   </div>
+  <div class="left-panel-fade"></div>
 
   <div class="zen-toggle" onclick="toggleFocusMode()" title="Toggle Focus Mode" data-i18n-title="toggleFocusMode" role="button" tabindex="0" aria-label="Toggle Focus Mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFocusMode();}"><svg class="icon-svg"><use href="#icon-sparkle"></use></svg></div>
   <div class="dev-toggle" onclick="toggleDevMenu()" title="Toggle QA Dev Menu" data-i18n-title="toggleDevMenu" role="button" tabindex="0" aria-label="Toggle QA Dev Menu" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDevMenu();}"><svg class="icon-svg"><use href="#icon-gear"></use></svg></div>
 
-  <div class="side-panel">
+  <div class="side-panel" id="sidePanel">
     <div class="panel-tab">‹</div>
 
     <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="tasksGoals">Tasks & Goals</div>
-    <button class="add-task-btn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
+    <button class="add-task-btn" id="addTaskBtn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
     <button class="add-task-btn" style="margin-top: 10px;" onclick="openCountdownModal()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="addCountdown">+ Add Countdown</span></button>
     <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openScheduleManager()"><svg class="icon-svg"><use href="#icon-clipboard-list"></use></svg> <span data-i18n="scheduleManager">Schedule Manager</span></button>
     <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openCountdownManager()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="countdownManager">Countdown Manager</span></button>
@@ -836,27 +887,27 @@
 
     <div class="panel-header" data-i18n="widgetManager">Widget Manager</div>
     <div class="clock-toggle-grid" id="widgetTogglesGrid" style="grid-template-columns: repeat(3, 1fr);">
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgSchedule', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgSchedule', this)">
         <svg class="icon-svg"><use href="#icon-calendar"></use></svg>
         <span data-i18n="widgetSchedule">Schedule</span>
       </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgWeather', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgWeather', this)">
         <svg class="icon-svg"><use href="#icon-cloud"></use></svg>
         <span data-i18n="widgetWeather">Weather</span>
       </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgPrayer', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgPrayer', this)">
         <svg class="icon-svg"><use href="#icon-mosque"></use></svg>
         <span data-i18n="widgetNextPrayer">Prayer</span>
       </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgWorldClock', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgWorldClock', this)">
         <svg class="icon-svg"><use href="#icon-globe"></use></svg>
         <span data-i18n="widgetWorldClock">World</span>
       </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgSpotify', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgSpotify', this)">
         <svg class="icon-svg"><use href="#icon-music"></use></svg>
         <span data-i18n="widgetNowPlaying">Music</span>
       </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgLinks', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgLinks', this)">
         <svg class="icon-svg"><use href="#icon-link"></use></svg>
         <span data-i18n="widgetQuickLinks">Links</span>
       </button>
@@ -864,7 +915,7 @@
         <svg class="icon-svg"><use href="#icon-activity"></use></svg>
         <span data-i18n="widgetTimeline">Timeline</span>
       </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgCountdown', this)">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgCountdown', this)">
         <svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg>
         <span data-i18n="widgetCountdown">Countdown</span>
       </button>
