@@ -116,6 +116,41 @@ const translations = {
     widgetNowPlaying: "Now Playing",
     widgetQuickLinks: "Quick Links",
     widgetTimeline: "Timeline",
+    widgetCountdown: "Countdown",
+    noCountdownsYet: "No countdowns yet",
+    countdownManager: "Countdown Manager",
+    newCountdown: "New Countdown",
+    editCountdown: "Edit Countdown",
+    countdownTitlePlaceholder: "Event title",
+    eventDate: "Date",
+    eventTime: "Time",
+    markBirthday: "Birthday / Anniversary",
+    repeatEndLabel: "Repeat Until",
+    workdaysOnly: "Workdays Only",
+    tagsPlaceholder: "e.g. family, work",
+    pinEvent: "Pin to Top",
+    notifyAtTime: "Notify at time of event",
+    notifyDayBefore: "Notify 1 day before",
+    notifyWeekBefore: "Notify 1 week before",
+    saveCountdown: "Save Countdown",
+    shareCountdown: "Share Link",
+    linkCopied: "Link copied to clipboard!",
+    sortClosest: "Closest",
+    sortFarthest: "Farthest",
+    searchPlaceholder: "Search...",
+    allTags: "All Tags",
+    importCountdownTitle: "Import Countdown?",
+    importCountdownMsg: 'Add "{title}" to your countdowns?',
+    daysLeft: "days left",
+    dayLeft: "day left",
+    daysAgo: "days ago",
+    dayAgoLabel: "day ago",
+    todayLabel: "Today",
+    turningAge: "Turning {age}",
+    seriesEnded: "ended",
+    enterTitleFirst: "Please enter a title.",
+    confirmDeleteCountdown: "Delete this countdown?",
+    selectedCount: "selected",
     rainLabel: "Rain",
     uvLabel: "UV",
     notConnected: "Not Connected",
@@ -220,6 +255,41 @@ const translations = {
     widgetNowPlaying: "قيد التشغيل",
     widgetQuickLinks: "روابط سريعة",
     widgetTimeline: "الجدول الزمني",
+    widgetCountdown: "العد التنازلي",
+    noCountdownsYet: "لا توجد عدادات بعد",
+    countdownManager: "مدير العد التنازلي",
+    newCountdown: "عداد جديد",
+    editCountdown: "تعديل العداد",
+    countdownTitlePlaceholder: "عنوان الحدث",
+    eventDate: "التاريخ",
+    eventTime: "الوقت",
+    markBirthday: "عيد ميلاد / ذكرى سنوية",
+    repeatEndLabel: "التكرار حتى",
+    workdaysOnly: "أيام العمل فقط",
+    tagsPlaceholder: "مثال: عائلة، عمل",
+    pinEvent: "تثبيت في الأعلى",
+    notifyAtTime: "تنبيه عند وقت الحدث",
+    notifyDayBefore: "تنبيه قبل يوم واحد",
+    notifyWeekBefore: "تنبيه قبل أسبوع واحد",
+    saveCountdown: "حفظ العداد",
+    shareCountdown: "مشاركة الرابط",
+    linkCopied: "تم نسخ الرابط!",
+    sortClosest: "الأقرب",
+    sortFarthest: "الأبعد",
+    searchPlaceholder: "بحث...",
+    allTags: "كل الوسوم",
+    importCountdownTitle: "استيراد العداد؟",
+    importCountdownMsg: 'إضافة "{title}" إلى عداداتك؟',
+    daysLeft: "أيام متبقية",
+    dayLeft: "يوم متبقٍ",
+    daysAgo: "أيام مضت",
+    dayAgoLabel: "يوم مضى",
+    todayLabel: "اليوم",
+    turningAge: "يبلغ {age}",
+    seriesEnded: "انتهى",
+    enterTitleFirst: "الرجاء إدخال عنوان.",
+    confirmDeleteCountdown: "حذف هذا العداد؟",
+    selectedCount: "محدد",
     rainLabel: "المطر",
     uvLabel: "الأشعة فوق البنفسجية",
     notConnected: "غير متصل",
@@ -804,6 +874,8 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('taskModal').classList.contains('active')) { closeTaskModal(); return; }
   if (document.getElementById('timetableModal').classList.contains('active')) { closeTimetable(); return; }
   if (document.getElementById('scheduleManagerModal').classList.contains('active')) { closeScheduleManager(); return; }
+  if (document.getElementById('countdownModal').classList.contains('active')) { closeCountdownModal(); return; }
+  if (document.getElementById('countdownManagerModal').classList.contains('active')) { closeCountdownManager(); return; }
 });
 
 document.querySelectorAll('.widget-header[role="button"]').forEach(header => {
@@ -1525,6 +1597,12 @@ function setLanguage(selectedLang) {
   updateWorldClock();
   renderTimetable();
   if (document.getElementById('scheduleManagerModal').classList.contains('active')) renderScheduleManager();
+  renderCountdownWidget();
+  populateCountdownTagFilter();
+  if (document.getElementById('countdownModal').classList.contains('active')) {
+    document.getElementById('cdModalHeaderTitle').textContent = editingCountdownId ? translations[lang].editCountdown : translations[lang].newCountdown;
+  }
+  if (document.getElementById('countdownManagerModal').classList.contains('active')) renderCountdownManagerList();
 }
 
 function refreshDayBubbleLetters() {
@@ -2175,6 +2253,7 @@ function updateLiveTimer() {
     updatePrayerUI();
     checkV3Logic();
     checkReminders(new Date(now));
+    checkCountdownNotifications(new Date(now));
     updateTimelineHUD();
 
     if (isTimerRunning || originalDurationMs > 0 || activeTaskObj) { mainClockContainer.classList.add('timer-active'); }
@@ -2583,6 +2662,476 @@ async function spotifyAction(action) {
 }
 
 /* ==========================================
+   13b. COUNTDOWN WIDGET (mimics "Countdown" by Find Appiness)
+   ========================================== */
+let countdownEvents = safeParseJSON('idleCountdowns', []);
+let editingCountdownId = null;
+let countdownSortMode = localStorage.getItem('countdownSort') || 'closest';
+let selectedCountdownIds = new Set();
+let cdSelectedIcon = 'star';
+let cdSelectedColor = '#1e90ff';
+const COUNTDOWN_COLORS = ['#ff4757', '#ffa502', '#eccc68', '#7bed9f', '#2ed573', '#1e90ff', '#5352ed', '#3742fa', '#9b59b6', '#ff6b81', '#ffffff', '#888888'];
+
+function saveCountdownsToStorage() {
+  localStorage.setItem('idleCountdowns', JSON.stringify(countdownEvents));
+}
+function getCountdownTargetDate(ev) {
+  return new Date(`${ev.date}T${ev.time || '00:00'}:00`);
+}
+function isWeekendDate(d) {
+  const day = d.getDay();
+  return day === 0 || day === 6;
+}
+function getDaysRemaining(targetDate, fromDate) {
+  const startFrom = new Date(fromDate.getFullYear(), fromDate.getMonth(), fromDate.getDate());
+  const startTarget = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+  return Math.round((startTarget - startFrom) / 86400000);
+}
+function getNextCountdownOccurrence(ev, fromDate) {
+  const base = getCountdownTargetDate(ev);
+  const repeatEnd = ev.repeatEnd ? new Date(`${ev.repeatEnd}T23:59:59`) : null;
+  const occurrence = new Date(base);
+
+  if (ev.repeat === 'none' && !ev.isBirthday) {
+    if (ev.workdaysOnly) { while (isWeekendDate(occurrence)) occurrence.setDate(occurrence.getDate() + 1); }
+    return { date: occurrence, ended: false };
+  }
+
+  const effectiveRepeat = ev.isBirthday ? 'yearly' : ev.repeat;
+  let ended = false;
+  let guard = 0;
+  while (occurrence < fromDate && guard < 2000) {
+    guard++;
+    if (effectiveRepeat === 'daily') occurrence.setDate(occurrence.getDate() + 1);
+    else if (effectiveRepeat === 'weekly') occurrence.setDate(occurrence.getDate() + 7);
+    else if (effectiveRepeat === 'monthly') occurrence.setMonth(occurrence.getMonth() + 1);
+    else if (effectiveRepeat === 'yearly') occurrence.setFullYear(occurrence.getFullYear() + 1);
+    else break;
+    if (repeatEnd && occurrence > repeatEnd) { ended = true; break; }
+  }
+  if (ev.workdaysOnly) { while (isWeekendDate(occurrence)) occurrence.setDate(occurrence.getDate() + 1); }
+  return { date: occurrence, ended };
+}
+
+function renderCountdownPickers() {
+  const iconGrid = document.getElementById('cdIconGrid');
+  const colorGrid = document.getElementById('cdColorGrid');
+  if (iconGrid && iconGrid.children.length === 0) {
+    Object.keys(ICON_LIBRARY).forEach(key => {
+      const el = document.createElement('div');
+      el.className = 'icon-option';
+      el.dataset.icon = key;
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', key.replace(/-/g, ' '));
+      el.innerHTML = svgIcon(ICON_LIBRARY[key].symbol);
+      el.addEventListener('click', () => selectCountdownIcon(key, el));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } });
+      iconGrid.appendChild(el);
+    });
+  }
+  if (colorGrid && colorGrid.children.length === 0) {
+    COUNTDOWN_COLORS.forEach(hex => {
+      const el = document.createElement('div');
+      el.className = 'color-swatch';
+      el.style.color = hex;
+      el.dataset.color = hex;
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+      el.setAttribute('aria-label', `Color ${hex}`);
+      el.addEventListener('click', () => selectCountdownColor(hex, el));
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } });
+      colorGrid.appendChild(el);
+    });
+  }
+}
+function selectCountdownIcon(icon, el) {
+  cdSelectedIcon = icon;
+  document.querySelectorAll('#cdIconGrid .icon-option').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+}
+function selectCountdownColor(color, el) {
+  cdSelectedColor = color;
+  document.querySelectorAll('#cdColorGrid .color-swatch').forEach(o => o.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function handleCountdownBirthdayToggle() {
+  const isBday = document.getElementById('cdIsBirthday').checked;
+  document.getElementById('cdRepeatBlock').style.display = isBday ? 'none' : 'block';
+  if (isBday) document.getElementById('cdRepeatEndBlock').style.display = 'none';
+  else handleCountdownRepeatChange();
+}
+function handleCountdownRepeatChange() {
+  const repeat = document.getElementById('cdRepeat').value;
+  document.getElementById('cdRepeatEndBlock').style.display = repeat === 'none' ? 'none' : 'block';
+}
+
+function openCountdownModal(id = null) {
+  editingCountdownId = id;
+  const ev = id ? countdownEvents.find(e => e.id === id) : null;
+  document.getElementById('cdModalHeaderTitle').textContent = ev ? translations[lang].editCountdown : translations[lang].newCountdown;
+  document.getElementById('cdDeleteBtn').style.display = ev ? 'block' : 'none';
+  document.getElementById('cdShareBtn').style.display = ev ? 'block' : 'none';
+  document.getElementById('cdTitle').value = ev ? ev.title : '';
+  const today = new Date();
+  const tzOffset = today.getTimezoneOffset() * 60000;
+  const todayISO = (new Date(today - tzOffset)).toISOString().split('T')[0];
+  document.getElementById('cdDate').value = ev ? ev.date : todayISO;
+  document.getElementById('cdTime').value = ev ? (ev.time || '09:00') : '09:00';
+  document.getElementById('cdIsBirthday').checked = ev ? !!ev.isBirthday : false;
+  document.getElementById('cdRepeat').value = ev ? (ev.repeat || 'none') : 'none';
+  document.getElementById('cdRepeatEnd').value = ev ? (ev.repeatEnd || '') : '';
+  document.getElementById('cdWorkdaysOnly').checked = ev ? !!ev.workdaysOnly : false;
+  document.getElementById('cdPinned').checked = ev ? !!ev.pinned : false;
+  document.getElementById('cdTags').value = ev && ev.tags ? ev.tags.join(', ') : '';
+  document.getElementById('cdNotes').value = ev ? (ev.notes || '') : '';
+  document.getElementById('cdNotifyAtTime').checked = ev ? !!ev.notifyAtTime : false;
+  document.getElementById('cdNotifyDayBefore').checked = ev ? !!ev.notifyDayBefore : false;
+  document.getElementById('cdNotifyWeekBefore').checked = ev ? !!ev.notifyWeekBefore : false;
+  handleCountdownBirthdayToggle();
+
+  renderCountdownPickers();
+  const iconToSelect = ev ? resolveIconId(ev.icon) : 'star';
+  const iconEl = document.querySelector(`#cdIconGrid .icon-option[data-icon="${iconToSelect}"]`) || document.querySelector('#cdIconGrid .icon-option');
+  if (iconEl) selectCountdownIcon(iconToSelect, iconEl);
+  const colorToSelect = ev ? (ev.color || '#1e90ff') : '#1e90ff';
+  const colorEl = document.querySelector(`#cdColorGrid .color-swatch[data-color="${colorToSelect}"]`) || document.querySelector('#cdColorGrid .color-swatch');
+  if (colorEl) selectCountdownColor(colorToSelect, colorEl);
+
+  document.getElementById('countdownModal').classList.add('active');
+}
+function closeCountdownModal() {
+  document.getElementById('countdownModal').classList.remove('active');
+}
+
+async function saveCountdownFromModal() {
+  const title = document.getElementById('cdTitle').value.trim();
+  if (!title) { await customAlert(translations[lang].enterTitleFirst); return; }
+  const isBirthday = document.getElementById('cdIsBirthday').checked;
+  const repeat = isBirthday ? 'yearly' : document.getElementById('cdRepeat').value;
+  const tags = document.getElementById('cdTags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  const notifyAtTime = document.getElementById('cdNotifyAtTime').checked;
+  const notifyDayBefore = document.getElementById('cdNotifyDayBefore').checked;
+  const notifyWeekBefore = document.getElementById('cdNotifyWeekBefore').checked;
+  if ((notifyAtTime || notifyDayBefore || notifyWeekBefore) && window.Notification && Notification.permission === 'default') {
+    try { await Notification.requestPermission(); } catch (e) {}
+  }
+  const ev = {
+    id: editingCountdownId || Date.now(),
+    title,
+    date: document.getElementById('cdDate').value,
+    time: document.getElementById('cdTime').value || '00:00',
+    isBirthday,
+    repeat,
+    repeatEnd: repeat !== 'none' ? document.getElementById('cdRepeatEnd').value : '',
+    workdaysOnly: document.getElementById('cdWorkdaysOnly').checked,
+    pinned: document.getElementById('cdPinned').checked,
+    icon: cdSelectedIcon,
+    color: cdSelectedColor,
+    tags,
+    notes: document.getElementById('cdNotes').value.trim(),
+    notifyAtTime,
+    notifyDayBefore,
+    notifyWeekBefore
+  };
+  if (editingCountdownId) {
+    const idx = countdownEvents.findIndex(e => e.id === editingCountdownId);
+    if (idx !== -1) countdownEvents[idx] = ev;
+  } else {
+    countdownEvents.push(ev);
+  }
+  saveCountdownsToStorage();
+  closeCountdownModal();
+  populateCountdownTagFilter();
+  renderCountdownWidget();
+  renderCountdownManagerList();
+}
+
+async function deleteCountdownFromModal() {
+  if (!editingCountdownId) return;
+  await deleteCountdownById(editingCountdownId);
+  closeCountdownModal();
+}
+async function deleteCountdownById(id) {
+  const confirmed = await customConfirm(translations[lang].confirmDeleteCountdown, undefined, true);
+  if (!confirmed) return;
+  countdownEvents = countdownEvents.filter(e => e.id !== id);
+  selectedCountdownIds.delete(id);
+  saveCountdownsToStorage();
+  populateCountdownTagFilter();
+  renderCountdownWidget();
+  renderCountdownManagerList();
+}
+function togglePinCountdown(id) {
+  const ev = countdownEvents.find(e => e.id === id);
+  if (!ev) return;
+  ev.pinned = !ev.pinned;
+  saveCountdownsToStorage();
+  renderCountdownWidget();
+  renderCountdownManagerList();
+}
+
+async function shareCountdownLink() {
+  if (!editingCountdownId) return;
+  const ev = countdownEvents.find(e => e.id === editingCountdownId);
+  if (!ev) return;
+  const payload = { title: ev.title, icon: ev.icon, color: ev.color, date: ev.date, time: ev.time, notes: ev.notes, isBirthday: ev.isBirthday, repeat: ev.repeat, repeatEnd: ev.repeatEnd, workdaysOnly: ev.workdaysOnly, tags: ev.tags };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+  const url = `${window.location.origin}${window.location.pathname}?importCountdown=${encoded}`;
+  try {
+    await navigator.clipboard.writeText(url);
+    await customAlert(translations[lang].linkCopied);
+  } catch (e) {
+    await customPrompt(translations[lang].shareCountdown, url, translations[lang].shareCountdown);
+  }
+}
+async function checkCountdownImportFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const encoded = params.get('importCountdown');
+  if (!encoded) return;
+  window.history.replaceState({}, document.title, window.location.pathname);
+  try {
+    const payload = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    const msg = translations[lang].importCountdownMsg.replace('{title}', payload.title);
+    const confirmed = await customConfirm(msg, translations[lang].importCountdownTitle);
+    if (!confirmed) return;
+    countdownEvents.push({
+      id: Date.now(),
+      title: payload.title || 'Untitled',
+      icon: payload.icon || 'star',
+      color: payload.color || '#1e90ff',
+      date: payload.date || new Date().toISOString().split('T')[0],
+      time: payload.time || '00:00',
+      notes: payload.notes || '',
+      isBirthday: !!payload.isBirthday,
+      repeat: payload.repeat || 'none',
+      repeatEnd: payload.repeatEnd || '',
+      workdaysOnly: !!payload.workdaysOnly,
+      tags: Array.isArray(payload.tags) ? payload.tags : [],
+      pinned: false,
+      notifyAtTime: false,
+      notifyDayBefore: false,
+      notifyWeekBefore: false
+    });
+    saveCountdownsToStorage();
+    populateCountdownTagFilter();
+    renderCountdownWidget();
+  } catch (e) { /* malformed or tampered import link, ignore silently */ }
+}
+
+function renderCountdownWidget() {
+  const bigNum = document.getElementById('cdWidgetDays');
+  if (!bigNum) return;
+  const titleEl = document.getElementById('cdWidgetTitle');
+  const subEl = document.getElementById('cdWidgetSub');
+  const listEl = document.getElementById('cdWidgetList');
+  if (countdownEvents.length === 0) {
+    bigNum.textContent = '--';
+    titleEl.textContent = translations[lang].noCountdownsYet;
+    subEl.textContent = '';
+    listEl.innerHTML = '';
+    return;
+  }
+  const now = new Date();
+  const enriched = countdownEvents.map(ev => ({ ev, occ: getNextCountdownOccurrence(ev, now) }));
+  enriched.sort((a, b) => {
+    if (!!a.ev.pinned !== !!b.ev.pinned) return a.ev.pinned ? -1 : 1;
+    return Math.abs(a.occ.date - now) - Math.abs(b.occ.date - now);
+  });
+  const top = enriched[0];
+  const days = getDaysRemaining(top.occ.date, now);
+  bigNum.textContent = days === 0 ? translations[lang].todayLabel : Math.abs(days).toString();
+  let subLabel = '';
+  if (days > 0) subLabel = days === 1 ? translations[lang].dayLeft : translations[lang].daysLeft;
+  else if (days < 0) subLabel = Math.abs(days) === 1 ? translations[lang].dayAgoLabel : translations[lang].daysAgo;
+  titleEl.innerHTML = `${iconSVG(top.ev.icon)} ${escapeHTML(top.ev.title)}`;
+  subEl.textContent = subLabel;
+
+  listEl.innerHTML = '';
+  enriched.slice(0, 8).forEach(({ ev, occ }) => {
+    const d = getDaysRemaining(occ.date, now);
+    const dLabel = d === 0 ? translations[lang].todayLabel : d > 0 ? `${d}d` : `${Math.abs(d)}d`;
+    const row = document.createElement('div');
+    row.className = 'widget-task-row';
+    row.style.setProperty('--row-color', ev.color || currentTheme.handle);
+    row.innerHTML = `${iconSVG(ev.icon)} <span style="flex:1;">${escapeHTML(ev.title)}</span> <span style="color:var(--text-secondary); font-size:0.75rem;">${dLabel}</span>`;
+    row.addEventListener('click', (e) => { e.stopPropagation(); openCountdownModal(ev.id); });
+    listEl.appendChild(row);
+  });
+}
+
+function openCountdownManager() {
+  populateCountdownTagFilter();
+  document.getElementById('cdSearchInput').value = '';
+  renderCountdownManagerList();
+  document.getElementById('countdownManagerModal').classList.add('active');
+}
+function closeCountdownManager() {
+  document.getElementById('countdownManagerModal').classList.remove('active');
+  selectedCountdownIds.clear();
+}
+function handleCountdownSortChange() {
+  countdownSortMode = document.getElementById('cdSortSelect').value;
+  localStorage.setItem('countdownSort', countdownSortMode);
+  renderCountdownManagerList();
+}
+function populateCountdownTagFilter() {
+  const select = document.getElementById('cdTagFilter');
+  if (!select) return;
+  const current = select.value;
+  const tagSet = new Set();
+  countdownEvents.forEach(ev => (ev.tags || []).forEach(t => tagSet.add(t)));
+  const tagList = Array.from(tagSet).sort();
+  select.innerHTML = `<option value="">${translations[lang].allTags}</option>` + tagList.map(t => `<option value="${escapeHTML(t)}">${escapeHTML(t)}</option>`).join('');
+  if (tagList.includes(current)) select.value = current;
+}
+function toggleCountdownSelect(id, checked) {
+  if (checked) selectedCountdownIds.add(id); else selectedCountdownIds.delete(id);
+  renderCountdownManagerList();
+}
+function applyBulkColorToSelected(color) {
+  countdownEvents.forEach(ev => { if (selectedCountdownIds.has(ev.id)) ev.color = color; });
+  saveCountdownsToStorage();
+  selectedCountdownIds.clear();
+  renderCountdownWidget();
+  renderCountdownManagerList();
+}
+
+function buildCountdownRow(ev, occ, now) {
+  const row = document.createElement('div');
+  row.className = 'sm-item';
+  row.style.setProperty('--row-color', ev.color || currentTheme.handle);
+  const days = getDaysRemaining(occ.date, now);
+  let detail;
+  if (days === 0) detail = `${ev.date} • ${translations[lang].todayLabel}`;
+  else if (days > 0) detail = `${ev.date} • ${days} ${days === 1 ? translations[lang].dayLeft : translations[lang].daysLeft}`;
+  else detail = `${ev.date} • ${Math.abs(days)} ${Math.abs(days) === 1 ? translations[lang].dayAgoLabel : translations[lang].daysAgo}`;
+  if (ev.isBirthday) {
+    const base = getCountdownTargetDate(ev);
+    const age = occ.date.getFullYear() - base.getFullYear();
+    if (age > 0) detail += ` • ${translations[lang].turningAge.replace('{age}', age)}`;
+  }
+  if (occ.ended) detail += ` • ${translations[lang].seriesEnded}`;
+  const tagsHtml = (ev.tags && ev.tags.length) ? ' ' + ev.tags.map(t => `<span class="cd-tag-chip">${escapeHTML(t)}</span>`).join('') : '';
+  row.innerHTML = `
+    <input type="checkbox" style="accent-color:var(--accent); flex-shrink:0;" ${selectedCountdownIds.has(ev.id) ? 'checked' : ''}>
+    <span class="sm-item-icon">${iconSVG(ev.icon)}</span>
+    <div class="sm-item-info">
+      <div class="sm-item-name">${ev.pinned ? '📌 ' : ''}${escapeHTML(ev.title)}</div>
+      <div class="sm-item-detail">${detail}${tagsHtml}</div>
+    </div>
+    <div class="sm-item-actions">
+      <button class="sm-btn" aria-label="Pin">${svgIcon('icon-star')}</button>
+      <button class="sm-btn" aria-label="Edit">${lang === 'en' ? 'Edit' : 'تعديل'}</button>
+      <button class="sm-btn delete" aria-label="Delete">${lang === 'en' ? 'Delete' : 'حذف'}</button>
+    </div>`;
+  row.querySelector('input[type="checkbox"]').addEventListener('click', (e) => { e.stopPropagation(); toggleCountdownSelect(ev.id, e.target.checked); });
+  const actionBtns = row.querySelectorAll('.sm-item-actions .sm-btn');
+  actionBtns[0].addEventListener('click', (e) => { e.stopPropagation(); togglePinCountdown(ev.id); });
+  actionBtns[1].addEventListener('click', (e) => { e.stopPropagation(); openCountdownModal(ev.id); });
+  actionBtns[2].addEventListener('click', (e) => { e.stopPropagation(); deleteCountdownById(ev.id); });
+  return row;
+}
+
+function renderCountdownManagerList() {
+  const container = document.getElementById('countdownManagerList');
+  if (!container) return;
+  const search = (document.getElementById('cdSearchInput').value || '').toLowerCase();
+  const tagFilter = document.getElementById('cdTagFilter').value;
+  const now = new Date();
+
+  let list = countdownEvents.filter(ev => {
+    if (tagFilter && !(ev.tags || []).includes(tagFilter)) return false;
+    if (search && !ev.title.toLowerCase().includes(search)) return false;
+    return true;
+  }).map(ev => ({ ev, occ: getNextCountdownOccurrence(ev, now) }));
+
+  list.sort((a, b) => {
+    if (!!a.ev.pinned !== !!b.ev.pinned) return a.ev.pinned ? -1 : 1;
+    const diffA = Math.abs(a.occ.date - now), diffB = Math.abs(b.occ.date - now);
+    return countdownSortMode === 'farthest' ? diffB - diffA : diffA - diffB;
+  });
+
+  container.innerHTML = '';
+  if (list.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'sm-empty';
+    empty.textContent = lang === 'en' ? 'None yet' : 'لا يوجد';
+    container.appendChild(empty);
+  } else {
+    list.forEach(({ ev, occ }) => container.appendChild(buildCountdownRow(ev, occ, now)));
+  }
+
+  const bulkBar = document.getElementById('cdBulkBar');
+  const bulkCount = document.getElementById('cdBulkCount');
+  const bulkColorGrid = document.getElementById('cdBulkColorGrid');
+  if (selectedCountdownIds.size > 0) {
+    bulkBar.style.display = 'flex';
+    bulkCount.textContent = `${selectedCountdownIds.size} ${translations[lang].selectedCount}`;
+    if (bulkColorGrid.children.length === 0) {
+      COUNTDOWN_COLORS.forEach(hex => {
+        const el = document.createElement('div');
+        el.className = 'color-swatch';
+        el.style.color = hex;
+        el.setAttribute('role', 'button');
+        el.setAttribute('tabindex', '0');
+        el.setAttribute('aria-label', `Color ${hex}`);
+        el.addEventListener('click', () => applyBulkColorToSelected(hex));
+        bulkColorGrid.appendChild(el);
+      });
+    }
+  } else {
+    bulkBar.style.display = 'none';
+  }
+}
+
+let lastCountdownCheckMinute = -1;
+let firedCountdownNotifications = new Set();
+function checkCountdownNotifications(now) {
+  const currentMins = now.getHours() * 60 + now.getMinutes();
+  if (currentMins === lastCountdownCheckMinute) return;
+  lastCountdownCheckMinute = currentMins;
+  countdownEvents.forEach(ev => {
+    if (!ev.notifyAtTime && !ev.notifyDayBefore && !ev.notifyWeekBefore) return;
+    const occ = getNextCountdownOccurrence(ev, now);
+    if (occ.ended) return;
+    const occISO = occ.date.toISOString().split('T')[0];
+    const checkFire = (offsetDays, key) => {
+      const fireDate = new Date(occ.date);
+      fireDate.setDate(fireDate.getDate() - offsetDays);
+      if (fireDate.getFullYear() === now.getFullYear() && fireDate.getMonth() === now.getMonth() && fireDate.getDate() === now.getDate() && fireDate.getHours() === now.getHours() && fireDate.getMinutes() === now.getMinutes()) {
+        const fireKey = `${ev.id}-${occISO}-${key}`;
+        if (!firedCountdownNotifications.has(fireKey)) {
+          firedCountdownNotifications.add(fireKey);
+          fireCountdownAlert(ev, key);
+        }
+      }
+    };
+    if (ev.notifyAtTime) checkFire(0, 'attime');
+    if (ev.notifyDayBefore) checkFire(1, 'dayBefore');
+    if (ev.notifyWeekBefore) checkFire(7, 'weekBefore');
+  });
+  renderCountdownWidget();
+}
+function fireCountdownAlert(ev, key) {
+  playChime();
+  const container = document.getElementById('toastContainer');
+  if (container) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.setProperty('--row-color', ev.color || currentTheme.handle);
+    const subText = key === 'attime' ? (lang === 'en' ? 'Happening now' : 'يحدث الآن') : key === 'dayBefore' ? (lang === 'en' ? '1 day away' : 'يوم واحد متبقٍ') : (lang === 'en' ? '1 week away' : 'أسبوع واحد متبقٍ');
+    toast.innerHTML = `${iconSVG(ev.icon)}<div><div class="toast-title">${escapeHTML(ev.title)}</div><div class="toast-sub">${subText}</div></div>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.classList.add('toast-out'); setTimeout(() => toast.remove(), 400); }, 6000);
+  }
+  if (window.Notification && Notification.permission === 'granted') {
+    try { new Notification(ev.title, { body: lang === 'en' ? 'Countdown alert' : 'تنبيه العد التنازلي' }); } catch (e) {}
+  }
+}
+
+/* ==========================================
    14. BOOT SEQUENCE
    ========================================== */
 titleInput.value = localStorage.getItem('idleTitle') || translations[lang].systemStandby;
@@ -2653,6 +3202,10 @@ applyTheme(currentTheme);
 setMode(currentMode);
 setLanguage(lang);
 updateWorldClock();
+renderCountdownPickers();
+populateCountdownTagFilter();
+renderCountdownWidget();
+checkCountdownImportFromURL();
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);

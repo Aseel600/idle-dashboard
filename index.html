@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V6.4)</title>
+  <title>Ambient OS | Dashboard (V6.5)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -109,7 +109,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v6.4</span>
+      <span class="dev-version">v6.5</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -316,6 +316,19 @@
 
     <label class="qa-item"><input type="checkbox"> Timeline Toggle Added to Widget Manager (Right Menu)</label>
     <label class="qa-item"><input type="checkbox"> Dev Menu Hidden From Visitors Not on Owner's IP</label>
+
+    <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V6.5 FEATURE PASS</div>
+
+    <label class="qa-item"><input type="checkbox"> Countdown Widget Added (mimics Countdown by Find Appiness)</label>
+    <label class="qa-item"><input type="checkbox"> Countdown: Custom Icon/Color, Notes, Tags, Pin</label>
+    <label class="qa-item"><input type="checkbox"> Countdown: Repeat (Daily/Weekly/Monthly/Yearly), Repeat-Until, Workdays-Only</label>
+    <label class="qa-item"><input type="checkbox"> Countdown: Birthday/Anniversary Mode Shows Age</label>
+    <label class="qa-item"><input type="checkbox"> Countdown: Count-Up Mode for Past One-Off Events</label>
+    <label class="qa-item"><input type="checkbox"> Countdown Manager: Search, Tag Filter, Closest/Farthest Sort</label>
+    <label class="qa-item"><input type="checkbox"> Countdown Manager: Bulk Color Edit for Selected Events</label>
+    <label class="qa-item"><input type="checkbox"> Countdown: Share via Link + Import Confirmation Dialog</label>
+    <label class="qa-item"><input type="checkbox"> Countdown: Notifications at Time / 1 Day / 1 Week Before</label>
     </div>
   </div>
 
@@ -500,6 +513,97 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="countdownModal">
+    <div class="modal-content">
+      <div class="modal-header" id="cdModalHeaderTitle" data-i18n="newCountdown">New Countdown</div>
+
+      <input type="text" class="title-input" id="cdTitle" placeholder="Event title" data-i18n-placeholder="countdownTitlePlaceholder" />
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="eventDate">Date</div>
+      <input type="date" class="date-input" id="cdDate" />
+      <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="eventTime">Time</div>
+      <input type="time" class="date-input" id="cdTime" value="09:00" />
+
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="markBirthday">Birthday / Anniversary</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="cdIsBirthday" onchange="handleCountdownBirthdayToggle()">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div id="cdRepeatBlock">
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="repeatLabel">Repeat</div>
+        <select class="modal-select" id="cdRepeat" onchange="handleCountdownRepeatChange()">
+          <option value="none" data-i18n="repeatNever">Never</option>
+          <option value="daily" data-i18n="repeatDaily">Every Day</option>
+          <option value="weekly" data-i18n="repeatWeekly">Every Week</option>
+          <option value="monthly" data-i18n="repeatMonthly">Every Month</option>
+          <option value="yearly" data-i18n="repeatYearly">Every Year</option>
+        </select>
+      </div>
+
+      <div id="cdRepeatEndBlock" style="display:none;">
+        <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="repeatEndLabel">Repeat Until</div>
+        <input type="date" class="date-input" id="cdRepeatEnd" />
+      </div>
+
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="workdaysOnly">Workdays Only</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="cdWorkdaysOnly">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="pinEvent">Pin to Top</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="cdPinned">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 5px;" data-i18n="categoryIcon">Category Icon</div>
+      <div class="icon-picker-container" id="cdIconGrid"></div>
+
+      <div style="font-size: 0.8rem; color: var(--text-secondary);" data-i18n="calendarColor">Calendar Color</div>
+      <div class="color-grid" id="cdColorGrid"></div>
+
+      <input type="text" class="title-input" id="cdTags" placeholder="e.g. family, work" data-i18n-placeholder="tagsPlaceholder" />
+      <textarea class="modal-textarea" id="cdNotes" placeholder="Notes" data-i18n-placeholder="notesPlaceholder"></textarea>
+
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="notifyAtTime">Notify at time of event</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="cdNotifyAtTime">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="notifyDayBefore">Notify 1 day before</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="cdNotifyDayBefore">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="notifyWeekBefore">Notify 1 week before</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="cdNotifyWeekBefore">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeCountdownModal()" data-i18n="cancel">Cancel</button>
+        <button class="modal-btn cancel" id="cdShareBtn" style="display:none;" onclick="shareCountdownLink()" data-i18n="shareCountdown">Share Link</button>
+        <button class="modal-btn cancel" id="cdDeleteBtn" style="display:none; border-color:#ff4757; color:#ff4757;" onclick="deleteCountdownFromModal()" data-i18n="delete">Delete</button>
+        <button class="modal-btn save" onclick="saveCountdownFromModal()" data-i18n="saveCountdown">Save Countdown</button>
+      </div>
+    </div>
+  </div>
+
   <div class="timetable-modal" id="timetableModal">
     <div class="timetable-container">
       <div class="timetable-header">
@@ -529,6 +633,31 @@
       </div>
       <div class="timetable-scroll-area">
         <div class="schedule-manager-body" id="scheduleManagerList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timetable-modal" id="countdownManagerModal">
+    <div class="timetable-container schedule-manager-container">
+      <div class="timetable-header">
+        <div class="timetable-title"><span data-i18n="countdownManager">Countdown Manager</span></div>
+        <button class="close-timetable" onclick="closeCountdownManager()" aria-label="Close"><svg class="icon-svg"><use href="#icon-x"></use></svg></button>
+      </div>
+      <div class="cd-manager-toolbar">
+        <input type="text" class="title-input" id="cdSearchInput" placeholder="Search..." data-i18n-placeholder="searchPlaceholder" oninput="renderCountdownManagerList()" style="flex:2;">
+        <select class="modal-select" id="cdTagFilter" onchange="renderCountdownManagerList()" style="flex:1;"></select>
+        <select class="modal-select" id="cdSortSelect" onchange="handleCountdownSortChange()" style="flex:1;">
+          <option value="closest" data-i18n="sortClosest">Closest</option>
+          <option value="farthest" data-i18n="sortFarthest">Farthest</option>
+        </select>
+        <button class="add-task-btn" style="width:auto; margin-top:0;" onclick="openCountdownModal()">+ <span data-i18n="newCountdown">New Countdown</span></button>
+      </div>
+      <div class="cd-manager-toolbar" id="cdBulkBar" style="display:none;">
+        <span id="cdBulkCount" style="font-size:0.8rem; color:var(--text-secondary);"></span>
+        <div class="color-grid" id="cdBulkColorGrid" style="flex:1;"></div>
+      </div>
+      <div class="timetable-scroll-area">
+        <div class="schedule-manager-body" id="countdownManagerList"></div>
       </div>
     </div>
   </div>
@@ -663,6 +792,20 @@
       </div>
     </div>
 
+    <div class="widget-card clickable" id="wgCountdown" onclick="openCountdownManager()">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgCountdown', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg></span> <span data-i18n="widgetCountdown">Countdown</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
+      <div class="weather-temp" id="cdWidgetDays">--</div>
+      <div class="weather-sub">
+        <span id="cdWidgetTitle">No countdowns yet</span>
+        <span id="cdWidgetSub"></span>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="widget-task-list" id="cdWidgetList"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div class="zen-toggle" onclick="toggleFocusMode()" title="Toggle Focus Mode" data-i18n-title="toggleFocusMode" role="button" tabindex="0" aria-label="Toggle Focus Mode" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleFocusMode();}"><svg class="icon-svg"><use href="#icon-sparkle"></use></svg></div>
@@ -674,6 +817,7 @@
     <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="tasksGoals">Tasks & Goals</div>
     <button class="add-task-btn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
     <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openScheduleManager()"><svg class="icon-svg"><use href="#icon-clipboard-list"></use></svg> <span data-i18n="scheduleManager">Schedule Manager</span></button>
+    <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openCountdownManager()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="countdownManager">Countdown Manager</span></button>
 
     <div class="input-row" style="margin-top: 10px;">
       <input type="text" class="title-input" id="newGoalName" placeholder="Daily Goal (e.g. Gym)..." data-i18n-placeholder="dailyGoalPlaceholder" />
@@ -711,6 +855,10 @@
       <button class="clock-toggle-btn active-lang" id="timelineToggleBtn" onclick="toggleTimeline(this)">
         <svg class="icon-svg"><use href="#icon-activity"></use></svg>
         <span data-i18n="widgetTimeline">Timeline</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleWidget('wgCountdown', this)">
+        <svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg>
+        <span data-i18n="widgetCountdown">Countdown</span>
       </button>
     </div>
 
