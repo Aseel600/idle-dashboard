@@ -175,6 +175,62 @@ const translations = {
     tutNext: "Next",
     tutBack: "Back",
     tutFinish: "Finish",
+    accountTitle: "Account",
+    acctLocalOnlyBadge: "Local device only — no server, no real email sent",
+    acctLogin: "Log In",
+    acctSignup: "Sign Up",
+    acctName: "Name",
+    acctEmail: "Email",
+    acctPassword: "Password",
+    acctConfirmPassword: "Confirm Password",
+    acctDobOptional: "Date of Birth (optional)",
+    acctDobCalendarHijri: "Hijri Calendar",
+    acctLoginBtn: "Log In",
+    acctSignupBtn: "Sign Up",
+    acctLogoutBtn: "Log Out",
+    acctSaveProfile: "Save Profile",
+    acctNoBackendNote: "This site has no backend or email server — verification uses a code shown directly on screen, not a real email.",
+    acctFillRequired: "Please fill in all required fields.",
+    acctPasswordMismatch: "Passwords do not match.",
+    acctPasswordTooShort: "Password must be at least 6 characters.",
+    acctEmailExists: "An account with this email already exists.",
+    acctNotFound: "No account found with that email.",
+    acctWrongPassword: "Incorrect password.",
+    acctDecryptFailed: "Could not unlock your profile. Please try again.",
+    acctVerifyTitle: "Verify Your Account",
+    acctVerifyMsg: "This site has no backend to send real email, so here is your verification code directly: {code}\n\nEnter it below to confirm your account.",
+    acctVerifyFailed: "Verification code did not match. Signup cancelled.",
+    acctSignupSuccess: "Account created! Logging you in...",
+    acctWelcomeText: "Welcome, {name}",
+    acctProfileSaved: "Profile saved.",
+    acctLoginRequired: "Please log in first.",
+    theaterMode: "Theater Mode",
+    theaterLocalFile: "Local File",
+    theaterFromUrl: "From URL",
+    theaterUrlPlaceholder: "https://... (direct video or YouTube link)",
+    theaterLoad: "Load",
+    theaterUrlNote: "Direct video links (.mp4, .webm) and YouTube links work. Streaming service pages (Netflix, etc.) generally cannot be embedded.",
+    theaterLayout: "Layout",
+    theaterFloating: "Floating",
+    theaterLandscape: "Landscape",
+    theaterFullscreen: "Fullscreen",
+    theaterDimLevel: "Dim Level",
+    theaterEnter: "Enter Theater Mode",
+    theaterNoSource: "Please choose a video file or enter a URL first.",
+    theaterInvalidUrl: "Could not load that URL as a video.",
+    screenLayout: "Screen Layout",
+    layoutPc: "PC",
+    layoutPhone: "Phone",
+    layoutTablet: "Tablet",
+    layoutTv: "TV",
+    tvScanLogin: "Scan to Log In",
+    tvStartScan: "Start Camera Scan",
+    tvScanNotSupported: "This browser doesn't support barcode scanning.",
+    tvScanRequesting: "Requesting camera access...",
+    tvScanWaiting: "Point the camera at a QR code containing email|password",
+    tvScanFound: "Code found, logging in...",
+    tvScanError: "Could not access the camera.",
+    tvScanBadFormat: "Scanned code was not in email|password format.",
     rainLabel: "Rain",
     uvLabel: "UV",
     notConnected: "Not Connected",
@@ -338,6 +394,62 @@ const translations = {
     tutNext: "التالي",
     tutBack: "رجوع",
     tutFinish: "إنهاء",
+    accountTitle: "الحساب",
+    acctLocalOnlyBadge: "على هذا الجهاز فقط — لا يوجد خادم، ولا يُرسل بريد إلكتروني حقيقي",
+    acctLogin: "تسجيل الدخول",
+    acctSignup: "إنشاء حساب",
+    acctName: "الاسم",
+    acctEmail: "البريد الإلكتروني",
+    acctPassword: "كلمة المرور",
+    acctConfirmPassword: "تأكيد كلمة المرور",
+    acctDobOptional: "تاريخ الميلاد (اختياري)",
+    acctDobCalendarHijri: "التقويم الهجري",
+    acctLoginBtn: "تسجيل الدخول",
+    acctSignupBtn: "إنشاء حساب",
+    acctLogoutBtn: "تسجيل الخروج",
+    acctSaveProfile: "حفظ الملف الشخصي",
+    acctNoBackendNote: "لا يمتلك هذا الموقع خادمًا أو بريدًا إلكترونيًا — يتم التحقق برمز يظهر مباشرة على الشاشة، وليس عبر بريد إلكتروني حقيقي.",
+    acctFillRequired: "الرجاء تعبئة جميع الحقول المطلوبة.",
+    acctPasswordMismatch: "كلمتا المرور غير متطابقتين.",
+    acctPasswordTooShort: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+    acctEmailExists: "يوجد حساب بهذا البريد الإلكتروني مسبقًا.",
+    acctNotFound: "لا يوجد حساب بهذا البريد الإلكتروني.",
+    acctWrongPassword: "كلمة المرور غير صحيحة.",
+    acctDecryptFailed: "تعذر فتح ملفك الشخصي. حاول مرة أخرى.",
+    acctVerifyTitle: "تحقق من حسابك",
+    acctVerifyMsg: "لا يمتلك هذا الموقع خادمًا لإرسال بريد إلكتروني حقيقي، لذا إليك رمز التحقق مباشرة: {code}\n\nأدخله أدناه لتأكيد حسابك.",
+    acctVerifyFailed: "رمز التحقق غير مطابق. تم إلغاء إنشاء الحساب.",
+    acctSignupSuccess: "تم إنشاء الحساب! جاري تسجيل الدخول...",
+    acctWelcomeText: "مرحبًا، {name}",
+    acctProfileSaved: "تم حفظ الملف الشخصي.",
+    acctLoginRequired: "الرجاء تسجيل الدخول أولاً.",
+    theaterMode: "وضع السينما",
+    theaterLocalFile: "ملف محلي",
+    theaterFromUrl: "من رابط",
+    theaterUrlPlaceholder: "https://... (رابط فيديو مباشر أو يوتيوب)",
+    theaterLoad: "تحميل",
+    theaterUrlNote: "روابط الفيديو المباشرة (.mp4، .webm) وروابط يوتيوب تعمل. صفحات خدمات البث (نتفليكس وغيرها) عادة لا يمكن تضمينها.",
+    theaterLayout: "التخطيط",
+    theaterFloating: "عائم",
+    theaterLandscape: "أفقي",
+    theaterFullscreen: "ملء الشاشة",
+    theaterDimLevel: "مستوى التعتيم",
+    theaterEnter: "بدء وضع السينما",
+    theaterNoSource: "الرجاء اختيار ملف فيديو أو إدخال رابط أولاً.",
+    theaterInvalidUrl: "تعذر تحميل هذا الرابط كفيديو.",
+    screenLayout: "تخطيط الشاشة",
+    layoutPc: "كمبيوتر",
+    layoutPhone: "هاتف",
+    layoutTablet: "لوحي",
+    layoutTv: "تلفاز",
+    tvScanLogin: "مسح لتسجيل الدخول",
+    tvStartScan: "بدء مسح الكاميرا",
+    tvScanNotSupported: "هذا المتصفح لا يدعم مسح الباركود.",
+    tvScanRequesting: "جاري طلب إذن الكاميرا...",
+    tvScanWaiting: "وجّه الكاميرا نحو رمز QR يحتوي على البريد|كلمة المرور",
+    tvScanFound: "تم العثور على الرمز، جاري تسجيل الدخول...",
+    tvScanError: "تعذر الوصول إلى الكاميرا.",
+    tvScanBadFormat: "الرمز الممسوح ليس بصيغة البريد|كلمة المرور.",
     rainLabel: "المطر",
     uvLabel: "الأشعة فوق البنفسجية",
     notConnected: "غير متصل",
@@ -918,6 +1030,7 @@ document.getElementById('dialogPromptInput').addEventListener('keydown', (e) => 
 
 window.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
+  if (document.getElementById('theaterOverlay').classList.contains('active')) { exitTheaterMode(); return; }
   if (document.getElementById('tutorialOverlay').classList.contains('active')) { endTutorial(); return; }
   if (document.getElementById('customDialogModal').classList.contains('active')) { resolveDialog(false); return; }
   if (document.getElementById('taskModal').classList.contains('active')) { closeTaskModal(); return; }
@@ -1643,6 +1756,7 @@ function setLanguage(selectedLang) {
   }
   if (document.getElementById('countdownManagerModal').classList.contains('active')) renderCountdownManagerList();
   if (tutorialActive) showTutorialStep(tutorialStepIndex);
+  if (document.getElementById('quoteBarText')) showRandomQuote();
 }
 
 function refreshDayBubbleLetters() {
@@ -2255,13 +2369,20 @@ function checkV3Logic() {
       foundActive = true;
       if (activeTaskObj !== t) {
         activeTaskObj = t;
-        if (!clockInterruptedByPrayer) applyActiveTaskToClock(t, now);
+        if (!clockInterruptedByPrayer) {
+          applyActiveTaskToClock(t, now);
+          if (t.isBirthdayAuto) triggerConfetti();
+        }
       }
     }
   });
   if (!foundActive && activeTaskObj !== null) {
+    const wasBirthday = !!activeTaskObj.isBirthdayAuto;
     activeTaskObj = null;
-    if (!clockInterruptedByPrayer) resetClockToStandby();
+    if (!clockInterruptedByPrayer) {
+      resetClockToStandby();
+      if (!wasBirthday) triggerShootingStar();
+    }
   }
 }
 
@@ -2294,7 +2415,7 @@ function updateLiveTimer() {
     checkV3Logic();
     checkReminders(new Date(now));
     checkCountdownNotifications(new Date(now));
-    if (spotifyToken) updateSpotifyLyricsHighlight();
+    if (spotifyToken) { updateSpotifyProgressDisplay(); updateSpotifyLyricsHighlight(); }
     updateTimelineHUD();
 
     if (isTimerRunning || originalDurationMs > 0 || activeTaskObj) { mainClockContainer.classList.add('timer-active'); }
@@ -2621,6 +2742,7 @@ async function updateSpotifyUI() {
   const trackEl = document.getElementById("spWidgetTrack");
   const artistEl = document.getElementById("spWidgetArtist");
   const artEl = document.getElementById("spWidgetArt");
+  const miniArtEl = document.getElementById("spMiniArt");
   const playBtn = document.getElementById("spWidgetPlay");
   const fillEl = document.getElementById("spProgressFill");
   const elapsedEl = document.getElementById("spWidgetElapsed");
@@ -2630,10 +2752,12 @@ async function updateSpotifyUI() {
     trackEl.textContent = translations[lang].offline;
     artistEl.textContent = translations[lang].noActiveDevice;
     artEl.style.display = 'none';
+    if (miniArtEl) miniArtEl.style.display = 'none';
     isSpotifyPlaying = false;
     if (fillEl) fillEl.style.width = '0%';
     if (elapsedEl) elapsedEl.textContent = '0:00';
     if (durationEl) durationEl.textContent = '0:00';
+    spotifyDurationMs = 0;
     spotifyLyricsTrackKey = null;
     spotifyLyricsData = null;
     renderSpotifyLyricsUI();
@@ -2644,6 +2768,7 @@ async function updateSpotifyUI() {
   if (data.item.album.images.length > 0) {
     artEl.src = data.item.album.images[0].url;
     artEl.style.display = 'block';
+    if (miniArtEl) { miniArtEl.src = data.item.album.images[0].url; miniArtEl.style.display = 'block'; }
   }
   isSpotifyPlaying = data.is_playing;
   playBtn.innerHTML = svgIcon(isSpotifyPlaying ? 'icon-pause' : 'icon-play');
@@ -2656,6 +2781,7 @@ async function updateSpotifyUI() {
   if (durationEl) durationEl.textContent = toNum(msToClock(data.item.duration_ms || 0));
   if (volumeEl && !spVolumeDragging && data.device && typeof data.device.volume_percent === 'number') {
     volumeEl.value = data.device.volume_percent;
+    setVolumeSliderFill(volumeEl);
   }
 
   spotifyProgressMsBase = data.progress_ms || 0;
@@ -2692,8 +2818,14 @@ async function spotifyTransfer(deviceId) {
   setTimeout(() => { updateSpotifyUI(); fetchSpotifyDevices(); }, 800);
 }
 
-function spotifyVolumeInput() {
+function setVolumeSliderFill(el) {
+  if (!el) return;
+  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${pct}%, var(--input-bg) ${pct}%, var(--input-bg) 100%)`;
+}
+function spotifyVolumeInput(el) {
   spVolumeDragging = true;
+  setVolumeSliderFill(el || document.getElementById('spVolumeSlider'));
 }
 async function spotifySetVolume(val) {
   await fetchSpotifyAPI(`/me/player/volume?volume_percent=${val}`, 'PUT');
@@ -2805,6 +2937,15 @@ async function fetchSpotifyLyrics(item) {
   renderSpotifyLyricsUI();
 }
 
+function updateSpotifyProgressDisplay() {
+  if (!spotifyDurationMs) return;
+  const elapsedMs = isSpotifyPlaying ? spotifyProgressMsBase + (Date.now() - spotifyProgressBaseTime) : spotifyProgressMsBase;
+  const clamped = Math.max(0, Math.min(elapsedMs, spotifyDurationMs));
+  const fillEl = document.getElementById('spProgressFill');
+  const elapsedEl = document.getElementById('spWidgetElapsed');
+  if (fillEl) fillEl.style.width = `${(clamped / spotifyDurationMs) * 100}%`;
+  if (elapsedEl) elapsedEl.textContent = toNum(msToClock(clamped));
+}
 function updateSpotifyLyricsHighlight() {
   if (!Array.isArray(spotifyLyricsData) || spotifyLyricsData.length === 0) return;
   const inner = document.getElementById('spLyricsInner');
@@ -3447,6 +3588,885 @@ window.addEventListener('resize', () => {
 });
 
 /* ==========================================
+   13d. QUOTES ROTATION
+   ========================================== */
+const QUOTES_EN = [
+"The only way to do great work is to love what you do. — Steve Jobs",
+"Life is what happens when you're busy making other plans. — John Lennon",
+"The future belongs to those who believe in the beauty of their dreams. — Eleanor Roosevelt",
+"It is during our darkest moments that we must focus to see the light. — Aristotle",
+"Success is not final, failure is not fatal: it is the courage to continue that counts. — Winston Churchill",
+"In the middle of difficulty lies opportunity. — Albert Einstein",
+"Believe you can and you're halfway there. — Theodore Roosevelt",
+"The only limit to our realization of tomorrow is our doubts of today. — Franklin D. Roosevelt",
+"Do not go where the path may lead, go instead where there is no path and leave a trail. — Ralph Waldo Emerson",
+"What lies behind us and what lies before us are tiny matters compared to what lies within us. — Ralph Waldo Emerson",
+"You miss 100% of the shots you don't take. — Wayne Gretzky",
+"Whether you think you can or you think you can't, you're right. — Henry Ford",
+"The best way to predict the future is to create it. — Peter Drucker",
+"I have not failed. I've just found 10,000 ways that won't work. — Thomas Edison",
+"A person who never made a mistake never tried anything new. — Albert Einstein",
+"The only impossible journey is the one you never begin. — Tony Robbins",
+"In this life we cannot do great things. We can only do small things with great love. — Mother Teresa",
+"Life is really simple, but we insist on making it complicated. — Confucius",
+"Way to get started is to quit talking and begin doing. — Walt Disney",
+"Don't judge each day by the harvest you reap but by the seeds that you plant. — Robert Louis Stevenson",
+"Your time is limited, so don't waste it living someone else's life. — Steve Jobs",
+"If life were predictable it would cease to be life, and be without flavor. — Eleanor Roosevelt",
+"The purpose of our lives is to be happy. — Dalai Lama",
+"Life is what we make it, always has been, always will be. — Grandma Moses",
+"The journey of a thousand miles begins with a single step. — Lao Tzu",
+"Many of life's failures are people who did not realize how close they were to success when they gave up. — Thomas Edison",
+"You will face many defeats in life, but never let yourself be defeated. — Maya Angelou",
+"Imagination is more important than knowledge. — Albert Einstein",
+"Strive not to be a success, but rather to be of value. — Albert Einstein",
+"The mind is everything. What you think you become. — Buddha",
+"Twenty years from now you will be more disappointed by the things you didn't do. — Mark Twain",
+"Everything you've ever wanted is on the other side of fear. — George Addair",
+"Success is walking from failure to failure with no loss of enthusiasm. — Winston Churchill",
+"Hardships often prepare ordinary people for an extraordinary destiny. — C.S. Lewis",
+"Change your thoughts and you change your world. — Norman Vincent Peale",
+"The only person you are destined to become is the person you decide to be. — Ralph Waldo Emerson",
+"Go confidently in the direction of your dreams. Live the life you have imagined. — Henry David Thoreau",
+"When one door of happiness closes, another opens. — Helen Keller",
+"Fall seven times, stand up eight. — Japanese Proverb",
+"You are never too old to set another goal or to dream a new dream. — C.S. Lewis",
+"Certain things catch your eye, but pursue only those that capture the heart. — Ancient Indian Proverb",
+"Everything has beauty, but not everyone can see it. — Confucius",
+"How wonderful it is that nobody need wait a single moment before starting to improve the world. — Anne Frank",
+"When I let go of what I am, I become what I might be. — Lao Tzu",
+"Happiness is not something readymade. It comes from your own actions. — Dalai Lama",
+"The best time to plant a tree was 20 years ago. The second best time is now. — Chinese Proverb",
+"Your work is going to fill a large part of your life; the only way to be truly satisfied is to do great work. — Steve Jobs",
+"If you want to lift yourself up, lift up someone else. — Booker T. Washington",
+"I attribute my success to this: I never gave or took any excuse. — Florence Nightingale",
+"You must be the change you wish to see in the world. — Mahatma Gandhi",
+"Too many of us are not living our dreams because we are living our fears. — Les Brown",
+"Dream big and dare to fail. — Norman Vaughan",
+"Our lives begin to end the day we become silent about things that matter. — Martin Luther King Jr.",
+"Never let the fear of striking out keep you from playing the game. — Babe Ruth",
+"Life is 10% what happens to us and 90% how we react to it. — Charles R. Swindoll",
+"The best revenge is massive success. — Frank Sinatra",
+"People often say that motivation doesn't last. Well, neither does bathing — that's why we recommend it daily. — Zig Ziglar",
+"Life is either a daring adventure or nothing at all. — Helen Keller",
+"It is our choices that show what we truly are, far more than our abilities. — J.K. Rowling",
+"Great minds discuss ideas; average minds discuss events; small minds discuss people. — Eleanor Roosevelt",
+"The way to get started is to quit talking and begin doing. — Walt Disney",
+"Not how long, but how well you have lived is the main thing. — Seneca",
+"If you tell the truth, you don't have to remember anything. — Mark Twain",
+"A friend is someone who knows all about you and still loves you. — Elbert Hubbard",
+"To live is the rarest thing in the world. Most people exist, that is all. — Oscar Wilde",
+"Winning isn't everything, but wanting to win is. — Vince Lombardi",
+"The two most important days in your life are the day you are born and the day you find out why. — Mark Twain",
+"Whatever you are, be a good one. — Abraham Lincoln",
+"Nothing is impossible, the word itself says 'I'm possible'. — Audrey Hepburn",
+"The only way to have a friend is to be one. — Ralph Waldo Emerson",
+"I would rather die of passion than of boredom. — Vincent van Gogh",
+"It always seems impossible until it's done. — Nelson Mandela",
+"Do what you can, with what you have, where you are. — Theodore Roosevelt",
+"Keep your face always toward the sunshine, and shadows will fall behind you. — Walt Whitman",
+"You take your life in your own hands, and what happens? A terrible thing: no one to blame. — Erica Jong",
+"When you reach the end of your rope, tie a knot in it and hang on. — Franklin D. Roosevelt",
+"Always remember that you are absolutely unique. Just like everyone else. — Margaret Mead",
+"Don't cry because it's over, smile because it happened. — Dr. Seuss",
+"Yesterday is history, tomorrow is a mystery, today is a gift. — Eleanor Roosevelt",
+"We know what we are, but know not what we may be. — William Shakespeare",
+"Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
+"Only a life lived for others is a life worthwhile. — Albert Einstein",
+"Setting goals is the first step in turning the invisible into the visible. — Tony Robbins",
+"The unexamined life is not worth living. — Socrates",
+"Turn your wounds into wisdom. — Oprah Winfrey",
+"There is only one way to avoid criticism: do nothing, say nothing, and be nothing. — Aristotle",
+"An unexamined life is not worth living, but an unlived life is not worth examining. — Anonymous",
+"Simplicity is the ultimate sophistication. — Leonardo da Vinci",
+"You can't use up creativity. The more you use, the more you have. — Maya Angelou",
+"To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment. — Ralph Waldo Emerson",
+"What we think, we become. — Buddha",
+"All our dreams can come true if we have the courage to pursue them. — Walt Disney",
+"Act as if what you do makes a difference. It does. — William James",
+"Success usually comes to those who are too busy to be looking for it. — Henry David Thoreau",
+"Don't watch the clock; do what it does. Keep going. — Sam Levenson",
+"Either you run the day, or the day runs you. — Jim Rohn",
+"You don't have to be great to start, but you have to start to be great. — Zig Ziglar",
+"The secret of getting ahead is getting started. — Mark Twain",
+"There is no substitute for hard work. — Thomas Edison",
+"Perseverance is not a long race; it is many short races one after the other. — Walter Elliot",
+"Quality is not an act, it is a habit. — Aristotle",
+"Knowing yourself is the beginning of all wisdom. — Aristotle",
+"He who has a why to live can bear almost any how. — Friedrich Nietzsche",
+"Optimism is the faith that leads to achievement. Nothing can be done without hope. — Helen Keller",
+"The greatest glory in living lies not in never falling, but in rising every time we fall. — Nelson Mandela",
+"You have power over your mind, not outside events. Realize this, and you will find strength. — Marcus Aurelius",
+"Waste no more time arguing about what a good man should be. Be one. — Marcus Aurelius",
+"The happiness of your life depends upon the quality of your thoughts. — Marcus Aurelius",
+"It is not the man who has too little, but the man who craves more, that is poor. — Seneca",
+"Difficulties strengthen the mind, as labor does the body. — Seneca",
+"He who is not satisfied with a little, is satisfied with nothing. — Epicurus",
+"No man is free who is not master of himself. — Epictetus",
+"Wealth consists not in having great possessions, but in having few wants. — Epictetus",
+"The best revenge is to be unlike him who performed the injury. — Marcus Aurelius",
+"Freedom is the only worthy goal in life. — Rumi",
+"Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself. — Rumi",
+"Raise your words, not voice. It is rain that grows flowers, not thunder. — Rumi",
+"The wound is the place where the light enters you. — Rumi",
+"Let yourself be silently drawn by the strange pull of what you really love. — Rumi",
+"Live life as though nothing is a miracle and live life as though everything is a miracle. — Albert Einstein",
+"Not everything that can be counted counts, and not everything that counts can be counted. — Albert Einstein",
+"A ship in harbor is safe, but that is not what ships are built for. — John A. Shedd",
+"The struggle you're in today is developing the strength you need for tomorrow. — Robert Tew",
+"Push yourself, because no one else is going to do it for you. — Anonymous",
+"Great things never came from comfort zones. — Anonymous",
+"Dream it. Wish it. Do it. — Anonymous",
+"Success doesn't just find you. You have to go out and get it. — Anonymous",
+"The harder you work for something, the greater you'll feel when you achieve it. — Anonymous",
+"Don't stop when you're tired. Stop when you're done. — Anonymous",
+"Wake up with determination. Go to bed with satisfaction. — Anonymous",
+"Little things make big days. — Anonymous",
+"It's going to be hard, but hard does not mean impossible. — Anonymous",
+"Don't wait for opportunity. Create it. — Anonymous",
+"Sometimes we're tested not to show our weaknesses, but to discover our strengths. — Anonymous",
+"The key to success is to focus on goals, not obstacles. — Anonymous",
+"Dream bigger. Do bigger. — Anonymous",
+"Time is precious, waste it wisely. — Anonymous",
+"Discipline is the bridge between goals and accomplishment. — Jim Rohn",
+"You are never too old to reinvent yourself. — Anonymous",
+"If you want something you never had, you have to do something you've never done. — Thomas Jefferson",
+"Do something today that your future self will thank you for. — Anonymous",
+"Little by little, one travels far. — J.R.R. Tolkien",
+"Not all those who wander are lost. — J.R.R. Tolkien",
+"Even the smallest person can change the course of the future. — J.R.R. Tolkien",
+"There is some good in this world, and it's worth fighting for. — J.R.R. Tolkien",
+"It is our choices, that show what we truly are, far more than our abilities. — J.K. Rowling",
+"Happiness can be found even in the darkest of times if one only remembers to turn on the light. — J.K. Rowling",
+"We are all fools in love. — Jane Austen",
+"There is nothing I would not do for those who are really my friends. — Jane Austen",
+"It is a truth universally acknowledged, that hard work beats talent when talent doesn't work hard. — Anonymous",
+"I can accept failure, everyone fails at something. But I can't accept not trying. — Michael Jordan",
+"Talent wins games, but teamwork and intelligence win championships. — Michael Jordan",
+"I've failed over and over and over again in my life and that is why I succeed. — Michael Jordan",
+"Obstacles don't have to stop you. If you run into a wall, don't turn around and give up. Figure out how to climb it. — Michael Jordan",
+"You must expect great things of yourself before you can do them. — Michael Jordan",
+"If you're not making mistakes, then you're not making decisions. — Catherine Cook",
+"Innovation distinguishes between a leader and a follower. — Steve Jobs",
+"Stay hungry, stay foolish. — Steve Jobs",
+"Sometimes life hits you in the head with a brick. Don't lose faith. — Steve Jobs",
+"Your most unhappy customers are your greatest source of learning. — Bill Gates",
+"It's fine to celebrate success but it is more important to heed the lessons of failure. — Bill Gates",
+"Success is a lousy teacher. It seduces smart people into thinking they can't lose. — Bill Gates",
+"I have no special talent. I am only passionately curious. — Albert Einstein",
+"Logic will get you from A to B. Imagination will take you everywhere. — Albert Einstein",
+"The true sign of intelligence is not knowledge but imagination. — Albert Einstein",
+"Anyone who has never made a mistake has never tried anything new. — Albert Einstein",
+"Try not to become a person of success, but rather try to become a person of value. — Albert Einstein",
+"Insanity is doing the same thing over and over and expecting different results. — Albert Einstein",
+"Weakness of attitude becomes weakness of character. — Albert Einstein",
+"Great spirits have always encountered violent opposition from mediocre minds. — Albert Einstein",
+"I never think of the future. It comes soon enough. — Albert Einstein",
+"Peace cannot be kept by force; it can only be achieved by understanding. — Albert Einstein",
+"The measure of intelligence is the ability to change. — Albert Einstein",
+"Learn from yesterday, live for today, hope for tomorrow. — Albert Einstein",
+"A room without books is like a body without a soul. — Marcus Tullius Cicero",
+"The pen is mightier than the sword. — Edward Bulwer-Lytton",
+"Knowledge is power. — Francis Bacon",
+"Genius is one percent inspiration and ninety-nine percent perspiration. — Thomas Edison",
+"I find that the harder I work, the more luck I seem to have. — Thomas Jefferson",
+"That which does not kill us makes us stronger. — Friedrich Nietzsche",
+"He who has a why can endure any how. — Friedrich Nietzsche",
+"Without music, life would be a mistake. — Friedrich Nietzsche",
+"Music expresses that which cannot be said and on which it is impossible to be silent. — Victor Hugo",
+"Where words fail, music speaks. — Hans Christian Andersen",
+"Music is the strongest form of magic. — Marilyn Manson",
+"Silence is a source of great strength. — Lao Tzu",
+"Nature does not hurry, yet everything is accomplished. — Lao Tzu",
+"A good traveler has no fixed plans and is not intent on arriving. — Lao Tzu",
+"He who knows others is wise; he who knows himself is enlightened. — Lao Tzu",
+"Kindness in words creates confidence. Kindness in thinking creates profoundness. — Lao Tzu",
+"To the mind that is still, the whole universe surrenders. — Lao Tzu",
+"Mistakes are proof that you are trying. — Anonymous",
+"Every accomplishment starts with the decision to try. — John F. Kennedy",
+"Ask not what your country can do for you, ask what you can do for your country. — John F. Kennedy",
+"We choose to go to the moon not because it is easy, but because it is hard. — John F. Kennedy",
+"Change will not come if we wait for some other person or some other time. — Barack Obama",
+"Yes we can. — Barack Obama",
+"The best way to find yourself is to lose yourself in the service of others. — Mahatma Gandhi",
+"An eye for an eye only ends up making the whole world blind. — Mahatma Gandhi",
+"Live as if you were to die tomorrow. Learn as if you were to live forever. — Mahatma Gandhi",
+"The weak can never forgive. Forgiveness is the attribute of the strong. — Mahatma Gandhi",
+"First they ignore you, then they laugh at you, then they fight you, then you win. — Mahatma Gandhi",
+"Darkness cannot drive out darkness: only light can do that. — Martin Luther King Jr.",
+"Injustice anywhere is a threat to justice everywhere. — Martin Luther King Jr.",
+"The time is always right to do what is right. — Martin Luther King Jr.",
+"Faith is taking the first step even when you don't see the whole staircase. — Martin Luther King Jr.",
+"I have a dream. — Martin Luther King Jr."
+];
+
+const QUOTES_AR = [
+"من جد وجد، ومن زرع حصد. — مثل عربي",
+"الصبر مفتاح الفرج. — مثل عربي",
+"العلم نور والجهل ظلام. — مثل عربي",
+"من طلب العلا سهر الليالي. — المتنبي",
+"إذا غامرت في شرف مروم فلا تقنع بما دون النجوم. — المتنبي",
+"على قدر أهل العزم تأتي العزائم. — المتنبي",
+"وما نيل المطالب بالتمني ولكن تؤخذ الدنيا غلابا. — المتنبي",
+"من عرف نفسه فقد عرف ربه. — حكمة عربية",
+"خير الكلام ما قل ودل. — حكمة عربية",
+"الوقت كالسيف إن لم تقطعه قطعك. — حكمة عربية",
+"العقل السليم في الجسم السليم. — حكمة عربية",
+"لسانك حصانك إن صنته صانك. — مثل عربي",
+"رب أخ لم تلده أمك. — مثل عربي",
+"الحياة كفاح لا استسلام فيه. — حكمة عربية",
+"من سار على الدرب وصل. — مثل عربي",
+"العين لا تعلو على الحاجب. — مثل عربي",
+"الصديق وقت الضيق. — مثل عربي",
+"إن غدا لناظره قريب. — مثل عربي",
+"من حفر حفرة لأخيه وقع فيها. — مثل عربي",
+"الجار قبل الدار. — مثل عربي",
+"درهم وقاية خير من قنطار علاج. — حكمة عربية",
+"من شابه أباه فما ظلم. — مثل عربي",
+"القناعة كنز لا يفنى. — حكمة عربية",
+"لكل داء دواء يستطب به إلا الحماقة أعيت من يداويها. — أبو الطيب المتنبي",
+"إذا كان الكلام من فضة فإن السكوت من ذهب. — حكمة عربية",
+"العقل زينة. — الإمام علي بن أبي طالب",
+"قيمة كل امرئ ما يحسنه. — الإمام علي بن أبي طالب",
+"من أمن العقوبة أساء الأدب. — الإمام علي بن أبي طالب",
+"لا تنظر إلى صغر الذنب ولكن انظر إلى من عصيت. — الإمام علي بن أبي طالب",
+"خير الناس من نفع الناس. — حكمة عربية",
+"الحكمة ضالة المؤمن. — حكمة عربية",
+"إذا أردت أن تطاع فاطلب ما يستطاع. — الإمام علي بن أبي طالب",
+"ما ضاع حق وراءه مطالب. — حكمة عربية",
+"لا يزال المرء عالما ما طلب العلم فإذا ظن أنه قد علم فقد جهل. — حكمة عربية",
+"العلم في الصغر كالنقش في الحجر. — مثل عربي",
+"من تأنى نال ما تمنى. — مثل عربي",
+"الاتحاد قوة. — حكمة عربية",
+"في التأني السلامة وفي العجلة الندامة. — مثل عربي",
+"يد واحدة لا تصفق. — مثل عربي",
+"من طلب أخا بلا عيب بقي بلا أخ. — حكمة عربية",
+"الكلمة الطيبة صدقة. — حكمة عربية",
+"من لم يشكر الناس لم يشكر الله. — حكمة عربية",
+"ابدأ بنفسك ثم بمن تعول. — حكمة عربية",
+"لكل جواد كبوة. — مثل عربي",
+"الحبل الطويل يشير إلى غريق. — مثل عربي",
+"الطيور على أشكالها تقع. — مثل عربي",
+"كما تدين تدان. — مثل عربي",
+"من قلة العقل الغنى في بلد غريب. — حكمة عربية",
+"إن الحياة عقيدة وجهاد. — حسن البنا",
+"من راقب الناس مات هما. — حكمة عربية",
+"إذا لم تستحِ فاصنع ما شئت. — حكمة نبوية",
+"الكلمة الصادقة أقوى من السيف. — حكمة عربية",
+"عش كأنك تموت غدا واعمل لدنياك كأنك تعيش أبدا. — حكمة عربية",
+"الجاهل يقتنص برأيه، والعاقل يستشير. — حكمة عربية",
+"من عمل بلا علم كان ما يفسد أكثر مما يصلح. — حكمة عربية",
+"الوقت أثمن من الذهب. — حكمة عربية",
+"إن مع العسر يسرا. — حكمة قرآنية",
+"وأن ليس للإنسان إلا ما سعى. — حكمة قرآنية",
+"من جاهد نفسه فهو المجاهد الحق. — حكمة عربية",
+"ليس الفتى من قال كان أبي، إن الفتى من قال ها أنذا. — أبو الطيب المتنبي",
+"إذا كنتَ في كل الأمور معاتبا صديقك لم تلقَ الذي لا تعاتبه. — المتنبي",
+"وإذا أتتك مذمتي من ناقص فهي الشهادة لي بأني كامل. — المتنبي",
+"أعز مكان في الدنى سرج سابح وخير جليس في الزمان كتاب. — المتنبي",
+"ذو العقل يشقى في النعيم بعقله وأخو الجهالة في الشقاوة ينعم. — المتنبي",
+"الدنيا كلها همٌّ فما وجدتُ إلا غما تسليتُه بغم. — المتنبي",
+"يا أعدل الناس إلا في معاملتي فيك الخصام وأنت الخصم والحكم. — المتنبي",
+"الرأي قبل شجاعة الشجعان. — المتنبي",
+"من هابَ أسبابَ المنايا نالَه ما هابَ منها لا محالة واقع. — المتنبي",
+"وإذا كانت النفوس كبارا تعبت في مرادها الأجسام. — المتنبي",
+"من الحلم أن تستقبل العذر بالقبول. — الجاحظ",
+"من كتب كتابا استعبد عقول الرجال. — الجاحظ",
+"القول ما لم تؤيده وقائع الأحوال ضرب من الجنون. — ابن خلدون",
+"التاريخ يعيد نفسه. — ابن خلدون",
+"العدل أساس الملك. — ابن خلدون",
+"الظلم مؤذن بخراب العمران. — ابن خلدون",
+"العصبية توجب المحبة والنصرة. — ابن خلدون",
+"من طلب العلم كتب الله له ثواب المجاهد. — حكمة إسلامية",
+"العلم يحرسك وأنت تحرس المال. — الإمام علي بن أبي طالب",
+"إذا تم العقل نقص الكلام. — الإمام علي بن أبي طالب",
+"الناس أعداء ما جهلوا. — الإمام علي بن أبي طالب",
+"قيمة كل امرئ ما يحسنه. — الإمام علي بن أبي طالب",
+"احذر شماتة الأعداء بك، واحذر مقتك عند الأصدقاء. — الإمام علي بن أبي طالب",
+"رحم الله امرأ عرف قدر نفسه. — الإمام علي بن أبي طالب",
+"لا مال أعود من العقل. — الإمام علي بن أبي طالب",
+"الدهر يومان يوم لك ويوم عليك. — حكمة عربية",
+"من صبر ظفر. — مثل عربي",
+"العبرة بالخواتيم. — حكمة عربية",
+"من جد وجد ومن زرع حصد ومن سار على الدرب وصل. — حكمة عربية",
+"ابن آدم لا تظلم كما لا تحب أن تُظلم. — حكمة عربية",
+"لا تؤجل عمل اليوم إلى الغد. — حكمة عربية",
+"الأمل نصف الحياة. — حكمة عربية",
+"من أحسن الظن استراح. — حكمة عربية",
+"إن الليل مهما طال فإنه ينتهي بطلوع الفجر. — حكمة عربية",
+"الجمال في العقل لا في المظهر. — حكمة عربية",
+"إن لم تكن ذئبا أكلتك الذئاب. — مثل عربي",
+"من يزرع الشوك لا يحصد العنب. — مثل عربي",
+"كل ممنوع مرغوب. — مثل عربي",
+"من راقب الناس مات هما. — مثل عربي",
+"إن الرياح إذا اشتد هبوبها فارفع لها من بيوت العنكبوت حجابا. — أبو الطيب المتنبي",
+"شعاعُ عينيك يغزو كل مملكة والصمت في شفتيك يخرس الحكما. — نزار قباني",
+"أحبك جدا وأعرف أن الطريق إلى المستحيل طويل. — نزار قباني",
+"الحب أعمق ما يكون حين يكون صامتا. — نزار قباني",
+"لا تصالحي، لا تصالحي، لا تصالحي على وردةٍ باعها الفلاحون رخيصة. — أمل دنقل",
+"إذا الشعب يوما أراد الحياة فلا بد أن يستجيب القدر. — أبو القاسم الشابي",
+"ولا بد لليل أن ينجلي، ولا بد للقيد أن ينكسر. — أبو القاسم الشابي",
+"من لم يمت بالسيف مات بغيره. — أبو الطيب المتنبي",
+"وفي النفس حاجات وفيك فطانة سكوتي بيان عندها وخطاب. — المتنبي",
+"إذا رأيت نيوب الليث بارزة فلا تظنن أن الليث يبتسم. — المتنبي",
+"وضعتُ عصا التسيار يا أم مالك ولن نلتقي إلا لدى يوم يحشر. — طرفة بن العبد",
+"إذا المرء لم يدنس من اللؤم عرضه فكل رداء يرتديه جميل. — عنترة بن شداد",
+"ولقد ذكرتك والرماح نواهل مني وبيض الهند تقطر من دمي. — عنترة بن شداد",
+"هلا سألتِ الخيل يا ابنة مالك إن كنت جاهلة بما لم تعلمي. — عنترة بن شداد",
+"وقوفي في الديار وليس فيها أنيس غير أطلال وذكرى. — امرؤ القيس",
+"قفا نبك من ذكرى حبيب ومنزل. — امرؤ القيس",
+"إذا غامرت في شرف مروم فلا تقنع بما دون النجوم. — المتنبي",
+"من نام لم ينم عنه الزمان. — حكمة عربية",
+"العقل زينة والأدب حلية. — حكمة عربية",
+"إن للحيطان آذانا. — مثل عربي",
+"عصفور في اليد خير من عشرة على الشجرة. — مثل عربي",
+"القرد في عين أمه غزال. — مثل عربي",
+"يداك أوكتا وفوك نفخ. — مثل عربي",
+"مصائب قوم عند قوم فوائد. — مثل عربي",
+"إذا كثر الطباخون احترقت الطبخة. — مثل عربي",
+"في التأني السلامة وفي العجلة الندامة. — مثل عربي",
+"من شبّ على شيء شاب عليه. — مثل عربي",
+"لا يلدغ المؤمن من جحر مرتين. — حديث نبوي",
+"خيركم من تعلم القرآن وعلمه. — حديث نبوي",
+"الدين المعاملة. — حكمة إسلامية",
+"من حسن إسلام المرء تركه ما لا يعنيه. — حديث نبوي",
+"المؤمن للمؤمن كالبنيان يشد بعضه بعضا. — حديث نبوي",
+"الكلمة الطيبة صدقة. — حديث نبوي",
+"إنما الأعمال بالنيات. — حديث نبوي",
+"من لا يشكر الناس لا يشكر الله. — حديث نبوي",
+"الصبر عند الصدمة الأولى. — حكمة إسلامية",
+"رحم الله عبدا قال خيرا فغنم أو صمت فسلم. — حديث نبوي",
+"الحكمة ضالة المؤمن أنى وجدها فهو أحق بها. — حديث نبوي",
+"خير الأمور أوسطها. — حكمة عربية",
+"العدل أساس الملك. — حكمة عربية",
+"ليس الخبر كالمعاينة. — مثل عربي",
+"كل إناء بما فيه ينضح. — مثل عربي",
+"إذا صح العزم وضح السبيل. — حكمة عربية",
+"من عذب لسانه كثر إخوانه. — حكمة عربية",
+"الوطن ليس أرضا نقف عليها بل هو معنى نقف عليه. — إبراهيم الفقي",
+"غير نفسك أولا ليتغير العالم من حولك. — إبراهيم الفقي",
+"الفشل ليس عكس النجاح بل هو جزء منه. — إبراهيم الفقي",
+"لا يوجد شيء اسمه فشل، إنما هي نتائج. — إبراهيم الفقي",
+"قوة الإنسان في قدرته على تغيير أفكاره. — إبراهيم الفقي",
+"إن أردتَ أن تعرف قدر نفسك فانظر عند ماذا تسكت. — جبران خليل جبران",
+"الحرية الحقة ليست في رفض القيود بل في اختيارها. — جبران خليل جبران",
+"العقل يحمل مصباح الشك ليضيء طريق اليقين. — جبران خليل جبران",
+"أعطونى ناياً وغنّوا فالغنا سر الوجود. — جبران خليل جبران",
+"في أعماق قلب كل إنسان حجرة سرية منعزلة تماما لا يعلم بها أحد سواه. — جبران خليل جبران",
+"الحب الذي لا يتجدد كل يوم يصبح عادة ثم يصبح عبودية. — جبران خليل جبران",
+"إذا تكلم الحب فلا تصدق شيئا سواه ولو هزّ العالم أركانه. — جبران خليل جبران",
+"أعطني أذناً واعية أعطك قلباً صادقاً. — جبران خليل جبران",
+"لكل إنسان في هذه الدنيا صديق يحبه دون أن يعرف لماذا. — جبران خليل جبران",
+"الصداقة مسؤولية حلوة، لا فرصة. — جبران خليل جبران",
+"من علمني حرفا صرت له عبدا. — الإمام علي بن أبي طالب",
+"لا تكن عبدا لغيرك وقد جعلك الله حرا. — الإمام علي بن أبي طالب",
+"الناس نيام فإذا ماتوا انتبهوا. — حكمة عربية",
+"إذا لم تكن حليما فتحلّم. — حكمة عربية",
+"من هانت عليه نفسه فلا تأمن شره. — حكمة عربية",
+"العجب أن ترى إنسانا يحسن الظن بغيره ولا يحسنه بنفسه. — حكمة عربية",
+"إذا أردت مطاعا فأمر بمستطاع. — حكمة عربية",
+"من طلب المجد سهر الليالي. — حكمة عربية",
+"لا خير في صمت عن الحق. — حكمة عربية",
+"العلم بلا عمل كالشجر بلا ثمر. — حكمة عربية",
+"من حسنت نيته حسن عمله. — حكمة عربية",
+"إن الله لا يضيع أجر من أحسن عملا. — حكمة قرآنية",
+"وقل اعملوا فسيرى الله عملكم. — حكمة قرآنية",
+"من جاهد في سبيل الحق لم يخب سعيه. — حكمة عربية",
+"إذا هبت رياحك فاغتنمها. — مثل عربي",
+"من طلب العلا عاش كريما أو مات كريما. — حكمة عربية",
+"كن كالنخلة كلما رموها بحجر ألقت أجمل ثمرها. — حكمة عربية",
+"الأمل هو ذلك الضوء الذي لا تطفئه رياح اليأس. — حكمة عربية",
+"إن الصبر مثل اسمه مر ولكن عاقبته أحلى من العسل. — حكمة عربية",
+"الحياة رحلة، فاجعلها تستحق العناء. — حكمة عربية",
+"ما ضاق أمر إلا وله فرج. — حكمة عربية",
+"الأيام دول. — حكمة عربية",
+"إذا ضاقت بك الدنيا فتذكر أن السماء لا تزال واسعة. — حكمة عربية"
+];
+
+let quoteIntervalId = null;
+let quoteRotationActive = localStorage.getItem('quoteRotationActive') !== '0';
+
+function getRandomQuote() {
+  const list = lang === 'ar' ? QUOTES_AR : QUOTES_EN;
+  return list[Math.floor(Math.random() * list.length)];
+}
+function showRandomQuote() {
+  const el = document.getElementById('quoteBarText');
+  if (!el) return;
+  el.textContent = getRandomQuote();
+  const bar = document.getElementById('quoteBar');
+  if (bar) { bar.classList.remove('quote-fade'); void bar.offsetWidth; bar.classList.add('quote-fade'); }
+}
+function toggleQuoteRotation() {
+  quoteRotationActive = !quoteRotationActive;
+  localStorage.setItem('quoteRotationActive', quoteRotationActive ? '1' : '0');
+  const btn = document.getElementById('quoteToggleBtn');
+  if (btn) btn.innerHTML = svgIcon(quoteRotationActive ? 'icon-pause' : 'icon-play');
+  if (quoteRotationActive) {
+    showRandomQuote();
+    startQuoteRotation();
+  } else if (quoteIntervalId) {
+    clearInterval(quoteIntervalId);
+    quoteIntervalId = null;
+  }
+}
+function startQuoteRotation() {
+  if (quoteIntervalId) clearInterval(quoteIntervalId);
+  if (!quoteRotationActive) return;
+  quoteIntervalId = setInterval(showRandomQuote, 10 * 60 * 1000);
+}
+
+/* ==========================================
+   13e. ACCOUNT SYSTEM (local-only, encrypted profile)
+   ========================================== */
+let currentAccount = null;
+let currentAccountKey = null;
+let pendingSignupCode = null;
+
+function bytesToHex(bytes) { return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(''); }
+function hexToBytes(hex) {
+  const arr = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(hex.substr(i * 2, 2), 16);
+  return arr;
+}
+function randomBytes(n) { return crypto.getRandomValues(new Uint8Array(n)); }
+
+async function pbkdf2Hash(password, saltBytes, iterations = 100000, lengthBits = 256) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' }, keyMaterial, lengthBits);
+  return new Uint8Array(bits);
+}
+async function deriveAesKey(password, saltBytes) {
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: saltBytes, iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function encryptWithKey(key, obj) {
+  const iv = randomBytes(12);
+  const enc = new TextEncoder();
+  const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
+  return { iv: bytesToHex(iv), cipher: btoa(String.fromCharCode(...new Uint8Array(cipherBuf))) };
+}
+async function decryptWithKey(key, ivHex, cipherB64) {
+  const cipherBytes = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
+  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: hexToBytes(ivHex) }, key, cipherBytes);
+  return JSON.parse(new TextDecoder().decode(plainBuf));
+}
+
+function setAccountTab(tab) {
+  document.getElementById('acctTabLoginBtn').classList.toggle('active', tab === 'login');
+  document.getElementById('acctTabSignupBtn').classList.toggle('active', tab === 'signup');
+  document.getElementById('acctLoginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('acctSignupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+async function submitSignup() {
+  const name = document.getElementById('signupName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+  const password = document.getElementById('signupPassword').value;
+  const confirmPw = document.getElementById('signupPasswordConfirm').value;
+  const dob = document.getElementById('signupDob').value;
+  const dobIsHijri = document.getElementById('signupDobIsHijri').checked;
+
+  if (!name || !email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
+  if (password !== confirmPw) { await customAlert(translations[lang].acctPasswordMismatch); return; }
+  if (password.length < 6) { await customAlert(translations[lang].acctPasswordTooShort); return; }
+
+  const accounts = safeParseJSON('idleAccounts', []);
+  if (accounts.find(a => a.email === email)) { await customAlert(translations[lang].acctEmailExists); return; }
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const entered = await customPrompt(translations[lang].acctVerifyMsg.replace('{code}', code), '', translations[lang].acctVerifyTitle);
+  if (entered !== code) { await customAlert(translations[lang].acctVerifyFailed); return; }
+
+  const salt = randomBytes(16);
+  const passHash = await pbkdf2Hash(password, salt);
+  const profileSalt = randomBytes(16);
+  const key = await deriveAesKey(password, profileSalt);
+  const enc = await encryptWithKey(key, { name, dob, dobIsHijri });
+
+  accounts.push({
+    email,
+    salt: bytesToHex(salt),
+    passHash: bytesToHex(passHash),
+    profileSalt: bytesToHex(profileSalt),
+    profileIv: enc.iv,
+    profileCipher: enc.cipher
+  });
+  localStorage.setItem('idleAccounts', JSON.stringify(accounts));
+  await customAlert(translations[lang].acctSignupSuccess);
+  await performLogin(email, password);
+}
+
+async function submitLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const password = document.getElementById('loginPassword').value;
+  if (!email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
+  await performLogin(email, password);
+}
+
+async function performLogin(email, password) {
+  const accounts = safeParseJSON('idleAccounts', []);
+  const acct = accounts.find(a => a.email === email);
+  if (!acct) { await customAlert(translations[lang].acctNotFound); return false; }
+  const hash = await pbkdf2Hash(password, hexToBytes(acct.salt));
+  if (bytesToHex(hash) !== acct.passHash) { await customAlert(translations[lang].acctWrongPassword); return false; }
+
+  const key = await deriveAesKey(password, hexToBytes(acct.profileSalt));
+  let profile;
+  try {
+    profile = await decryptWithKey(key, acct.profileIv, acct.profileCipher);
+  } catch (e) {
+    await customAlert(translations[lang].acctDecryptFailed);
+    return false;
+  }
+  currentAccount = { email: acct.email, name: profile.name, dob: profile.dob, dobIsHijri: !!profile.dobIsHijri };
+  currentAccountKey = key;
+  localStorage.setItem('idleLastAccountEmail', acct.email);
+  renderAccountUI();
+  applyBirthdayFromAccount();
+  return true;
+}
+
+function logoutAccount() {
+  currentAccount = null;
+  currentAccountKey = null;
+  renderAccountUI();
+}
+
+async function saveAccountProfile() {
+  if (!currentAccount || !currentAccountKey) { await customAlert(translations[lang].acctLoginRequired); return; }
+  const dob = document.getElementById('profileDob').value;
+  const dobIsHijri = document.getElementById('profileDobIsHijri').checked;
+  currentAccount.dob = dob;
+  currentAccount.dobIsHijri = dobIsHijri;
+
+  const accounts = safeParseJSON('idleAccounts', []);
+  const idx = accounts.findIndex(a => a.email === currentAccount.email);
+  if (idx !== -1) {
+    const enc = await encryptWithKey(currentAccountKey, { name: currentAccount.name, dob, dobIsHijri });
+    accounts[idx].profileIv = enc.iv;
+    accounts[idx].profileCipher = enc.cipher;
+    localStorage.setItem('idleAccounts', JSON.stringify(accounts));
+  }
+  await customAlert(translations[lang].acctProfileSaved);
+  applyBirthdayFromAccount();
+}
+
+function hijriToGregorian(hy, hm, hd) {
+  const jd = Math.floor((11 * hy + 3) / 30) + 354 * hy + 30 * hm - Math.floor((hm - 1) / 2) + hd + 1948440 - 385;
+  let l = jd + 68569;
+  const n = Math.floor((4 * l) / 146097);
+  l = l - Math.floor((146097 * n + 3) / 4);
+  const i = Math.floor((4000 * (l + 1)) / 1461001);
+  l = l - Math.floor((1461 * i) / 4) + 31;
+  const j = Math.floor((80 * l) / 2447);
+  const day = l - Math.floor((2447 * j) / 80);
+  l = Math.floor(j / 11);
+  const month = j + 2 - 12 * l;
+  const year = 100 * (n - 49) + i + l;
+  return new Date(year, month - 1, day);
+}
+function getCurrentHijriYear() {
+  return parseInt(new Intl.DateTimeFormat('en-u-ca-islamic', { year: 'numeric' }).format(new Date()), 10);
+}
+function computeNextBirthdayDate(account) {
+  const parts = (account.dob || '').split('-').map(Number);
+  const [y, m, d] = parts;
+  if (!y || !m || !d) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (account.dobIsHijri) {
+    const hy = getCurrentHijriYear();
+    let occ = hijriToGregorian(hy, m, d);
+    occ.setHours(0, 0, 0, 0);
+    if (occ < today) { occ = hijriToGregorian(hy + 1, m, d); occ.setHours(0, 0, 0, 0); }
+    return occ;
+  }
+  let occ = new Date(today.getFullYear(), m - 1, d);
+  if (occ < today) occ = new Date(today.getFullYear() + 1, m - 1, d);
+  return occ;
+}
+function applyBirthdayFromAccount() {
+  scheduledTasks = scheduledTasks.filter(t => !t.isBirthdayAuto);
+  if (currentAccount && currentAccount.dob) {
+    const occ = computeNextBirthdayDate(currentAccount);
+    if (occ) {
+      const iso = (new Date(occ.getTime() - occ.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      scheduledTasks.push({
+        id: -1,
+        name: lang === 'en' ? `${currentAccount.name}'s Birthday` : `عيد ميلاد ${currentAccount.name}`,
+        date: iso, endDate: iso,
+        allDay: true, start: '00:00', end: '23:59',
+        isRoutine: false, repeat: 'none', days: [],
+        color: '#ff6b81', icon: 'cake',
+        isBirthdayAuto: true,
+        notes: '', location: '', url: '', alert: 'none', timezone: ''
+      });
+    }
+  }
+  localStorage.setItem('idleTasksV4', JSON.stringify(scheduledTasks));
+  if (typeof renderV3UI === 'function') renderV3UI();
+  if (typeof renderTimetable === 'function') renderTimetable();
+  if (document.getElementById('scheduleManagerModal') && document.getElementById('scheduleManagerModal').classList.contains('active') && typeof renderScheduleManager === 'function') renderScheduleManager();
+}
+
+function triggerConfetti() {
+  const layer = document.getElementById('confettiLayer');
+  if (!layer) return;
+  const colors = ['#ff6b81', '#ffa502', '#eccc68', '#7bed9f', '#1e90ff', '#5352ed', '#9b59b6'];
+  for (let i = 0; i < 70; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+    piece.style.width = piece.style.height = (6 + Math.random() * 6) + 'px';
+    layer.appendChild(piece);
+    setTimeout(() => piece.remove(), 5500);
+  }
+}
+
+function renderAccountUI() {
+  const loggedOut = document.getElementById('acctLoggedOutBlock');
+  const loggedIn = document.getElementById('acctLoggedInBlock');
+  if (!loggedOut || !loggedIn) return;
+  if (currentAccount) {
+    loggedOut.style.display = 'none';
+    loggedIn.style.display = 'block';
+    document.getElementById('acctWelcomeText').textContent = translations[lang].acctWelcomeText.replace('{name}', currentAccount.name);
+    document.getElementById('acctEmailText').textContent = currentAccount.email;
+    document.getElementById('profileDob').value = currentAccount.dob || '';
+    document.getElementById('profileDobIsHijri').checked = !!currentAccount.dobIsHijri;
+  } else {
+    loggedOut.style.display = 'block';
+    loggedIn.style.display = 'none';
+    const lastEmail = localStorage.getItem('idleLastAccountEmail');
+    if (lastEmail) document.getElementById('loginEmail').value = lastEmail;
+  }
+}
+
+/* ==========================================
+   13f. THEATER MODE
+   ========================================== */
+let theaterSourceTab = 'file';
+let theaterLayoutMode = 'floating';
+let theaterDimLevel = 70;
+let theaterMediaType = null;
+let theaterObjectUrl = null;
+
+function setTheaterSourceTab(tab) {
+  theaterSourceTab = tab;
+  document.getElementById('theaterTabFileBtn').classList.toggle('active', tab === 'file');
+  document.getElementById('theaterTabUrlBtn').classList.toggle('active', tab === 'url');
+  document.getElementById('theaterFileBlock').style.display = tab === 'file' ? 'block' : 'none';
+  document.getElementById('theaterUrlBlock').style.display = tab === 'url' ? 'block' : 'none';
+}
+function handleTheaterFileSelect(input) {
+  if (!input.files || !input.files[0]) return;
+  if (theaterObjectUrl) URL.revokeObjectURL(theaterObjectUrl);
+  theaterObjectUrl = URL.createObjectURL(input.files[0]);
+  theaterMediaType = 'video';
+  document.getElementById('theaterEnterBtn').disabled = false;
+}
+function getYouTubeEmbedUrl(url) {
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/embed\/|youtu\.be\/)([A-Za-z0-9_-]{6,})/
+  ];
+  for (const re of patterns) {
+    const m = url.match(re);
+    if (m) return `https://www.youtube.com/embed/${m[1]}?autoplay=1`;
+  }
+  return null;
+}
+function loadTheaterUrl() {
+  const url = document.getElementById('theaterUrlInput').value.trim();
+  if (!url) return;
+  const ytEmbed = getYouTubeEmbedUrl(url);
+  if (ytEmbed) {
+    theaterMediaType = 'iframe';
+    theaterObjectUrl = ytEmbed;
+  } else {
+    theaterMediaType = 'video';
+    theaterObjectUrl = url;
+  }
+  document.getElementById('theaterEnterBtn').disabled = false;
+}
+function setTheaterLayout(modeName, btnEl) {
+  theaterLayoutMode = modeName;
+  document.querySelectorAll('#theaterLayoutGrid .clock-toggle-btn').forEach(b => b.classList.remove('active-lang'));
+  if (btnEl) btnEl.classList.add('active-lang');
+  const overlay = document.getElementById('theaterOverlay');
+  overlay.classList.remove('mode-floating', 'mode-landscape', 'mode-fullscreen');
+  overlay.classList.add('mode-' + modeName);
+  applyTheaterDim();
+}
+function setTheaterDimLevel(val) {
+  theaterDimLevel = parseInt(val, 10);
+  document.getElementById('theaterDimValue').textContent = theaterDimLevel + '%';
+  applyTheaterDim();
+}
+function applyTheaterDim() {
+  const backdrop = document.getElementById('theaterBackdrop');
+  if (!backdrop) return;
+  backdrop.style.opacity = theaterLayoutMode === 'floating' ? '0' : (theaterDimLevel / 100);
+}
+function theaterBackdropClick(e) {
+  if (e.target !== e.currentTarget) return;
+  if (theaterLayoutMode !== 'floating') exitTheaterMode();
+}
+
+function enterTheaterMode() {
+  if (!theaterObjectUrl) { customAlert(translations[lang].theaterNoSource); return; }
+  const overlay = document.getElementById('theaterOverlay');
+  const videoEl = document.getElementById('theaterVideo');
+  const iframeEl = document.getElementById('theaterIframe');
+  if (theaterMediaType === 'iframe') {
+    iframeEl.src = theaterObjectUrl;
+    iframeEl.style.display = 'block';
+    videoEl.style.display = 'none';
+    videoEl.pause();
+    videoEl.removeAttribute('src');
+  } else {
+    videoEl.src = theaterObjectUrl;
+    videoEl.style.display = 'block';
+    iframeEl.style.display = 'none';
+    iframeEl.src = '';
+    videoEl.play().catch(() => {});
+  }
+  overlay.classList.add('active');
+  setTheaterLayout(theaterLayoutMode, document.querySelector(`#theaterLayoutGrid .clock-toggle-btn[onclick*="'${theaterLayoutMode}'"]`));
+  initTheaterDragResize();
+}
+function exitTheaterMode() {
+  const overlay = document.getElementById('theaterOverlay');
+  overlay.classList.remove('active');
+  const videoEl = document.getElementById('theaterVideo');
+  const iframeEl = document.getElementById('theaterIframe');
+  videoEl.pause();
+  iframeEl.src = '';
+}
+
+let theaterDragInit = false;
+function initTheaterDragResize() {
+  if (theaterDragInit) return;
+  theaterDragInit = true;
+  const win = document.getElementById('theaterWindow');
+  const header = document.getElementById('theaterHeader');
+  const handle = document.getElementById('theaterResizeHandle');
+  let dragging = false, dragStartX = 0, dragStartY = 0, winStartX = 0, winStartY = 0;
+  header.addEventListener('mousedown', (e) => {
+    if (theaterLayoutMode !== 'floating') return;
+    dragging = true;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    const rect = win.getBoundingClientRect();
+    winStartX = rect.left; winStartY = rect.top;
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+    win.style.left = (winStartX + dx) + 'px';
+    win.style.top = (winStartY + dy) + 'px';
+    win.style.right = 'auto';
+  });
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  let resizing = false, resizeStartX = 0, resizeStartY = 0, startW = 0, startH = 0;
+  handle.addEventListener('mousedown', (e) => {
+    if (theaterLayoutMode !== 'floating') return;
+    resizing = true;
+    resizeStartX = e.clientX; resizeStartY = e.clientY;
+    const rect = win.getBoundingClientRect();
+    startW = rect.width; startH = rect.height;
+    e.preventDefault();
+    e.stopPropagation();
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!resizing) return;
+    win.style.width = Math.max(200, startW + (e.clientX - resizeStartX)) + 'px';
+    win.style.height = Math.max(120, startH + (e.clientY - resizeStartY)) + 'px';
+  });
+  window.addEventListener('mouseup', () => { resizing = false; });
+}
+
+/* ==========================================
+   13g. DISPLAY LAYOUT (PC / Phone / Tablet / TV) + TV BARCODE LOGIN
+   ========================================== */
+function setDisplayLayout(mode, btnEl) {
+  document.body.dataset.layout = mode;
+  localStorage.setItem('idleDisplayLayout', mode);
+  document.querySelectorAll('#layoutPickerGrid .clock-toggle-btn').forEach(b => b.classList.remove('active-lang'));
+  if (btnEl) btnEl.classList.add('active-lang');
+  else {
+    const match = document.querySelector(`#layoutPickerGrid .clock-toggle-btn[onclick*="'${mode}'"]`);
+    if (match) match.classList.add('active-lang');
+  }
+  if (mode !== 'tv') stopTvBarcodeScan();
+}
+
+let tvScanStream = null;
+let tvScanRafId = null;
+async function startTvBarcodeScan() {
+  const statusEl = document.getElementById('tvScanStatus');
+  const videoEl = document.getElementById('tvScanVideo');
+  if (!('BarcodeDetector' in window)) {
+    statusEl.textContent = translations[lang].tvScanNotSupported;
+    return;
+  }
+  statusEl.textContent = translations[lang].tvScanRequesting;
+  try {
+    tvScanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+  } catch (e) {
+    statusEl.textContent = translations[lang].tvScanError;
+    return;
+  }
+  videoEl.srcObject = tvScanStream;
+  videoEl.style.display = 'block';
+  statusEl.textContent = translations[lang].tvScanWaiting;
+
+  const detector = new BarcodeDetector({ formats: ['qr_code'] });
+  const scanLoop = async () => {
+    if (!tvScanStream) return;
+    try {
+      const codes = await detector.detect(videoEl);
+      if (codes.length > 0) {
+        const raw = codes[0].rawValue || '';
+        const sep = raw.includes('|') ? '|' : (raw.includes(':') ? ':' : null);
+        if (sep) {
+          const idx = raw.indexOf(sep);
+          const email = raw.substring(0, idx).trim().toLowerCase();
+          const password = raw.substring(idx + 1).trim();
+          statusEl.textContent = translations[lang].tvScanFound;
+          stopTvBarcodeScan();
+          document.getElementById('loginEmail').value = email;
+          document.getElementById('loginPassword').value = password;
+          await performLogin(email, password);
+          return;
+        } else {
+          statusEl.textContent = translations[lang].tvScanBadFormat;
+        }
+      }
+    } catch (e) { /* detection frame error, keep trying */ }
+    tvScanRafId = requestAnimationFrame(scanLoop);
+  };
+  scanLoop();
+}
+function stopTvBarcodeScan() {
+  if (tvScanRafId) cancelAnimationFrame(tvScanRafId);
+  tvScanRafId = null;
+  if (tvScanStream) {
+    tvScanStream.getTracks().forEach(t => t.stop());
+    tvScanStream = null;
+  }
+  const videoEl = document.getElementById('tvScanVideo');
+  if (videoEl) { videoEl.style.display = 'none'; videoEl.srcObject = null; }
+}
+
+/* ==========================================
    14. BOOT SEQUENCE
    ========================================== */
 titleInput.value = localStorage.getItem('idleTitle') || translations[lang].systemStandby;
@@ -3518,12 +4538,17 @@ setMode(currentMode);
 setLanguage(lang);
 updateWorldClock();
 applyWidgetVisibility();
+renderAccountUI();
+setDisplayLayout(localStorage.getItem('idleDisplayLayout') || 'pc');
 setSpotifyArtMode(spotifyArtMode);
 renderCountdownPickers();
 populateCountdownTagFilter();
 renderCountdownWidget();
 checkCountdownImportFromURL();
 setTimeout(() => startTutorial(false), 1000);
+document.getElementById('quoteToggleBtn').innerHTML = svgIcon(quoteRotationActive ? 'icon-pause' : 'icon-play');
+if (quoteRotationActive) { showRandomQuote(); startQuoteRotation(); }
+else document.getElementById('quoteBarText').textContent = getRandomQuote();
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);
