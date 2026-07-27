@@ -155,7 +155,17 @@ function setAccountTab(tab) {
   document.getElementById('acctSignupForm').style.display = tab === 'signup' ? 'block' : 'none';
 }
 
+let authSubmitInProgress = false;
 async function submitSignup() {
+  if (authSubmitInProgress) return;
+  authSubmitInProgress = true;
+  try {
+    await submitSignupInner();
+  } finally {
+    authSubmitInProgress = false;
+  }
+}
+async function submitSignupInner() {
   const name = document.getElementById('signupName').value.trim();
   const email = document.getElementById('signupEmail').value.trim().toLowerCase();
   const password = document.getElementById('signupPassword').value;
@@ -190,6 +200,15 @@ async function submitSignup() {
 }
 
 async function submitLogin() {
+  if (authSubmitInProgress) return;
+  authSubmitInProgress = true;
+  try {
+    await submitLoginInner();
+  } finally {
+    authSubmitInProgress = false;
+  }
+}
+async function submitLoginInner() {
   const email = document.getElementById('loginEmail').value.trim().toLowerCase();
   const password = document.getElementById('loginPassword').value;
   if (!email || !password) { await customAlert(T[lang].acctFillRequired); return; }

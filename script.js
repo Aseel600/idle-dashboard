@@ -4063,7 +4063,17 @@ function setAccountTab(tab) {
   document.getElementById('acctSignupForm').style.display = tab === 'signup' ? 'block' : 'none';
 }
 
+let authSubmitInProgress = false;
 async function submitSignup() {
+  if (authSubmitInProgress) return;
+  authSubmitInProgress = true;
+  try {
+    await submitSignupInner();
+  } finally {
+    authSubmitInProgress = false;
+  }
+}
+async function submitSignupInner() {
   const name = document.getElementById('signupName').value.trim();
   const email = document.getElementById('signupEmail').value.trim().toLowerCase();
   const password = document.getElementById('signupPassword').value;
@@ -4102,10 +4112,16 @@ async function submitSignup() {
 }
 
 async function submitLogin() {
-  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const password = document.getElementById('loginPassword').value;
-  if (!email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
-  await performLogin(email, password);
+  if (authSubmitInProgress) return;
+  authSubmitInProgress = true;
+  try {
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
+    await performLogin(email, password);
+  } finally {
+    authSubmitInProgress = false;
+  }
 }
 
 async function performLogin(email, password) {
@@ -4135,6 +4151,7 @@ function logoutAccount() {
   currentAccount = null;
   currentAccountKey = null;
   renderAccountUI();
+  applyBirthdayFromAccount();
 }
 
 async function saveAccountProfile() {
@@ -4384,6 +4401,9 @@ function initTheaterDragResize() {
     resizeStartX = e.clientX; resizeStartY = e.clientY;
     const rect = win.getBoundingClientRect();
     startW = rect.width; startH = rect.height;
+    win.style.left = rect.left + 'px';
+    win.style.top = rect.top + 'px';
+    win.style.right = 'auto';
     e.preventDefault();
     e.stopPropagation();
   });

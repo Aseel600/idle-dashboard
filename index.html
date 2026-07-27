@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.1)</title>
+  <title>Ambient OS | Dashboard (V7.2)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.1</span>
+      <span class="dev-version">v7.2</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,13 +130,12 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.1 DEDICATED AUTH PAGE</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.2 BUG SEARCH PASS</div>
 
-    <label class="qa-item"><input type="checkbox"> New login.html: Standalone Sign In / Sign Up Page, Same Origin as Dashboard</label>
-    <label class="qa-item"><input type="checkbox"> auth.js Self-Contained (No Dependency on script.js's Dashboard DOM)</label>
-    <label class="qa-item"><input type="checkbox"> Theme/Language/Mode Applied Consistently from Shared localStorage</label>
-    <label class="qa-item"><input type="checkbox"> Signup/Login Redirects to Dashboard After Success</label>
-    <label class="qa-item"><input type="checkbox"> Side Panel Links to Full-Page Auth for Discoverability</label>
+    <label class="qa-item"><input type="checkbox"> BUG: Theater Mode Resize Now Anchors to the Corner You're Dragging (Was Growing Leftward if You Never Dragged First)</label>
+    <label class="qa-item"><input type="checkbox"> BUG: Birthday Auto-Event No Longer Persists After Logout (Was a Privacy/Consistency Leak)</label>
+    <label class="qa-item"><input type="checkbox"> BUG: Signup/Login Forms Guarded Against Double-Submit Race (Both index.html and login.html)</label>
+    <label class="qa-item"><input type="checkbox"> Verified No Duplicate Function/Variable Declarations Across script.js</label>
     </div>
   </div>
 
