@@ -387,6 +387,8 @@ body.focus-mode .quote-bar { opacity: 0 !important; pointer-events: none !import
 .acct-note { font-size: 0.65rem; color: var(--text-secondary); margin-top: 8px; line-height: 1.4; opacity: 0.75; }
 .acct-welcome { font-weight: bold; font-size: 1rem; color: var(--text-primary); }
 .acct-email { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; }
+.auth-full-page-link { display: block; text-align: center; font-size: 0.7rem; color: var(--text-secondary); margin-top: 12px; text-decoration: none; transition: color 0.2s; }
+.auth-full-page-link:hover { color: var(--accent); }
 
 /* ==========================================
    15. THEATER MODE

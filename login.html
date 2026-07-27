@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sign in or create an account for Ambient OS." />
+  <meta name="theme-color" content="#050505" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <title>Sign In — Ambient OS</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .auth-card { width: 380px; max-width: 100%; background: var(--bg-color-panel); backdrop-filter: blur(16px); border: 1px solid var(--input-border); border-radius: 20px; padding: 36px 30px; box-shadow: var(--glass-shadow); }
+    .auth-logo { text-align: center; font-size: 1.4rem; font-weight: bold; color: var(--text-primary); margin-bottom: 4px; }
+    .auth-tagline { text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 20px; line-height: 1.4; }
+    .auth-back-link { display: block; text-align: center; margin-top: 18px; font-size: 0.8rem; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+    .auth-back-link:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <div class="auth-card">
+    <div class="auth-logo">Ambient OS</div>
+    <div class="auth-tagline" data-i18n="authTagline">Sign in to sync birthdays, routines, and settings to your profile</div>
+    <div class="acct-not-real-badge" data-i18n="acctLocalOnlyBadge">Local device only — no server, no real email sent</div>
+
+    <div class="acct-tabs">
+      <button class="acct-tab-btn active" id="acctTabLoginBtn" onclick="setAccountTab('login')" data-i18n="acctLogin">Log In</button>
+      <button class="acct-tab-btn" id="acctTabSignupBtn" onclick="setAccountTab('signup')" data-i18n="acctSignup">Sign Up</button>
+    </div>
+
+    <div id="acctLoginForm">
+      <input type="email" class="title-input" id="loginEmail" placeholder="Email" data-i18n-placeholder="acctEmail" autocomplete="username" />
+      <input type="password" class="title-input" id="loginPassword" placeholder="Password" data-i18n-placeholder="acctPassword" autocomplete="current-password" style="margin-top:8px;" />
+      <button class="add-task-btn" style="margin-top: 12px;" onclick="submitLogin()" data-i18n="acctLoginBtn">Log In</button>
+    </div>
+
+    <div id="acctSignupForm" style="display:none;">
+      <input type="text" class="title-input" id="signupName" placeholder="Name" data-i18n-placeholder="acctName" autocomplete="name" />
+      <input type="email" class="title-input" id="signupEmail" placeholder="Email" data-i18n-placeholder="acctEmail" autocomplete="username" style="margin-top:8px;" />
+      <input type="password" class="title-input" id="signupPassword" placeholder="Password" data-i18n-placeholder="acctPassword" autocomplete="new-password" style="margin-top:8px;" />
+      <input type="password" class="title-input" id="signupPasswordConfirm" placeholder="Confirm Password" data-i18n-placeholder="acctConfirmPassword" autocomplete="new-password" style="margin-top:8px;" />
+      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 10px;" data-i18n="acctDobOptional">Date of Birth (optional)</div>
+      <div class="modal-field-row" style="margin-top: 2px;">
+        <span class="mfr-label" data-i18n="acctDobCalendarHijri">Hijri Calendar</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="signupDobIsHijri">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+      <input type="date" class="date-input" id="signupDob" />
+      <button class="add-task-btn" style="margin-top: 12px;" onclick="submitSignup()" data-i18n="acctSignupBtn">Sign Up</button>
+      <div class="acct-note" data-i18n="acctNoBackendNote">This site has no backend or email server — verification uses a code shown directly on screen, not a real email.</div>
+    </div>
+
+    <a href="index.html" class="auth-back-link" data-i18n="authBackToDashboard">← Continue without signing in</a>
+  </div>
+
+  <div class="modal-overlay" id="customDialogModal">
+    <div class="modal-content dialog-content">
+      <div class="modal-header" id="dialogTitle">Confirm</div>
+      <div class="dialog-message" id="dialogMessage" style="white-space: pre-line;"></div>
+      <input type="text" class="title-input" id="dialogPromptInput" style="display:none;" />
+      <div class="modal-btns">
+        <button class="modal-btn cancel" id="dialogCancelBtn" onclick="resolveDialog(false)">Cancel</button>
+        <button class="modal-btn save" id="dialogOkBtn" onclick="resolveDialog(true)">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth.js"></script>
+</body>
+</html>

@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.0)</title>
+  <title>Ambient OS | Dashboard (V7.1)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.0</span>
+      <span class="dev-version">v7.1</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,23 +130,13 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.0 MEGA UPDATE</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.1 DEDICATED AUTH PAGE</div>
 
-    <label class="qa-item"><input type="checkbox"> Spotify: Progress Bar/Timer Now Updates Every Second (Was Every 5s)</label>
-    <label class="qa-item"><input type="checkbox"> Spotify: Lyrics Actually Sync to Playback (Fixed Flexbox/Transform Conflict)</label>
-    <label class="qa-item"><input type="checkbox"> Spotify: Volume Slider Shows a Fill Bar, Not Just a Dot</label>
-    <label class="qa-item"><input type="checkbox"> Spotify: Mini Art When Collapsed, Full Swipe Art Only When Expanded</label>
-    <label class="qa-item"><input type="checkbox"> Spotify: Volume Row Only Shows on Hover While Expanded</label>
-    <label class="qa-item"><input type="checkbox"> BUG: Shooting Star Now Fires When a Scheduled Task/Event Ends</label>
-    <label class="qa-item"><input type="checkbox"> Dev Menu QA Checklist Now Shows Only the Current Version</label>
-    <label class="qa-item"><input type="checkbox"> 200 EN + 200 AR Quotes Rotate Every 10min, Pausable</label>
-    <label class="qa-item"><input type="checkbox"> Local Account System: Signup/Login/Logout, PBKDF2 Password Hash, AES-GCM Encrypted Profile</label>
-    <label class="qa-item"><input type="checkbox"> Birthday (Gregorian or Hijri) Auto-Added as Yearly Event</label>
-    <label class="qa-item"><input type="checkbox"> Birthday Event Triggers Confetti Instead of Shooting Star</label>
-    <label class="qa-item"><input type="checkbox"> Theater Mode: Local File / URL Playback, Floating / Landscape / Fullscreen, Adjustable Dim</label>
-    <label class="qa-item"><input type="checkbox"> Manual Display Layout Picker: PC / Phone / Tablet / TV</label>
-    <label class="qa-item"><input type="checkbox"> TV Layout: Always-Open Side Panel, Larger Focus Outlines, UI Zoom Scaling</label>
-    <label class="qa-item"><input type="checkbox"> TV: Camera QR/Barcode Scan Login via Native BarcodeDetector API</label>
+    <label class="qa-item"><input type="checkbox"> New login.html: Standalone Sign In / Sign Up Page, Same Origin as Dashboard</label>
+    <label class="qa-item"><input type="checkbox"> auth.js Self-Contained (No Dependency on script.js's Dashboard DOM)</label>
+    <label class="qa-item"><input type="checkbox"> Theme/Language/Mode Applied Consistently from Shared localStorage</label>
+    <label class="qa-item"><input type="checkbox"> Signup/Login Redirects to Dashboard After Success</label>
+    <label class="qa-item"><input type="checkbox"> Side Panel Links to Full-Page Auth for Discoverability</label>
     </div>
   </div>
 
@@ -725,6 +715,7 @@
         <button class="add-task-btn" style="margin-top: 10px;" onclick="submitSignup()" data-i18n="acctSignupBtn">Sign Up</button>
         <div class="acct-note" data-i18n="acctNoBackendNote">This site has no backend or email server — verification uses a code shown directly on screen, not a real email.</div>
       </div>
+      <a href="login.html" class="auth-full-page-link" data-i18n="authOpenFullPage">Open full-page Sign In / Sign Up →</a>
     </div>
     <div id="acctLoggedInBlock" style="display:none;">
       <div class="acct-welcome" id="acctWelcomeText"></div>
