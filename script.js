@@ -738,6 +738,11 @@ function toggleFocusMode() {
   document.body.classList.toggle('focus-mode');
 }
 
+function toggleSidePanelTouch(e) {
+  if (e) e.stopPropagation();
+  document.querySelector('.side-panel').classList.toggle('touch-open');
+}
+
 /* ==========================================
    5. DEV MENU (Draggable)
    ========================================== */
@@ -1044,6 +1049,62 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('scheduleManagerModal').classList.contains('active')) { closeScheduleManager(); return; }
   if (document.getElementById('countdownModal').classList.contains('active')) { closeCountdownModal(); return; }
   if (document.getElementById('countdownManagerModal').classList.contains('active')) { closeCountdownManager(); return; }
+});
+
+/* ==========================================
+   4b. FOCUS TRAP + AUTO-FOCUS FOR MODALS/OVERLAYS (keyboard + TV remote)
+   ========================================== */
+const MODAL_FOCUS_CONFIG = [
+  { sel: '#tutorialOverlay', inner: '#tutorialTooltip' },
+  { sel: '#theaterOverlay', inner: '#theaterWindow' },
+  { sel: '#customDialogModal', inner: '.dialog-content' },
+  { sel: '#taskModal', inner: '.modal-content' },
+  { sel: '#countdownModal', inner: '.modal-content' },
+  { sel: '#timetableModal', inner: '.timetable-container' },
+  { sel: '#scheduleManagerModal', inner: '.timetable-container' },
+  { sel: '#countdownManagerModal', inner: '.timetable-container' }
+];
+function getFocusableElements(container) {
+  return Array.from(container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
+    .filter(el => !el.disabled && el.getClientRects().length > 0);
+}
+function getActiveModalInner() {
+  for (const cfg of MODAL_FOCUS_CONFIG) {
+    const el = document.querySelector(cfg.sel);
+    if (el && el.classList.contains('active')) return el.querySelector(cfg.inner) || el;
+  }
+  return null;
+}
+window.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const container = getActiveModalInner();
+  if (!container) return;
+  const focusables = getFocusableElements(container);
+  if (focusables.length === 0) return;
+  const first = focusables[0], last = focusables[focusables.length - 1];
+  if (!container.contains(document.activeElement)) {
+    e.preventDefault();
+    first.focus();
+  } else if (e.shiftKey && document.activeElement === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && document.activeElement === last) {
+    e.preventDefault();
+    first.focus();
+  }
+});
+MODAL_FOCUS_CONFIG.forEach(cfg => {
+  const el = document.querySelector(cfg.sel);
+  if (!el) return;
+  new MutationObserver(() => {
+    if (el.classList.contains('active')) {
+      setTimeout(() => {
+        const inner = el.querySelector(cfg.inner) || el;
+        const focusables = getFocusableElements(inner);
+        if (focusables.length) focusables[0].focus();
+      }, 60);
+    }
+  }).observe(el, { attributes: true, attributeFilter: ['class'] });
 });
 
 document.querySelectorAll('.widget-header[role="button"]').forEach(header => {
@@ -2654,6 +2715,26 @@ function onPointerUp() {
     updateLiveTimer();
   }
 }
+endHandle.addEventListener('keydown', (e) => {
+  if (isBroken) return;
+  const stepMs = 5 * 60 * 1000;
+  const bigStepMs = 30 * 60 * 1000;
+  let delta = 0;
+  if (e.key === 'ArrowUp' || e.key === 'ArrowRight') delta = e.shiftKey ? bigStepMs : stepMs;
+  else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') delta = e.shiftKey ? -bigStepMs : -stepMs;
+  else return;
+  e.preventDefault();
+  resetIdleTimer();
+  const base = timerDurationMs || 0;
+  timerDurationMs = Math.max(0, Math.min(43200000, base + delta));
+  rawTimerDurationMs = timerDurationMs;
+  originalDurationMs = timerDurationMs;
+  isTimerRunning = timerDurationMs > 0;
+  if (isTimerRunning) timerEndTime = Date.now() + timerDurationMs;
+  endHandle.setAttribute('aria-valuenow', Math.round(timerDurationMs / 60000));
+  endHandle.setAttribute('aria-valuetext', msToClock(timerDurationMs));
+  updateLiveTimer();
+});
 
 /* ==========================================
    13. SPOTIFY API
@@ -4396,6 +4477,11 @@ function exitTheaterMode() {
 }
 
 let theaterDragInit = false;
+function pointerXY(e) {
+  if (e.touches && e.touches[0]) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  if (e.changedTouches && e.changedTouches[0]) return { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+  return { x: e.clientX, y: e.clientY };
+}
 function initTheaterDragResize() {
   if (theaterDragInit) return;
   theaterDragInit = true;
@@ -4403,28 +4489,37 @@ function initTheaterDragResize() {
   const header = document.getElementById('theaterHeader');
   const handle = document.getElementById('theaterResizeHandle');
   let dragging = false, dragStartX = 0, dragStartY = 0, winStartX = 0, winStartY = 0;
-  header.addEventListener('mousedown', (e) => {
+  const startDrag = (e) => {
     if (theaterLayoutMode !== 'floating') return;
     dragging = true;
-    dragStartX = e.clientX; dragStartY = e.clientY;
+    const p = pointerXY(e);
+    dragStartX = p.x; dragStartY = p.y;
     const rect = win.getBoundingClientRect();
     winStartX = rect.left; winStartY = rect.top;
     e.preventDefault();
-  });
-  window.addEventListener('mousemove', (e) => {
+  };
+  const moveDrag = (e) => {
     if (!dragging) return;
-    const dx = e.clientX - dragStartX, dy = e.clientY - dragStartY;
+    const p = pointerXY(e);
+    const dx = p.x - dragStartX, dy = p.y - dragStartY;
     win.style.left = (winStartX + dx) + 'px';
     win.style.top = (winStartY + dy) + 'px';
     win.style.right = 'auto';
-  });
-  window.addEventListener('mouseup', () => { dragging = false; });
+  };
+  const endDrag = () => { dragging = false; };
+  header.addEventListener('mousedown', startDrag);
+  header.addEventListener('touchstart', startDrag, { passive: false });
+  window.addEventListener('mousemove', moveDrag);
+  window.addEventListener('touchmove', moveDrag, { passive: false });
+  window.addEventListener('mouseup', endDrag);
+  window.addEventListener('touchend', endDrag);
 
   let resizing = false, resizeStartX = 0, resizeStartY = 0, startW = 0, startH = 0;
-  handle.addEventListener('mousedown', (e) => {
+  const startResize = (e) => {
     if (theaterLayoutMode !== 'floating') return;
     resizing = true;
-    resizeStartX = e.clientX; resizeStartY = e.clientY;
+    const p = pointerXY(e);
+    resizeStartX = p.x; resizeStartY = p.y;
     const rect = win.getBoundingClientRect();
     startW = rect.width; startH = rect.height;
     win.style.left = rect.left + 'px';
@@ -4432,13 +4527,20 @@ function initTheaterDragResize() {
     win.style.right = 'auto';
     e.preventDefault();
     e.stopPropagation();
-  });
-  window.addEventListener('mousemove', (e) => {
+  };
+  const moveResize = (e) => {
     if (!resizing) return;
-    win.style.width = Math.max(200, startW + (e.clientX - resizeStartX)) + 'px';
-    win.style.height = Math.max(120, startH + (e.clientY - resizeStartY)) + 'px';
-  });
-  window.addEventListener('mouseup', () => { resizing = false; });
+    const p = pointerXY(e);
+    win.style.width = Math.max(200, startW + (p.x - resizeStartX)) + 'px';
+    win.style.height = Math.max(120, startH + (p.y - resizeStartY)) + 'px';
+  };
+  const endResize = () => { resizing = false; };
+  handle.addEventListener('mousedown', startResize);
+  handle.addEventListener('touchstart', startResize, { passive: false });
+  window.addEventListener('mousemove', moveResize);
+  window.addEventListener('touchmove', moveResize, { passive: false });
+  window.addEventListener('mouseup', endResize);
+  window.addEventListener('touchend', endResize);
 }
 
 /* ==========================================
@@ -4593,6 +4695,24 @@ document.querySelectorAll('.color-swatch').forEach(el => {
   el.setAttribute('tabindex', '0');
   el.setAttribute('aria-label', `Color ${hex}`);
   el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } });
+});
+document.querySelectorAll('.sp-art-dot').forEach(el => {
+  el.setAttribute('role', 'button');
+  el.setAttribute('tabindex', '0');
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } });
+});
+document.querySelectorAll('.slider-container').forEach(el => {
+  el.setAttribute('role', 'button');
+  el.setAttribute('tabindex', '0');
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); } });
+});
+document.querySelectorAll('.widget-card.clickable').forEach(el => {
+  el.setAttribute('role', 'button');
+  el.setAttribute('tabindex', '0');
+  el.addEventListener('keydown', (e) => {
+    if (e.target !== el) return;
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+  });
 });
 
 const arcStyleBtn = document.querySelector(`#arcStyleGrid .clock-toggle-btn[onclick*="'${arcStyleMode}'"]`);

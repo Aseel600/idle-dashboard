@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.4)</title>
+  <title>Ambient OS | Dashboard (V7.5)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.4</span>
+      <span class="dev-version">v7.5</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,13 +130,15 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.4 AUTO-DETECT LAYOUT + DESIGN/BUG SCAN</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.5 TOUCH + TV REMOTE CONTROLS</div>
 
-    <label class="qa-item"><input type="checkbox"> Screen Layout Auto-Detects (TV UA sniff, iPad-as-Mac touch check, mobile/tablet width+pointer heuristics)</label>
-    <label class="qa-item"><input type="checkbox"> "Re-run auto-detect" Link Added Next to the Manual Layout Picker</label>
-    <label class="qa-item"><input type="checkbox"> BUG: TV Mode No Longer Misfires on Any Large Desktop Monitor (Removed Width-Only TV Fallback)</label>
-    <label class="qa-item"><input type="checkbox"> BUG: TV Mode's Always-Open Side Panel No Longer Overlaps the Clock (Replaced Buggy `zoom` Scaling With Root font-size)</label>
-    <label class="qa-item"><input type="checkbox"> BUG: Dual-Track Live Marker/Progress Arc No Longer Blocks Hover Tooltips on Task Arcs Underneath</label>
+    <label class="qa-item"><input type="checkbox"> Side Panel Opens on Focus/Tap, Not Just Mouse Hover (Broke for Touch + Keyboard/Remote)</label>
+    <label class="qa-item"><input type="checkbox"> Theater Mode Drag/Resize Now Supports Touch (Was Mouse-Only)</label>
+    <label class="qa-item"><input type="checkbox"> Theater Close/Resize Touch Targets Enlarged</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Volume Slider Reachable on Touch Devices (Was Hover-Only, Permanently Hidden on Touch)</label>
+    <label class="qa-item"><input type="checkbox"> Main Clock Timer Dial Now Has Full Keyboard/Remote Control (Arrow Keys, Shift for Big Steps)</label>
+    <label class="qa-item"><input type="checkbox"> Generic Focus-Trap + Auto-Focus Added to Every Modal/Overlay (Tab Cycles Within, Doesn't Escape)</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Art-Mode Dots, Language/Mode Sliders, Clickable Widget-Cards Now Keyboard-Focusable</label>
     </div>
   </div>
 
@@ -684,7 +686,7 @@
   <div class="dev-toggle" onclick="toggleDevMenu()" title="Toggle QA Dev Menu" data-i18n-title="toggleDevMenu" role="button" tabindex="0" aria-label="Toggle QA Dev Menu" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleDevMenu();}"><svg class="icon-svg"><use href="#icon-gear"></use></svg></div>
 
   <div class="side-panel" id="sidePanel">
-    <div class="panel-tab">‹</div>
+    <div class="panel-tab" onclick="toggleSidePanelTouch(event)" role="button" tabindex="0" aria-label="Toggle settings panel" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSidePanelTouch(event);}">‹</div>
 
     <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="accountTitle">Account</div>
     <div class="acct-not-real-badge" data-i18n="acctDisabledNotice">Sign in is temporarily disabled while a real backend is being set up.</div>
@@ -992,7 +994,7 @@
       <circle id="startHandle" class="timer-ui-element playhead" cx="200" cy="40" r="6" fill="transparent" stroke="#ffffff" stroke-width="3" />
       <path id="dragString" class="timer-ui-element drag-string" d="" fill="none" stroke="rgba(200, 200, 200, 0.6)" stroke-width="2.5" stroke-linecap="round" />
       <line id="ballTrail" class="timer-ui-element ball-trail" stroke="url(#dynamicGrad)" stroke-width="6" stroke-linecap="round" x1="0" y1="0" x2="0" y2="0" />
-      <circle id="endHandle" class="timer-ui-element handle snap-back" cx="200" cy="40" r="8" fill="#ffffff" />
+      <circle id="endHandle" class="timer-ui-element handle snap-back" cx="200" cy="40" r="8" fill="#ffffff" tabindex="0" role="slider" aria-label="Quick timer duration" aria-valuemin="0" aria-valuemax="720" aria-valuenow="0" />
     </svg>
   </div>
 
