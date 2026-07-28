@@ -24,8 +24,9 @@ const T = {
     acctVerifyFailed: "Verification code did not match. Signup cancelled.",
     authRedirecting: "Success! For your security your password isn't carried across pages — redirecting you to the dashboard, where you'll log in once more to unlock your profile.",
     authTagline: "Sign in to sync birthdays, routines, and settings to your profile",
-    authBackToDashboard: "← Continue without signing in",
-    acctLocalOnlyBadge: "Local device only — no server, no real email sent"
+    authBackToDashboard: "← Back to dashboard",
+    acctLocalOnlyBadge: "Local device only — no server, no real email sent",
+    acctDisabledNotice: "Sign in is temporarily disabled while a real backend is being set up."
   },
   ar: {
     acctLogin: "تسجيل الدخول", acctSignup: "إنشاء حساب", acctName: "الاسم", acctEmail: "البريد الإلكتروني",
@@ -44,8 +45,9 @@ const T = {
     acctVerifyFailed: "رمز التحقق غير مطابق. تم إلغاء إنشاء الحساب.",
     authRedirecting: "تم بنجاح! لأمانك، لا يتم نقل كلمة مرورك بين الصفحات — سيتم تحويلك إلى لوحة التحكم حيث تسجل الدخول مرة أخرى لفتح ملفك الشخصي.",
     authTagline: "سجّل الدخول لمزامنة أعياد الميلاد والروتين والإعدادات مع ملفك الشخصي",
-    authBackToDashboard: "← المتابعة بدون تسجيل الدخول",
-    acctLocalOnlyBadge: "على هذا الجهاز فقط — لا يوجد خادم، ولا يُرسل بريد إلكتروني حقيقي"
+    authBackToDashboard: "← العودة إلى لوحة التحكم",
+    acctLocalOnlyBadge: "على هذا الجهاز فقط — لا يوجد خادم، ولا يُرسل بريد إلكتروني حقيقي",
+    acctDisabledNotice: "تسجيل الدخول معطل مؤقتًا أثناء إعداد خادم حقيقي."
   }
 };
 const lang = localStorage.getItem('idleLang') || 'en';

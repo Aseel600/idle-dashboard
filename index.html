@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.2)</title>
+  <title>Ambient OS | Dashboard (V7.3)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.2</span>
+      <span class="dev-version">v7.3</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,12 +130,12 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.2 BUG SEARCH PASS</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.3 DUAL-TRACK REDESIGN + LOGIN PAUSED</div>
 
-    <label class="qa-item"><input type="checkbox"> BUG: Theater Mode Resize Now Anchors to the Corner You're Dragging (Was Growing Leftward if You Never Dragged First)</label>
-    <label class="qa-item"><input type="checkbox"> BUG: Birthday Auto-Event No Longer Persists After Logout (Was a Privacy/Consistency Leak)</label>
-    <label class="qa-item"><input type="checkbox"> BUG: Signup/Login Forms Guarded Against Double-Submit Race (Both index.html and login.html)</label>
-    <label class="qa-item"><input type="checkbox"> Verified No Duplicate Function/Variable Declarations Across script.js</label>
+    <label class="qa-item"><input type="checkbox"> Sign In / Sign Up Disabled Site-Wide (Side Panel + login.html) Pending Real Backend</label>
+    <label class="qa-item"><input type="checkbox"> Dual-Track Rings Redesigned: Dotted "Track" Guides Instead of Static Sun/Moon Badges</label>
+    <label class="qa-item"><input type="checkbox"> Dual-Track: Glowing Live Marker Orbits the Correct Ring in Real Time, Swaps Sun/Moon Icon at Noon</label>
+    <label class="qa-item"><input type="checkbox"> Dual-Track: Active Task Now Shows a Glowing Progress Arc From Its Start to "Now" in the Task's Own Color</label>
     </div>
   </div>
 
@@ -686,7 +686,8 @@
     <div class="panel-tab">‹</div>
 
     <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="accountTitle">Account</div>
-    <div class="acct-not-real-badge" data-i18n="acctLocalOnlyBadge">Local device only — no server, no real email sent</div>
+    <div class="acct-not-real-badge" data-i18n="acctDisabledNotice">Sign in is temporarily disabled while a real backend is being set up.</div>
+    <div id="acctDisabledWrapper" style="display:none;">
     <div id="acctLoggedOutBlock">
       <div class="acct-tabs">
         <button class="acct-tab-btn active" id="acctTabLoginBtn" onclick="setAccountTab('login')" data-i18n="acctLogin">Log In</button>
@@ -730,6 +731,7 @@
       <input type="date" class="date-input" id="profileDob" />
       <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="saveAccountProfile()" data-i18n="acctSaveProfile">Save Profile</button>
       <button class="add-task-btn secondary" style="margin-top: 10px; border-color:#ff4757; color:#ff4757;" onclick="logoutAccount()" data-i18n="acctLogoutBtn">Log Out</button>
+    </div>
     </div>
 
     <hr class="panel-divider">
@@ -950,6 +952,12 @@
 
       <circle cx="200" cy="200" r="170" class="clock-bg" stroke-width="4" />
       <g id="scheduleArcsGroup"></g>
+      <path id="dualTrackActiveProgress" fill="none" stroke-width="4" stroke-linecap="round" style="opacity:0;" />
+      <g id="dualTrackLiveMarker" style="opacity:0; transition: opacity 0.3s ease;">
+        <circle id="dtMarkerGlow" cx="200" cy="200" r="13" fill="currentColor" opacity="0.35" style="filter: blur(3px);" />
+        <circle id="dtMarkerCore" cx="200" cy="200" r="7" fill="var(--bg-color-panel)" stroke="currentColor" stroke-width="2.5" />
+        <use id="dtMarkerIcon" href="#icon-sun" x="196" y="196" width="8" height="8" color="currentColor" />
+      </g>
       <circle cx="200" cy="200" r="154" class="clock-inner" />
       
       <g id="ticks"></g>

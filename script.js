@@ -205,6 +205,7 @@ const translations = {
     acctProfileSaved: "Profile saved.",
     acctLoginRequired: "Please log in first.",
     authOpenFullPage: "Open full-page Sign In / Sign Up →",
+    acctDisabledNotice: "Sign in is temporarily disabled while a real backend is being set up.",
     theaterMode: "Theater Mode",
     theaterLocalFile: "Local File",
     theaterFromUrl: "From URL",
@@ -425,6 +426,7 @@ const translations = {
     acctProfileSaved: "تم حفظ الملف الشخصي.",
     acctLoginRequired: "الرجاء تسجيل الدخول أولاً.",
     authOpenFullPage: "فتح صفحة تسجيل الدخول / إنشاء حساب كاملة ←",
+    acctDisabledNotice: "تسجيل الدخول معطل مؤقتًا أثناء إعداد خادم حقيقي.",
     theaterMode: "وضع السينما",
     theaterLocalFile: "ملف محلي",
     theaterFromUrl: "من رابط",
@@ -1437,7 +1439,9 @@ function renderTaskArcs() {
     amRing.setAttribute("fill", "none");
     amRing.setAttribute("stroke", DUAL_TRACK_AM_COLOR);
     amRing.setAttribute("stroke-width", "2");
-    amRing.style.opacity = "0.3";
+    amRing.setAttribute("stroke-dasharray", "1 4");
+    amRing.setAttribute("stroke-linecap", "round");
+    amRing.style.opacity = "0.28";
     grp.appendChild(amRing);
 
     const pmRing = document.createElementNS(svgNS, "circle");
@@ -1445,34 +1449,10 @@ function renderTaskArcs() {
     pmRing.setAttribute("fill", "none");
     pmRing.setAttribute("stroke", DUAL_TRACK_PM_COLOR);
     pmRing.setAttribute("stroke-width", "2");
-    pmRing.setAttribute("stroke-dasharray", "1 5");
+    pmRing.setAttribute("stroke-dasharray", "4 5");
     pmRing.setAttribute("stroke-linecap", "round");
-    pmRing.style.opacity = "0.45";
+    pmRing.style.opacity = "0.32";
     grp.appendChild(pmRing);
-
-    const makeBadge = (r, color, iconId, textLabel) => {
-      const pos = polarToCartesian(cx, cy, r, 180);
-      const g = document.createElementNS(svgNS, "g");
-      g.style.opacity = "0.95";
-      const badge = document.createElementNS(svgNS, "circle");
-      badge.setAttribute("cx", pos.x); badge.setAttribute("cy", pos.y); badge.setAttribute("r", "9");
-      badge.setAttribute("fill", "var(--bg-color-panel)");
-      badge.setAttribute("stroke", color);
-      badge.setAttribute("stroke-width", "1.5");
-      g.appendChild(badge);
-      const iconUse = document.createElementNS(svgNS, "use");
-      iconUse.setAttribute("href", `#${iconId}`);
-      iconUse.setAttribute("x", pos.x - 6); iconUse.setAttribute("y", pos.y - 6);
-      iconUse.setAttribute("width", "12"); iconUse.setAttribute("height", "12");
-      iconUse.setAttribute("color", color);
-      g.appendChild(iconUse);
-      const title = document.createElementNS(svgNS, "title");
-      title.textContent = textLabel;
-      g.appendChild(title);
-      grp.appendChild(g);
-    };
-    makeBadge(amR, DUAL_TRACK_AM_COLOR, "icon-sun", lang === 'en' ? 'AM ring' : 'حلقة صباحاً');
-    makeBadge(pmR, DUAL_TRACK_PM_COLOR, "icon-moon", lang === 'en' ? 'PM ring' : 'حلقة مساءً');
 
     ['am', 'pm'].forEach(period => {
       const group = todayTasks.filter(x => (period === 'am') === x.isAM);
@@ -2548,8 +2528,52 @@ function updateLiveTimer() {
     endHandle.setAttribute("cy", ePos.y);
     sleepArc.setAttribute("d", describeArc(cx, cy, radius, arcSAng, arcEAng));
     sleepArc.setAttribute("stroke", "url(#dynamicGrad)");
+    updateDualTrackLiveElements(now, nowMins);
   } catch (error) {
     console.warn("Live Timer safely bypassed an error:", error);
+  }
+}
+
+function updateDualTrackLiveElements(now, nowMins) {
+  const marker = document.getElementById('dualTrackLiveMarker');
+  const progressPath = document.getElementById('dualTrackActiveProgress');
+  if (!marker || !progressPath) return;
+  if (arcStyleMode !== 'dualtrack') {
+    marker.style.opacity = '0';
+    progressPath.style.opacity = '0';
+    return;
+  }
+  const nowIsAM = new Date(now).getHours() < 12;
+  const ringR = nowIsAM ? DUAL_TRACK_AM_R : DUAL_TRACK_PM_R;
+  const ringColor = nowIsAM ? DUAL_TRACK_AM_COLOR : DUAL_TRACK_PM_COLOR;
+  const angle = minsToAngle(nowMins);
+  const pos = polarToCartesian(cx, cy, ringR, angle);
+
+  marker.style.opacity = '1';
+  marker.style.color = ringColor;
+  document.getElementById('dtMarkerGlow').setAttribute('cx', pos.x);
+  document.getElementById('dtMarkerGlow').setAttribute('cy', pos.y);
+  document.getElementById('dtMarkerCore').setAttribute('cx', pos.x);
+  document.getElementById('dtMarkerCore').setAttribute('cy', pos.y);
+  const iconEl = document.getElementById('dtMarkerIcon');
+  iconEl.setAttribute('href', nowIsAM ? '#icon-sun' : '#icon-moon');
+  iconEl.setAttribute('x', pos.x - 4);
+  iconEl.setAttribute('y', pos.y - 4);
+
+  if (activeTaskObj && !clockInterruptedByPrayer) {
+    const [sH, sM] = activeTaskObj.start.split(':').map(Number);
+    const startMins = sH * 60 + sM;
+    const taskR = sH < 12 ? DUAL_TRACK_AM_R : DUAL_TRACK_PM_R;
+    const sAng = minsToAngle(startMins);
+    let eAng = angle;
+    if (eAng <= sAng) eAng += 360;
+    const progressColor = activeTaskObj.color || ringColor;
+    progressPath.setAttribute('d', describeArc(cx, cy, taskR, sAng, eAng));
+    progressPath.setAttribute('stroke', progressColor);
+    progressPath.style.opacity = '1';
+    progressPath.style.filter = `drop-shadow(0 0 5px ${progressColor})`;
+  } else {
+    progressPath.style.opacity = '0';
   }
 }
 

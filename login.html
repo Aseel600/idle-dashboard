@@ -22,8 +22,9 @@
   <div class="auth-card">
     <div class="auth-logo">Ambient OS</div>
     <div class="auth-tagline" data-i18n="authTagline">Sign in to sync birthdays, routines, and settings to your profile</div>
-    <div class="acct-not-real-badge" data-i18n="acctLocalOnlyBadge">Local device only — no server, no real email sent</div>
+    <div class="acct-not-real-badge" data-i18n="acctDisabledNotice">Sign in is temporarily disabled while a real backend is being set up.</div>
 
+    <div id="acctDisabledWrapper" style="display:none;">
     <div class="acct-tabs">
       <button class="acct-tab-btn active" id="acctTabLoginBtn" onclick="setAccountTab('login')" data-i18n="acctLogin">Log In</button>
       <button class="acct-tab-btn" id="acctTabSignupBtn" onclick="setAccountTab('signup')" data-i18n="acctSignup">Sign Up</button>
@@ -52,8 +53,9 @@
       <button class="add-task-btn" style="margin-top: 12px;" onclick="submitSignup()" data-i18n="acctSignupBtn">Sign Up</button>
       <div class="acct-note" data-i18n="acctNoBackendNote">This site has no backend or email server — verification uses a code shown directly on screen, not a real email.</div>
     </div>
+    </div>
 
-    <a href="index.html" class="auth-back-link" data-i18n="authBackToDashboard">← Continue without signing in</a>
+    <a href="index.html" class="auth-back-link" data-i18n="authBackToDashboard">← Back to dashboard</a>
   </div>
 
   <div class="modal-overlay" id="customDialogModal">
