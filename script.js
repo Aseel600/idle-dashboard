@@ -225,6 +225,7 @@ const translations = {
     layoutPhone: "Phone",
     layoutTablet: "Tablet",
     layoutTv: "TV",
+    layoutAutoDetect: "↺ Re-run auto-detect",
     tvScanLogin: "Scan to Log In",
     tvStartScan: "Start Camera Scan",
     tvScanNotSupported: "This browser doesn't support barcode scanning.",
@@ -446,6 +447,7 @@ const translations = {
     layoutPhone: "هاتف",
     layoutTablet: "لوحي",
     layoutTv: "تلفاز",
+    layoutAutoDetect: "↺ إعادة الكشف التلقائي",
     tvScanLogin: "مسح لتسجيل الدخول",
     tvStartScan: "بدء مسح الكاميرا",
     tvScanNotSupported: "هذا المتصفح لا يدعم مسح الباركود.",
@@ -4442,8 +4444,32 @@ function initTheaterDragResize() {
 /* ==========================================
    13g. DISPLAY LAYOUT (PC / Phone / Tablet / TV) + TV BARCODE LOGIN
    ========================================== */
+function detectDeviceLayout() {
+  const ua = navigator.userAgent || '';
+  const tvPattern = /SmartTV|SMART-TV|Tizen|WebOS|Web0S|NetCast|HbbTV|GoogleTV|Google TV|AppleTV|CrKey|AFTB|AFTS|AFTT|AFTM|BRAVIA|VIDAA|Roku|POV_TV|OMI\/|VIZIO/i;
+  if (tvPattern.test(ua)) return 'tv';
+
+  const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+  const isCoarsePointer = window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  const isMobileUA = /iPhone|iPod|Mobi|Android.*Mobile/i.test(ua);
+  // Modern iPadOS Safari reports its UA as a plain Mac by default (no "iPad" token) - the
+  // standard workaround is checking for real touch support on a platform that claims to be Mac,
+  // since actual desktop Macs report maxTouchPoints === 0.
+  const isIPadOnMacUA = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+  const isTabletUA = /iPad|Tablet|(?:Android(?!.*Mobile))/i.test(ua) || isIPadOnMacUA;
+  const w = window.innerWidth;
+
+  if (isMobileUA || ((isTouch || isCoarsePointer) && !isTabletUA && w < 760)) return 'phone';
+  if (isTabletUA || ((isTouch || isCoarsePointer) && w >= 760)) return 'tablet';
+  return 'pc';
+}
+function autoDetectDisplayLayout() {
+  localStorage.removeItem('idleDisplayLayout');
+  setDisplayLayout(detectDeviceLayout());
+}
 function setDisplayLayout(mode, btnEl) {
   document.body.dataset.layout = mode;
+  document.documentElement.classList.toggle('tv-scale', mode === 'tv');
   localStorage.setItem('idleDisplayLayout', mode);
   document.querySelectorAll('#layoutPickerGrid .clock-toggle-btn').forEach(b => b.classList.remove('active-lang'));
   if (btnEl) btnEl.classList.add('active-lang');
@@ -4585,7 +4611,7 @@ setLanguage(lang);
 updateWorldClock();
 applyWidgetVisibility();
 renderAccountUI();
-setDisplayLayout(localStorage.getItem('idleDisplayLayout') || 'pc');
+setDisplayLayout(localStorage.getItem('idleDisplayLayout') || detectDeviceLayout());
 setSpotifyArtMode(spotifyArtMode);
 renderCountdownPickers();
 populateCountdownTagFilter();

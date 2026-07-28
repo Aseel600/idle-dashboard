@@ -570,7 +570,12 @@ body[data-layout="tablet"] .left-panel-fade { width: 240px; }
 body[data-layout="tablet"] .container { max-width: 420px; }
 body[data-layout="tablet"] .side-panel { width: 280px; }
 
-body[data-layout="tv"] { zoom: 1.55; }
+/* TV text/spacing scale uses root font-size (rem-based), not the non-standard `zoom` property:
+   zoom caused a confirmed real bug where the always-open side panel and left panel would
+   overlap the clock on common screen sizes, and had inconsistent coordinate-space behavior
+   with getBoundingClientRect. font-size scaling only affects rem/em-sized text and spacing —
+   fixed-pixel panel widths are untouched, so there's nothing for it to make overlap. */
+html.tv-scale { font-size: 19px; }
 body[data-layout="tv"] .side-panel { transform: translateX(0) !important; padding-right: 40px; }
 body[data-layout="tv"] .side-panel .panel-tab { display: none; }
 body[data-layout="tv"] .left-panel { left: 40px; }

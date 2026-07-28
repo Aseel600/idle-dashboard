@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.3)</title>
+  <title>Ambient OS | Dashboard (V7.4)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.3</span>
+      <span class="dev-version">v7.4</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,12 +130,13 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.3 DUAL-TRACK REDESIGN + LOGIN PAUSED</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.4 AUTO-DETECT LAYOUT + DESIGN/BUG SCAN</div>
 
-    <label class="qa-item"><input type="checkbox"> Sign In / Sign Up Disabled Site-Wide (Side Panel + login.html) Pending Real Backend</label>
-    <label class="qa-item"><input type="checkbox"> Dual-Track Rings Redesigned: Dotted "Track" Guides Instead of Static Sun/Moon Badges</label>
-    <label class="qa-item"><input type="checkbox"> Dual-Track: Glowing Live Marker Orbits the Correct Ring in Real Time, Swaps Sun/Moon Icon at Noon</label>
-    <label class="qa-item"><input type="checkbox"> Dual-Track: Active Task Now Shows a Glowing Progress Arc From Its Start to "Now" in the Task's Own Color</label>
+    <label class="qa-item"><input type="checkbox"> Screen Layout Auto-Detects (TV UA sniff, iPad-as-Mac touch check, mobile/tablet width+pointer heuristics)</label>
+    <label class="qa-item"><input type="checkbox"> "Re-run auto-detect" Link Added Next to the Manual Layout Picker</label>
+    <label class="qa-item"><input type="checkbox"> BUG: TV Mode No Longer Misfires on Any Large Desktop Monitor (Removed Width-Only TV Fallback)</label>
+    <label class="qa-item"><input type="checkbox"> BUG: TV Mode's Always-Open Side Panel No Longer Overlaps the Clock (Replaced Buggy `zoom` Scaling With Root font-size)</label>
+    <label class="qa-item"><input type="checkbox"> BUG: Dual-Track Live Marker/Progress Arc No Longer Blocks Hover Tooltips on Task Arcs Underneath</label>
     </div>
   </div>
 
@@ -879,6 +880,7 @@
         <span data-i18n="layoutTv">TV</span>
       </button>
     </div>
+    <a href="#" class="auth-full-page-link" onclick="event.preventDefault(); autoDetectDisplayLayout();" data-i18n="layoutAutoDetect">↺ Re-run auto-detect</a>
     <div id="tvPairBlock">
       <div class="panel-header" style="font-size:0.7rem;" data-i18n="tvScanLogin">Scan to Log In</div>
       <button class="add-task-btn secondary" onclick="startTvBarcodeScan()" data-i18n="tvStartScan">Start Camera Scan</button>
@@ -952,8 +954,8 @@
 
       <circle cx="200" cy="200" r="170" class="clock-bg" stroke-width="4" />
       <g id="scheduleArcsGroup"></g>
-      <path id="dualTrackActiveProgress" fill="none" stroke-width="4" stroke-linecap="round" style="opacity:0;" />
-      <g id="dualTrackLiveMarker" style="opacity:0; transition: opacity 0.3s ease;">
+      <path id="dualTrackActiveProgress" fill="none" stroke-width="4" stroke-linecap="round" style="opacity:0; pointer-events:none;" />
+      <g id="dualTrackLiveMarker" style="opacity:0; transition: opacity 0.3s ease; pointer-events:none;">
         <circle id="dtMarkerGlow" cx="200" cy="200" r="13" fill="currentColor" opacity="0.35" style="filter: blur(3px);" />
         <circle id="dtMarkerCore" cx="200" cy="200" r="7" fill="var(--bg-color-panel)" stroke="currentColor" stroke-width="2.5" />
         <use id="dtMarkerIcon" href="#icon-sun" x="196" y="196" width="8" height="8" color="currentColor" />
