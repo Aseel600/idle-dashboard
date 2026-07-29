@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.5)</title>
+  <title>Ambient OS | Dashboard (V7.6)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.5</span>
+      <span class="dev-version">v7.6</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,15 +130,11 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.5 TOUCH + TV REMOTE CONTROLS</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.6 COUNTDOWN HH:MM:SS</div>
 
-    <label class="qa-item"><input type="checkbox"> Side Panel Opens on Focus/Tap, Not Just Mouse Hover (Broke for Touch + Keyboard/Remote)</label>
-    <label class="qa-item"><input type="checkbox"> Theater Mode Drag/Resize Now Supports Touch (Was Mouse-Only)</label>
-    <label class="qa-item"><input type="checkbox"> Theater Close/Resize Touch Targets Enlarged</label>
-    <label class="qa-item"><input type="checkbox"> Spotify Volume Slider Reachable on Touch Devices (Was Hover-Only, Permanently Hidden on Touch)</label>
-    <label class="qa-item"><input type="checkbox"> Main Clock Timer Dial Now Has Full Keyboard/Remote Control (Arrow Keys, Shift for Big Steps)</label>
-    <label class="qa-item"><input type="checkbox"> Generic Focus-Trap + Auto-Focus Added to Every Modal/Overlay (Tab Cycles Within, Doesn't Escape)</label>
-    <label class="qa-item"><input type="checkbox"> Spotify Art-Mode Dots, Language/Mode Sliders, Clickable Widget-Cards Now Keyboard-Focusable</label>
+    <label class="qa-item"><input type="checkbox"> Countdown Widget Shows a Live-Ticking HH:MM:SS (with Day Prefix) Under the Days Number</label>
+    <label class="qa-item"><input type="checkbox"> Countdown Manager List Rows Show Live HH:MM:SS Too, Updating Every Second While the Manager Is Open</label>
+    <label class="qa-item"><input type="checkbox"> Precise Timer Uses Arabic-Indic Numeral Localization Like the Rest of the App</label>
     </div>
   </div>
 
@@ -668,6 +664,7 @@
     <div class="widget-card clickable wg-boot-hidden" id="wgCountdown" onclick="openCountdownManager()">
       <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgCountdown', event)"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg></span> <span data-i18n="widgetCountdown">Countdown</span><span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span></div>
       <div class="weather-temp" id="cdWidgetDays">--</div>
+      <div class="cd-widget-precise" id="cdWidgetPrecise"></div>
       <div class="weather-sub">
         <span id="cdWidgetTitle">No countdowns yet</span>
         <span id="cdWidgetSub"></span>

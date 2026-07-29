@@ -2460,6 +2460,7 @@ function updateLiveTimer() {
     checkV3Logic();
     checkReminders(new Date(now));
     checkCountdownNotifications(new Date(now));
+    updateCountdownLiveTimers(new Date(now));
     if (spotifyToken) { updateSpotifyProgressDisplay(); updateSpotifyLyricsHighlight(); }
     updateTimelineHUD();
 
@@ -3365,16 +3366,28 @@ async function checkCountdownImportFromURL() {
   } catch (e) { /* malformed or tampered import link, ignore silently */ }
 }
 
+function formatCountdownPrecise(ms) {
+  const totalSec = Math.floor(Math.abs(ms) / 1000);
+  const days = Math.floor(totalSec / 86400);
+  const hours = Math.floor((totalSec % 86400) / 3600).toString().padStart(2, '0');
+  const mins = Math.floor((totalSec % 3600) / 60).toString().padStart(2, '0');
+  const secs = (totalSec % 60).toString().padStart(2, '0');
+  const str = days > 0 ? `${days}d ${hours}:${mins}:${secs}` : `${hours}:${mins}:${secs}`;
+  return toNum(str);
+}
+
 function renderCountdownWidget() {
   const bigNum = document.getElementById('cdWidgetDays');
   if (!bigNum) return;
   const titleEl = document.getElementById('cdWidgetTitle');
   const subEl = document.getElementById('cdWidgetSub');
+  const preciseEl = document.getElementById('cdWidgetPrecise');
   const listEl = document.getElementById('cdWidgetList');
   if (countdownEvents.length === 0) {
     bigNum.textContent = '--';
     titleEl.textContent = translations[lang].noCountdownsYet;
     subEl.textContent = '';
+    if (preciseEl) preciseEl.textContent = '';
     listEl.innerHTML = '';
     return;
   }
@@ -3392,6 +3405,7 @@ function renderCountdownWidget() {
   else if (days < 0) subLabel = Math.abs(days) === 1 ? translations[lang].dayAgoLabel : translations[lang].daysAgo;
   titleEl.innerHTML = `${iconSVG(top.ev.icon)} ${escapeHTML(top.ev.title)}`;
   subEl.textContent = subLabel;
+  if (preciseEl) preciseEl.textContent = formatCountdownPrecise(top.occ.date.getTime() - now.getTime());
 
   listEl.innerHTML = '';
   enriched.slice(0, 8).forEach(({ ev, occ }) => {
@@ -3404,6 +3418,28 @@ function renderCountdownWidget() {
     row.addEventListener('click', (e) => { e.stopPropagation(); openCountdownModal(ev.id); });
     listEl.appendChild(row);
   });
+}
+
+function updateCountdownLiveTimers(now) {
+  if (countdownEvents.length === 0) return;
+  const preciseEl = document.getElementById('cdWidgetPrecise');
+  if (preciseEl) {
+    const enriched = countdownEvents.map(ev => ({ ev, occ: getNextCountdownOccurrence(ev, now) }));
+    enriched.sort((a, b) => {
+      if (!!a.ev.pinned !== !!b.ev.pinned) return a.ev.pinned ? -1 : 1;
+      return Math.abs(a.occ.date - now) - Math.abs(b.occ.date - now);
+    });
+    if (enriched[0]) preciseEl.textContent = formatCountdownPrecise(enriched[0].occ.date.getTime() - now.getTime());
+  }
+  const managerModal = document.getElementById('countdownManagerModal');
+  if (managerModal && managerModal.classList.contains('active')) {
+    document.querySelectorAll('.cd-row-precise').forEach(el => {
+      const ev = countdownEvents.find(e => String(e.id) === el.dataset.cdId);
+      if (!ev) return;
+      const occ = getNextCountdownOccurrence(ev, now);
+      el.textContent = formatCountdownPrecise(occ.date.getTime() - now.getTime());
+    });
+  }
 }
 
 function openCountdownManager() {
@@ -3459,12 +3495,14 @@ function buildCountdownRow(ev, occ, now) {
   }
   if (occ.ended) detail += ` • ${translations[lang].seriesEnded}`;
   const tagsHtml = (ev.tags && ev.tags.length) ? ' ' + ev.tags.map(t => `<span class="cd-tag-chip">${escapeHTML(t)}</span>`).join('') : '';
+  const preciseText = formatCountdownPrecise(occ.date.getTime() - now.getTime());
   row.innerHTML = `
     <input type="checkbox" style="accent-color:var(--accent); flex-shrink:0;" ${selectedCountdownIds.has(ev.id) ? 'checked' : ''}>
     <span class="sm-item-icon">${iconSVG(ev.icon)}</span>
     <div class="sm-item-info">
       <div class="sm-item-name">${ev.pinned ? '📌 ' : ''}${escapeHTML(ev.title)}</div>
       <div class="sm-item-detail">${detail}${tagsHtml}</div>
+      <div class="cd-row-precise" data-cd-id="${ev.id}">${preciseText}</div>
     </div>
     <div class="sm-item-actions">
       <button class="sm-btn" aria-label="Pin">${svgIcon('icon-star')}</button>
