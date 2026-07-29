@@ -63,6 +63,9 @@ const translations = {
     paused: "PAUSED",
     enterCity: "Enter City...",
     displayMode: "Display Mode",
+    quotesToggleLabel: "Ambient Quotes",
+    quotesOn: "On",
+    quotesOff: "Off",
     dark: "Dark",
     light: "Light",
     musicIntegration: "Music (Spotify)",
@@ -157,7 +160,7 @@ const translations = {
     tutClockTitle: "Your Live Clock",
     tutClockBody: "The centerpiece. Drag the glowing dot around the edge to quickly set a countdown or alarm.",
     tutWidgetsTitle: "Widgets Panel",
-    tutWidgetsBody: "Weather, prayer times, world clock, Spotify, and more can live here — but everything starts hidden so your view stays clean.",
+    tutWidgetsBody: "Weather, prayer times, world clock, Spotify, and more can live here — they start OFF by default to keep things clean and empty right now. Next we'll show you how to turn them on.",
     tutPanelTitle: "Settings Panel",
     tutPanelBody: "Hover this edge (or tap it on touch devices) to slide out the settings panel.",
     tutWidgetManagerTitle: "Widget Manager",
@@ -166,6 +169,14 @@ const translations = {
     tutAddTaskBody: "Add one-off tasks, recurring routines, or countdowns to future events — all shown on the clock face and timeline.",
     tutThemeTitle: "Make It Yours",
     tutThemeBody: "Pick an accent color, clock face style, and AM/PM style that fits your taste.",
+    tutCountdownTitle: "Countdowns",
+    tutCountdownBody: "Count down to birthdays, trips, or any future date — Gregorian or Hijri. Pin favorites, add tags, and get notified as the date approaches.",
+    tutLayoutTitle: "Any Screen, Any Device",
+    tutLayoutBody: "The layout adapts for PC, phone, tablet, or TV — auto-detected on first visit, or pick one yourself. TV mode even supports pairing by scanning a QR code with your phone's camera.",
+    tutTheaterTitle: "Theater Mode",
+    tutTheaterBody: "Play a local video file or a URL — floating, landscape, or fullscreen — with the rest of the screen dimmed to your liking.",
+    tutQuotesTitle: "Ambient Quotes",
+    tutQuotesBody: "A new quote appears every 10 minutes at the bottom of the screen. Turn it on or off here anytime.",
     tutTimelineTitle: "24-Hour Timeline",
     tutTimelineBody: "A live strip across the top shows your whole day at a glance.",
     tutZenTitle: "Focus Mode",
@@ -285,6 +296,9 @@ const translations = {
     paused: "متوقف",
     enterCity: "أدخل المدينة...",
     displayMode: "المظهر",
+    quotesToggleLabel: "الاقتباسات المحيطة",
+    quotesOn: "تشغيل",
+    quotesOff: "إيقاف",
     dark: "داكن",
     light: "فاتح",
     musicIntegration: "الموسيقى (Spotify)",
@@ -379,7 +393,7 @@ const translations = {
     tutClockTitle: "ساعتك الحية",
     tutClockBody: "العنصر المركزي. اسحب النقطة المتوهجة حول الحافة لضبط عد تنازلي أو منبه بسرعة.",
     tutWidgetsTitle: "لوحة الأدوات",
-    tutWidgetsBody: "الطقس، أوقات الصلاة، الساعة العالمية، Spotify والمزيد يمكن أن تظهر هنا — لكنها تبدأ مخفية للحفاظ على واجهة نظيفة.",
+    tutWidgetsBody: "الطقس، أوقات الصلاة، الساعة العالمية، Spotify والمزيد يمكن أن تظهر هنا — تبدأ مغلقة افتراضيًا لذا الواجهة فارغة الآن. سنريك بعد قليل كيفية تفعيلها.",
     tutPanelTitle: "لوحة الإعدادات",
     tutPanelBody: "مرر المؤشر فوق هذه الحافة (أو المس على الأجهزة اللمسية) لإظهار لوحة الإعدادات.",
     tutWidgetManagerTitle: "إدارة الأدوات",
@@ -388,6 +402,14 @@ const translations = {
     tutAddTaskBody: "أضف مهام لمرة واحدة، روتينات متكررة، أو عدادات تنازلية لأحداث قادمة — تظهر جميعها على وجه الساعة والجدول الزمني.",
     tutThemeTitle: "اجعلها خاصة بك",
     tutThemeBody: "اختر لون التمييز، نمط وجه الساعة، ونمط AM/PM الذي يناسب ذوقك.",
+    tutCountdownTitle: "العدادات التنازلية",
+    tutCountdownBody: "عدّ تنازليًا لأعياد الميلاد أو الرحلات أو أي تاريخ مستقبلي — ميلادي أو هجري. ثبّت المفضلة، أضف وسومًا، واحصل على تنبيه عند اقتراب الموعد.",
+    tutLayoutTitle: "أي شاشة، أي جهاز",
+    tutLayoutBody: "يتكيف التخطيط مع الكمبيوتر أو الهاتف أو الجهاز اللوحي أو التلفاز — يُكتشف تلقائيًا عند أول زيارة، أو اختره بنفسك. وضع التلفاز يدعم حتى الاقتران عبر مسح رمز QR بكاميرا هاتفك.",
+    tutTheaterTitle: "وضع السينما",
+    tutTheaterBody: "شغّل ملف فيديو محلي أو رابطًا — عائمًا أو أفقيًا أو ملء الشاشة — مع تعتيم بقية الشاشة حسب رغبتك.",
+    tutQuotesTitle: "الاقتباسات المحيطة",
+    tutQuotesBody: "يظهر اقتباس جديد كل 10 دقائق أسفل الشاشة. فعّله أو أوقفه من هنا في أي وقت.",
     tutTimelineTitle: "الجدول الزمني على مدار 24 ساعة",
     tutTimelineBody: "شريط حي أعلى الشاشة يعرض يومك بالكامل بنظرة واحدة.",
     tutZenTitle: "وضع التركيز",
@@ -3623,8 +3645,12 @@ const TUTORIAL_STEPS = [
   { target: '.left-panel', placement: 'right', titleKey: 'tutWidgetsTitle', bodyKey: 'tutWidgetsBody' },
   { target: '.panel-tab', placement: 'left', titleKey: 'tutPanelTitle', bodyKey: 'tutPanelBody' },
   { target: '#widgetTogglesGrid', placement: 'left', titleKey: 'tutWidgetManagerTitle', bodyKey: 'tutWidgetManagerBody', forcePanel: true },
+  { target: '#addCountdownBtn', placement: 'left', titleKey: 'tutCountdownTitle', bodyKey: 'tutCountdownBody', forcePanel: true },
   { target: '#addTaskBtn', placement: 'left', titleKey: 'tutAddTaskTitle', bodyKey: 'tutAddTaskBody', forcePanel: true },
   { target: '#themeGrid', placement: 'left', titleKey: 'tutThemeTitle', bodyKey: 'tutThemeBody', forcePanel: true },
+  { target: '#layoutPickerGrid', placement: 'left', titleKey: 'tutLayoutTitle', bodyKey: 'tutLayoutBody', forcePanel: true },
+  { target: '#theaterEnterBtn', placement: 'left', titleKey: 'tutTheaterTitle', bodyKey: 'tutTheaterBody', forcePanel: true },
+  { target: '#quoteSliderContainer', placement: 'left', titleKey: 'tutQuotesTitle', bodyKey: 'tutQuotesBody', forcePanel: true },
   { target: '#timelineContainer', placement: 'bottom', titleKey: 'tutTimelineTitle', bodyKey: 'tutTimelineBody' },
   { target: '.zen-toggle', placement: 'left', titleKey: 'tutZenTitle', bodyKey: 'tutZenBody' },
   { target: null, titleKey: 'tutFinishTitle', bodyKey: 'tutFinishBody' }
@@ -4147,14 +4173,27 @@ function showRandomQuote() {
 function toggleQuoteRotation() {
   quoteRotationActive = !quoteRotationActive;
   localStorage.setItem('quoteRotationActive', quoteRotationActive ? '1' : '0');
-  const btn = document.getElementById('quoteToggleBtn');
-  if (btn) btn.innerHTML = svgIcon(quoteRotationActive ? 'icon-pause' : 'icon-play');
+  syncQuoteToggleUI();
+  const bar = document.getElementById('quoteBar');
   if (quoteRotationActive) {
+    if (bar) bar.style.display = '';
     showRandomQuote();
     startQuoteRotation();
-  } else if (quoteIntervalId) {
-    clearInterval(quoteIntervalId);
-    quoteIntervalId = null;
+  } else {
+    if (quoteIntervalId) { clearInterval(quoteIntervalId); quoteIntervalId = null; }
+    if (bar) bar.style.display = 'none';
+  }
+}
+function syncQuoteToggleUI() {
+  const btn = document.getElementById('quoteToggleBtn');
+  if (btn) btn.innerHTML = svgIcon(quoteRotationActive ? 'icon-pause' : 'icon-play');
+  const sliderBg = document.getElementById('quoteSliderBg');
+  const onOpt = document.getElementById('quoteOnOpt');
+  const offOpt = document.getElementById('quoteOffOpt');
+  if (sliderBg && onOpt && offOpt) {
+    sliderBg.classList.toggle('slide-second', !quoteRotationActive);
+    onOpt.classList.toggle('active', quoteRotationActive);
+    offOpt.classList.toggle('active', !quoteRotationActive);
   }
 }
 function startQuoteRotation() {
@@ -4776,9 +4815,9 @@ populateCountdownTagFilter();
 renderCountdownWidget();
 checkCountdownImportFromURL();
 setTimeout(() => startTutorial(false), 1000);
-document.getElementById('quoteToggleBtn').innerHTML = svgIcon(quoteRotationActive ? 'icon-pause' : 'icon-play');
+syncQuoteToggleUI();
 if (quoteRotationActive) { showRandomQuote(); startQuoteRotation(); }
-else document.getElementById('quoteBarText').textContent = getRandomQuote();
+else document.getElementById('quoteBar').style.display = 'none';
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);

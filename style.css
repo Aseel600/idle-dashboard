@@ -107,6 +107,8 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .widget-header { font-size: 0.75rem; font-weight: bold; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
 .weather-temp { font-size: 2rem; font-weight: bold; color: var(--text-primary); }
 .weather-sub { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary); }
+#cdWidgetTitle { display: inline-flex; align-items: center; gap: 6px; min-width: 0; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#cdWidgetSub { flex-shrink: 0; margin-left: 8px; }
 .prayer-live-time { font-size: 1.5rem; font-weight: bold; color: var(--accent); }
 .world-clock-time { font-size: 1.8rem; font-weight: bold; color: var(--text-primary); letter-spacing: 1px; margin-top: 5px; }
 

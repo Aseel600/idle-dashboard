@@ -6,7 +6,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.6)</title>
+  <title>Ambient OS | Dashboard (V7.7)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +118,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.6</span>
+      <span class="dev-version">v7.7</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,11 +130,14 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.6 COUNTDOWN HH:MM:SS</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.7 COUNTDOWN LAYOUT FIX + TUTORIAL REDO + QUOTES SWITCH</div>
 
-    <label class="qa-item"><input type="checkbox"> Countdown Widget Shows a Live-Ticking HH:MM:SS (with Day Prefix) Under the Days Number</label>
-    <label class="qa-item"><input type="checkbox"> Countdown Manager List Rows Show Live HH:MM:SS Too, Updating Every Second While the Manager Is Open</label>
-    <label class="qa-item"><input type="checkbox"> Precise Timer Uses Arabic-Indic Numeral Localization Like the Rest of the App</label>
+    <label class="qa-item"><input type="checkbox"> BUG: Countdown Widget Title Row Now Uses Robust Ellipsis Truncation Instead of Overflow Clipping</label>
+    <label class="qa-item"><input type="checkbox"> Tutorial "Widgets" Step Rephrased to Explain They're Off by Default (Was Pointing at an Empty Panel)</label>
+    <label class="qa-item"><input type="checkbox"> Tutorial Adds 4 New Steps: Countdowns, Screen Layout, Theater Mode, Ambient Quotes</label>
+    <label class="qa-item"><input type="checkbox"> All 14 Tutorial Steps Verified to Resolve to Real Targets End-to-End</label>
+    <label class="qa-item"><input type="checkbox"> Ambient Quotes On/Off Switch Added to Right Panel (Matches Language/Display Mode Slider Style)</label>
+    <label class="qa-item"><input type="checkbox"> Quote Bar Now Fully Hides When Toggled Off Instead of Sitting Empty</label>
     </div>
   </div>
 
@@ -738,7 +741,7 @@
 
     <div class="panel-header" data-i18n="tasksGoals">Tasks & Goals</div>
     <button class="add-task-btn" id="addTaskBtn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
-    <button class="add-task-btn" style="margin-top: 10px;" onclick="openCountdownModal()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="addCountdown">+ Add Countdown</span></button>
+    <button class="add-task-btn" id="addCountdownBtn" style="margin-top: 10px;" onclick="openCountdownModal()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="addCountdown">+ Add Countdown</span></button>
     <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openScheduleManager()"><svg class="icon-svg"><use href="#icon-clipboard-list"></use></svg> <span data-i18n="scheduleManager">Schedule Manager</span></button>
     <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openCountdownManager()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="countdownManager">Countdown Manager</span></button>
 
@@ -858,6 +861,13 @@
       <div id="modeSliderBg" class="slider-bg"></div>
       <div id="modeDarkOpt" class="slider-opt active" data-i18n="dark">Dark</div>
       <div id="modeLightOpt" class="slider-opt" data-i18n="light">Light</div>
+    </div>
+
+    <div class="panel-header" data-i18n="quotesToggleLabel">Ambient Quotes</div>
+    <div class="slider-container" id="quoteSliderContainer" onclick="toggleQuoteRotation()">
+      <div id="quoteSliderBg" class="slider-bg"></div>
+      <div id="quoteOnOpt" class="slider-opt active" data-i18n="quotesOn">On</div>
+      <div id="quoteOffOpt" class="slider-opt" data-i18n="quotesOff">Off</div>
     </div>
 
     <div class="panel-header" data-i18n="screenLayout">Screen Layout</div>
