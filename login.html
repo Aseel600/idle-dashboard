@@ -2,6 +2,15 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
+  <script src="maintenance-config.js"></script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      if (window.MAINTENANCE_MODE === true && params.get('preview') !== '1') {
+        location.replace('maintenance.html');
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Sign in or create an account for Ambient OS." />
   <meta name="theme-color" content="#050505" />

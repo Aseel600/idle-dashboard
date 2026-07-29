@@ -2,11 +2,20 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
+  <script src="maintenance-config.js"></script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      if (window.MAINTENANCE_MODE === true && params.get('preview') !== '1') {
+        location.replace('maintenance.html');
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.7)</title>
+  <title>Ambient OS | Dashboard (V7.8)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -118,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.7</span>
+      <span class="dev-version">v7.8</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -130,13 +139,13 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.7 COUNTDOWN LAYOUT FIX + TUTORIAL REDO + QUOTES SWITCH</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.8 MAINTENANCE MODE</div>
 
-    <label class="qa-item"><input type="checkbox"> BUG: Countdown Widget Title Row Now Uses Robust Ellipsis Truncation Instead of Overflow Clipping</label>
-    <label class="qa-item"><input type="checkbox"> Tutorial "Widgets" Step Rephrased to Explain They're Off by Default (Was Pointing at an Empty Panel)</label>
-    <label class="qa-item"><input type="checkbox"> Tutorial Adds 4 New Steps: Countdowns, Screen Layout, Theater Mode, Ambient Quotes</label>
-    <label class="qa-item"><input type="checkbox"> All 14 Tutorial Steps Verified to Resolve to Real Targets End-to-End</label>
-    <label class="qa-item"><input type="checkbox"> Ambient Quotes On/Off Switch Added to Right Panel (Matches Language/Display Mode Slider Style)</label>
+    <label class="qa-item"><input type="checkbox"> New maintenance.html: Self-Contained, No Dependency on style.css/script.js</label>
+    <label class="qa-item"><input type="checkbox"> maintenance-config.js Single-Flag Toggle - Edit One Line, Push, Live in ~1 Minute</label>
+    <label class="qa-item"><input type="checkbox"> index.html and login.html Both Redirect to Maintenance Page When Flag Is On</label>
+    <label class="qa-item"><input type="checkbox"> ?preview=1 Query Param Bypasses the Redirect for Checking the Real Site During Maintenance</label>
+    <label class="qa-item"><input type="checkbox"> Verified: Off = Loads Normally, On = Redirects, On+preview=1 = Loads Normally, Reverted Flag Before Commit</label>
     <label class="qa-item"><input type="checkbox"> Quote Bar Now Fully Hides When Toggled Off Instead of Sitting Empty</label>
     </div>
   </div>
