@@ -164,7 +164,7 @@ async function submitLoginInner() {
 
 async function finishAuthAndRedirect() {
   await customAlert(T[lang].authRedirecting);
-  window.location.href = 'index.html';
+  window.location.href = '../index.html';
 }
 
 applyAuthPageChrome();

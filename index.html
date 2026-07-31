@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.10)</title>
+  <title>Ambient OS | Dashboard (V7.11)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.10</span>
+      <span class="dev-version">v7.11</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,16 +139,15 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.10 REAL BACKEND (SUPABASE)</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.11 CLEAN LOGIN URL, PANEL CLEANUP, THEATER FIX, 4 WIDGETS</div>
 
-    <label class="qa-item"><input type="checkbox"> Real Supabase Auth (Signup/Login/Logout) Replaces the Old Local-Only PBKDF2/AES Account System</label>
-    <label class="qa-item"><input type="checkbox"> Real Email Confirmation on Signup via Supabase's Built-In Mailer, No More On-Screen Verification Code</label>
-    <label class="qa-item"><input type="checkbox"> Full App Sync: Tasks, Countdowns, Goals, Widgets, Theme, Layout, Chime Choices All Sync to the Cloud Per-Account</label>
-    <label class="qa-item"><input type="checkbox"> Single JSONB user_data Table With Row Level Security Scoped to auth.uid()</label>
-    <label class="qa-item"><input type="checkbox"> Login Pulls Cloud Snapshot and Reloads Once (Guarded Against Reload Loops) So Boot State Reflects Synced Data</label>
-    <label class="qa-item"><input type="checkbox"> Account UI Re-Enabled in Both index.html and login.html, Disabled-Notice Badges Removed</label>
-    <label class="qa-item"><input type="checkbox"> Only the Public/Publishable Key Ships Client-Side; DB Password and Secret Keys Never Committed</label>
-    <label class="qa-item"><input type="checkbox"> New Tutorial Step Added for the Account Section Per the Standing Tutorial-Sync Rule</label>
+    <label class="qa-item"><input type="checkbox"> Login Page Moved to /login (No More .html), Old login.html Removed</label>
+    <label class="qa-item"><input type="checkbox"> Inline Sign In/Up Removed From Side Panel, Now Redirects to /login Instead</label>
+    <label class="qa-item"><input type="checkbox"> Side Panel Reordered Into 5 Logical Groups: Account, Appearance, Layout &amp; Device, Content, Extras</label>
+    <label class="qa-item"><input type="checkbox"> Theater Mode Floating/Landscape/Fullscreen Fixed: Stale Inline Drag/Resize Position No Longer Overrides Layout Switches, Added Off-Screen Bounds Clamping</label>
+    <label class="qa-item"><input type="checkbox"> 4 New Widgets Added: Focus Timer, Habit Streaks, Crypto Ticker, News Feed - Each With Mini/Expanded Views and Its Own Settings</label>
+    <label class="qa-item"><input type="checkbox"> Crypto Ticker via CoinGecko (Keyless) and News Feed via rss2json (Keyless) - No Backend Needed, Live-Tested Against Both APIs</label>
+    <label class="qa-item"><input type="checkbox"> New Pomodoro-Complete Chime Context Added Alongside the Existing 4</label>
     </div>
   </div>
 
@@ -494,6 +493,73 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="pomodoroSettingsModal">
+    <div class="modal-content">
+      <div class="modal-header" data-i18n="pomodoroSettingsTitle">Focus Timer Settings</div>
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="pomWorkMin">Work (minutes)</span>
+        <input type="number" class="title-input" id="pomWorkMinInput" min="1" max="120" style="width:80px;" />
+      </div>
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="pomBreakMin">Break (minutes)</span>
+        <input type="number" class="title-input" id="pomBreakMinInput" min="1" max="60" style="width:80px;" />
+      </div>
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="pomLongBreakMin">Long Break (minutes)</span>
+        <input type="number" class="title-input" id="pomLongBreakMinInput" min="1" max="60" style="width:80px;" />
+      </div>
+      <div class="modal-field-row">
+        <span class="mfr-label" data-i18n="pomSessionsUntilLong">Sessions Until Long Break</span>
+        <input type="number" class="title-input" id="pomSessionsUntilLongInput" min="2" max="12" style="width:80px;" />
+      </div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closePomodoroSettings()" data-i18n="cancel">Cancel</button>
+        <button class="modal-btn save" onclick="savePomodoroSettings()" data-i18n="pomodoroSettingsSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="habitsSettingsModal">
+    <div class="modal-content">
+      <div class="modal-header" data-i18n="habitsSettingsTitle">Manage Habits</div>
+      <div class="modal-field-row" style="gap:8px;">
+        <input type="text" class="title-input" id="newHabitName" placeholder="Habit name (e.g. Read)" data-i18n-placeholder="habitNamePlaceholder" />
+        <button class="add-task-btn" style="margin-top:0; width:70px;" onclick="addHabit()" data-i18n="add">Add</button>
+      </div>
+      <div id="habitsManageList"></div>
+      <div class="modal-btns">
+        <button class="modal-btn save" onclick="closeHabitsSettings()" data-i18n="habitsSettingsDone">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="cryptoSettingsModal">
+    <div class="modal-content">
+      <div class="modal-header" data-i18n="cryptoSettingsTitle">Crypto Ticker Settings</div>
+      <div class="clock-toggle-grid" id="cryptoPresetGrid" style="grid-template-columns: repeat(3, 1fr);"></div>
+      <div class="modal-field-row" style="gap:8px;">
+        <input type="text" class="title-input" id="newCryptoId" placeholder="Other CoinGecko id (e.g. cardano)" data-i18n-placeholder="cryptoIdPlaceholder" />
+        <button class="add-task-btn" style="margin-top:0; width:70px;" onclick="addCustomCryptoCoin()" data-i18n="add">Add</button>
+      </div>
+      <div class="acct-note" data-i18n="cryptoIdNote">Use lowercase CoinGecko coin IDs (e.g. "bitcoin", "binancecoin").</div>
+      <div class="modal-btns">
+        <button class="modal-btn save" onclick="closeCryptoSettings()" data-i18n="cryptoSettingsDone">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="rssSettingsModal">
+    <div class="modal-content">
+      <div class="modal-header" data-i18n="rssSettingsTitle">News Feed Settings</div>
+      <input type="text" class="title-input" id="rssFeedUrlInput" placeholder="https://example.com/rss.xml" data-i18n-placeholder="rssUrlPlaceholder" />
+      <div class="acct-note" data-i18n="rssUrlNote">Paste any public RSS/Atom feed URL. Fetched via a free RSS-to-JSON proxy since most feeds don't allow direct browser access.</div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeRssSettings()" data-i18n="cancel">Cancel</button>
+        <button class="modal-btn save" onclick="saveRssSettings()" data-i18n="rssSettingsSave">Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <div class="tutorial-overlay" id="tutorialOverlay">
@@ -690,6 +756,83 @@
       </div>
     </div>
 
+    <div class="widget-card wg-boot-hidden" id="wgPomodoro">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgPomodoro', event)">
+        <span class="widget-icon"><svg class="icon-svg"><use href="#icon-target"></use></svg></span>
+        <span data-i18n="widgetPomodoro">Focus Timer</span>
+        <button type="button" class="widget-settings-btn" onclick="event.stopPropagation(); openPomodoroSettings();" data-i18n-title="pomodoroSettingsTitle" title="Settings" aria-label="Pomodoro settings"><svg class="icon-svg"><use href="#icon-gear"></use></svg></button>
+        <span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span>
+      </div>
+      <div class="weather-temp" id="pomWidgetTime">25:00</div>
+      <div class="weather-sub">
+        <span id="pomWidgetPhase" data-i18n="pomWork">Work</span>
+        <span id="pomWidgetSessionsToday">0 today</span>
+      </div>
+      <div class="sp-widget-controls" onclick="event.stopPropagation()">
+        <button class="sp-btn play-pause" id="pomStartPauseBtn" onclick="pomodoroToggleStartPause()" aria-label="Start or pause"><svg class="icon-svg"><use href="#icon-play"></use></svg></button>
+        <button class="sp-btn" onclick="pomodoroReset()" aria-label="Reset"><svg class="icon-svg"><use href="#icon-repeat"></use></svg></button>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="pom-history-strip" id="pomHistoryStrip"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card wg-boot-hidden" id="wgHabits">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgHabits', event)">
+        <span class="widget-icon"><svg class="icon-svg"><use href="#icon-clipboard-check"></use></svg></span>
+        <span data-i18n="widgetHabits">Habit Streaks</span>
+        <button type="button" class="widget-settings-btn" onclick="event.stopPropagation(); openHabitsSettings();" data-i18n-title="habitsSettingsTitle" title="Manage Habits" aria-label="Manage habits"><svg class="icon-svg"><use href="#icon-gear"></use></svg></button>
+        <span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span>
+      </div>
+      <div class="weather-temp" id="habitsWidgetDoneCount">0/0</div>
+      <div class="weather-sub">
+        <span id="habitsWidgetStreakLabel" data-i18n="habitsNoStreak">No active streak</span>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="widget-task-list" id="habitsWidgetList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card wg-boot-hidden" id="wgCrypto">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgCrypto', event)">
+        <span class="widget-icon"><svg class="icon-svg"><use href="#icon-trending-up"></use></svg></span>
+        <span data-i18n="widgetCrypto">Crypto Ticker</span>
+        <button type="button" class="widget-settings-btn" onclick="event.stopPropagation(); openCryptoSettings();" data-i18n-title="cryptoSettingsTitle" title="Settings" aria-label="Crypto settings"><svg class="icon-svg"><use href="#icon-gear"></use></svg></button>
+        <span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span>
+      </div>
+      <div class="weather-temp" id="cryptoWidgetTopPrice">$--</div>
+      <div class="weather-sub">
+        <span id="cryptoWidgetTopName">--</span>
+        <span id="cryptoWidgetTopChange" class="crypto-change">--%</span>
+        <span class="widget-stale-badge" id="cryptoStaleBadge" style="display:none;" title="Showing last updated prices">⚠</span>
+      </div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="crypto-list" id="cryptoWidgetList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="widget-card wg-boot-hidden" id="wgRss">
+      <div class="widget-header" tabindex="0" role="button" onclick="toggleWidgetExpand('wgRss', event)">
+        <span class="widget-icon"><svg class="icon-svg"><use href="#icon-message-circle"></use></svg></span>
+        <span data-i18n="widgetRss">News Feed</span>
+        <button type="button" class="widget-settings-btn" onclick="event.stopPropagation(); openRssSettings();" data-i18n-title="rssSettingsTitle" title="Settings" aria-label="News feed settings"><svg class="icon-svg"><use href="#icon-gear"></use></svg></button>
+        <span class="widget-chevron"><svg class="icon-svg"><use href="#icon-chevron-down"></use></svg></span>
+      </div>
+      <div class="rss-mini-eyebrow" id="rssWidgetEyebrow" data-i18n="rssLatest">Latest</div>
+      <div class="rss-mini-headline" id="rssWidgetLatestTitle" data-i18n="rssNoFeed">Add a feed URL to get started.</div>
+      <div class="widget-collapse">
+        <div class="widget-collapse-inner">
+          <div class="widget-task-list" id="rssWidgetList"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <div class="left-panel-fade"></div>
 
@@ -701,33 +844,8 @@
 
     <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="accountTitle">Account</div>
     <div id="acctLoggedOutBlock">
-      <div class="acct-tabs">
-        <button class="acct-tab-btn active" id="acctTabLoginBtn" onclick="setAccountTab('login')" data-i18n="acctLogin">Log In</button>
-        <button class="acct-tab-btn" id="acctTabSignupBtn" onclick="setAccountTab('signup')" data-i18n="acctSignup">Sign Up</button>
-      </div>
-      <div id="acctLoginForm">
-        <input type="email" class="title-input" id="loginEmail" placeholder="Email" data-i18n-placeholder="acctEmail" autocomplete="username" />
-        <input type="password" class="title-input" id="loginPassword" placeholder="Password" data-i18n-placeholder="acctPassword" autocomplete="current-password" style="margin-top:8px;" />
-        <button class="add-task-btn" style="margin-top: 10px;" onclick="submitLogin()" data-i18n="acctLoginBtn">Log In</button>
-      </div>
-      <div id="acctSignupForm" style="display:none;">
-        <input type="text" class="title-input" id="signupName" placeholder="Name" data-i18n-placeholder="acctName" autocomplete="name" />
-        <input type="email" class="title-input" id="signupEmail" placeholder="Email" data-i18n-placeholder="acctEmail" autocomplete="username" style="margin-top:8px;" />
-        <input type="password" class="title-input" id="signupPassword" placeholder="Password" data-i18n-placeholder="acctPassword" autocomplete="new-password" style="margin-top:8px;" />
-        <input type="password" class="title-input" id="signupPasswordConfirm" placeholder="Confirm Password" data-i18n-placeholder="acctConfirmPassword" autocomplete="new-password" style="margin-top:8px;" />
-        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;" data-i18n="acctDobOptional">Date of Birth (optional)</div>
-        <div class="modal-field-row" style="margin-top: 2px;">
-          <span class="mfr-label" data-i18n="acctDobCalendarHijri">Hijri Calendar</span>
-          <label class="ios-toggle">
-            <input type="checkbox" id="signupDobIsHijri">
-            <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
-          </label>
-        </div>
-        <input type="date" class="date-input" id="signupDob" />
-        <button class="add-task-btn" style="margin-top: 10px;" onclick="submitSignup()" data-i18n="acctSignupBtn">Sign Up</button>
-        <div class="acct-note" data-i18n="acctEmailVerifyNote">We'll email you a confirmation link before your account is active.</div>
-      </div>
-      <a href="login.html" class="auth-full-page-link" data-i18n="authOpenFullPage">Open full-page Sign In / Sign Up →</a>
+      <div class="acct-note" data-i18n="acctLoggedOutBlurb">Sign in to sync tasks, countdowns, and settings across your devices.</div>
+      <button class="add-task-btn" style="margin-top: 10px;" onclick="location.href='/login'" data-i18n="acctGoToLogin">Sign In / Sign Up →</button>
     </div>
     <div id="acctLoggedInBlock" style="display:none;">
       <div class="acct-welcome" id="acctWelcomeText"></div>
@@ -746,75 +864,6 @@
     </div>
 
     <hr class="panel-divider">
-
-    <div class="panel-header" data-i18n="tasksGoals">Tasks & Goals</div>
-    <button class="add-task-btn" id="addTaskBtn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
-    <button class="add-task-btn" id="addCountdownBtn" style="margin-top: 10px;" onclick="openCountdownModal()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="addCountdown">+ Add Countdown</span></button>
-    <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openScheduleManager()"><svg class="icon-svg"><use href="#icon-clipboard-list"></use></svg> <span data-i18n="scheduleManager">Schedule Manager</span></button>
-    <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openCountdownManager()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="countdownManager">Countdown Manager</span></button>
-
-    <div class="input-row" style="margin-top: 10px;">
-      <input type="text" class="title-input" id="newGoalName" placeholder="Daily Goal (e.g. Gym)..." data-i18n-placeholder="dailyGoalPlaceholder" />
-      <button class="add-task-btn" style="margin-top:0; width: 60px;" onclick="addDailyGoal()" data-i18n="add">Add</button>
-    </div>
-
-    <hr class="panel-divider">
-
-    <div class="panel-header" data-i18n="widgetManager">Widget Manager</div>
-    <div class="clock-toggle-grid" id="widgetTogglesGrid" style="grid-template-columns: repeat(3, 1fr);">
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgSchedule', this)">
-        <svg class="icon-svg"><use href="#icon-calendar"></use></svg>
-        <span data-i18n="widgetSchedule">Schedule</span>
-      </button>
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgWeather', this)">
-        <svg class="icon-svg"><use href="#icon-cloud"></use></svg>
-        <span data-i18n="widgetWeather">Weather</span>
-      </button>
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgPrayer', this)">
-        <svg class="icon-svg"><use href="#icon-mosque"></use></svg>
-        <span data-i18n="widgetNextPrayer">Prayer</span>
-      </button>
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgWorldClock', this)">
-        <svg class="icon-svg"><use href="#icon-globe"></use></svg>
-        <span data-i18n="widgetWorldClock">World</span>
-      </button>
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgSpotify', this)">
-        <svg class="icon-svg"><use href="#icon-music"></use></svg>
-        <span data-i18n="widgetNowPlaying">Music</span>
-      </button>
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgLinks', this)">
-        <svg class="icon-svg"><use href="#icon-link"></use></svg>
-        <span data-i18n="widgetQuickLinks">Links</span>
-      </button>
-      <button class="clock-toggle-btn active-lang" id="timelineToggleBtn" onclick="toggleTimeline(this)">
-        <svg class="icon-svg"><use href="#icon-activity"></use></svg>
-        <span data-i18n="widgetTimeline">Timeline</span>
-      </button>
-      <button class="clock-toggle-btn" onclick="toggleWidget('wgCountdown', this)">
-        <svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg>
-        <span data-i18n="widgetCountdown">Countdown</span>
-      </button>
-    </div>
-
-    <div class="panel-header" data-i18n="clockCustomization">Clock Customization</div>
-    <div class="clock-toggle-grid">
-      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('clock-face-numbers', this)">
-        <svg class="icon-svg"><use href="#icon-hash"></use></svg>
-        <span data-i18n="numbersLabel">Numbers</span>
-      </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('classicMin', this)">
-        <svg class="icon-svg"><use href="#icon-clock-hand"></use></svg>
-        <span data-i18n="minuteHand">Minute Hand</span>
-      </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('classicHour', this)">
-        <svg class="icon-svg"><use href="#icon-clock-hour-hand"></use></svg>
-        <span data-i18n="hourHand">Hour Hand</span>
-      </button>
-      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('ticks', this)">
-        <svg class="icon-svg"><use href="#icon-tick-marks"></use></svg>
-        <span data-i18n="tickMarks">Tick Marks</span>
-      </button>
-    </div>
 
     <div class="panel-header" data-i18n="accentColor">Ambient Theme</div>
     <div class="theme-grid" id="themeGrid"></div>
@@ -855,13 +904,24 @@
       </button>
     </div>
 
-    <hr class="panel-divider">
-
-    <div class="panel-header" data-i18n="language">Language / اللغة</div>
-    <div class="slider-container" onclick="toggleLang()">
-      <div id="langSliderBg" class="slider-bg"></div>
-      <div id="langEnOpt" class="slider-opt active">English</div>
-      <div id="langArOpt" class="slider-opt">العربية</div>
+    <div class="panel-header" data-i18n="clockCustomization">Clock Customization</div>
+    <div class="clock-toggle-grid">
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('clock-face-numbers', this)">
+        <svg class="icon-svg"><use href="#icon-hash"></use></svg>
+        <span data-i18n="numbersLabel">Numbers</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('classicMin', this)">
+        <svg class="icon-svg"><use href="#icon-clock-hand"></use></svg>
+        <span data-i18n="minuteHand">Minute Hand</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('classicHour', this)">
+        <svg class="icon-svg"><use href="#icon-clock-hour-hand"></use></svg>
+        <span data-i18n="hourHand">Hour Hand</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" onclick="toggleClockElement('ticks', this)">
+        <svg class="icon-svg"><use href="#icon-tick-marks"></use></svg>
+        <span data-i18n="tickMarks">Tick Marks</span>
+      </button>
     </div>
 
     <div class="panel-header" data-i18n="displayMode">Display Mode</div>
@@ -871,11 +931,13 @@
       <div id="modeLightOpt" class="slider-opt" data-i18n="light">Light</div>
     </div>
 
-    <div class="panel-header" data-i18n="quotesToggleLabel">Ambient Quotes</div>
-    <div class="slider-container" id="quoteSliderContainer" onclick="toggleQuoteRotation()">
-      <div id="quoteSliderBg" class="slider-bg"></div>
-      <div id="quoteOnOpt" class="slider-opt active" data-i18n="quotesOn">On</div>
-      <div id="quoteOffOpt" class="slider-opt" data-i18n="quotesOff">Off</div>
+    <hr class="panel-divider">
+
+    <div class="panel-header" data-i18n="language">Language / اللغة</div>
+    <div class="slider-container" onclick="toggleLang()">
+      <div id="langSliderBg" class="slider-bg"></div>
+      <div id="langEnOpt" class="slider-opt active">English</div>
+      <div id="langArOpt" class="slider-opt">العربية</div>
     </div>
 
     <div class="panel-header" data-i18n="screenLayout">Screen Layout</div>
@@ -907,10 +969,82 @@
 
     <div class="panel-header" data-i18n="location">Location</div>
     <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City" data-i18n-placeholder="enterCity" />
-    
+
     <div class="panel-header" data-i18n="displayTitle">Display Title</div>
     <input type="text" class="title-input" id="titleInput" value="System Standby" />
-    
+
+    <hr class="panel-divider">
+
+    <div class="panel-header" data-i18n="tasksGoals">Tasks & Goals</div>
+    <button class="add-task-btn" id="addTaskBtn" style="margin-top: 10px;" onclick="openDefaultTaskModal()" data-i18n="addNewTask">+ Add New Task</button>
+    <button class="add-task-btn" id="addCountdownBtn" style="margin-top: 10px;" onclick="openCountdownModal()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="addCountdown">+ Add Countdown</span></button>
+    <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openScheduleManager()"><svg class="icon-svg"><use href="#icon-clipboard-list"></use></svg> <span data-i18n="scheduleManager">Schedule Manager</span></button>
+    <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="openCountdownManager()"><svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg> <span data-i18n="countdownManager">Countdown Manager</span></button>
+
+    <div class="input-row" style="margin-top: 10px;">
+      <input type="text" class="title-input" id="newGoalName" placeholder="Daily Goal (e.g. Gym)..." data-i18n-placeholder="dailyGoalPlaceholder" />
+      <button class="add-task-btn" style="margin-top:0; width: 60px;" onclick="addDailyGoal()" data-i18n="add">Add</button>
+    </div>
+
+    <div class="panel-header" data-i18n="widgetManager">Widget Manager</div>
+    <div class="clock-toggle-grid" id="widgetTogglesGrid" style="grid-template-columns: repeat(3, 1fr);">
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgSchedule', this)">
+        <svg class="icon-svg"><use href="#icon-calendar"></use></svg>
+        <span data-i18n="widgetSchedule">Schedule</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgWeather', this)">
+        <svg class="icon-svg"><use href="#icon-cloud"></use></svg>
+        <span data-i18n="widgetWeather">Weather</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgPrayer', this)">
+        <svg class="icon-svg"><use href="#icon-mosque"></use></svg>
+        <span data-i18n="widgetNextPrayer">Prayer</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgWorldClock', this)">
+        <svg class="icon-svg"><use href="#icon-globe"></use></svg>
+        <span data-i18n="widgetWorldClock">World</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgSpotify', this)">
+        <svg class="icon-svg"><use href="#icon-music"></use></svg>
+        <span data-i18n="widgetNowPlaying">Music</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgLinks', this)">
+        <svg class="icon-svg"><use href="#icon-link"></use></svg>
+        <span data-i18n="widgetQuickLinks">Links</span>
+      </button>
+      <button class="clock-toggle-btn active-lang" id="timelineToggleBtn" onclick="toggleTimeline(this)">
+        <svg class="icon-svg"><use href="#icon-activity"></use></svg>
+        <span data-i18n="widgetTimeline">Timeline</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgCountdown', this)">
+        <svg class="icon-svg"><use href="#icon-alarm-clock"></use></svg>
+        <span data-i18n="widgetCountdown">Countdown</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgPomodoro', this)">
+        <svg class="icon-svg"><use href="#icon-target"></use></svg>
+        <span data-i18n="widgetPomodoro">Focus Timer</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgHabits', this)">
+        <svg class="icon-svg"><use href="#icon-clipboard-check"></use></svg>
+        <span data-i18n="widgetHabits">Habit Streaks</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgCrypto', this)">
+        <svg class="icon-svg"><use href="#icon-trending-up"></use></svg>
+        <span data-i18n="widgetCrypto">Crypto Ticker</span>
+      </button>
+      <button class="clock-toggle-btn" onclick="toggleWidget('wgRss', this)">
+        <svg class="icon-svg"><use href="#icon-message-circle"></use></svg>
+        <span data-i18n="widgetRss">News Feed</span>
+      </button>
+    </div>
+
+    <div class="panel-header" data-i18n="quotesToggleLabel">Ambient Quotes</div>
+    <div class="slider-container" id="quoteSliderContainer" onclick="toggleQuoteRotation()">
+      <div id="quoteSliderBg" class="slider-bg"></div>
+      <div id="quoteOnOpt" class="slider-opt active" data-i18n="quotesOn">On</div>
+      <div id="quoteOffOpt" class="slider-opt" data-i18n="quotesOff">Off</div>
+    </div>
+
     <div class="panel-header"><span data-i18n="quickTimers">Quick Timers</span></div>
     <div class="quick-grid tight" id="timersGrid"></div>
 
@@ -943,6 +1077,15 @@
         <svg class="icon-svg"><use href="#icon-play"></use></svg>
       </button>
     </div>
+    <div class="chime-select-row">
+      <span class="mfr-label" data-i18n="chimePomodoroComplete">Focus Timer</span>
+      <select class="modal-select chime-select" id="chimeSelectPomodoro" onchange="setChimeForContext('pomodoroComplete', this.value)"></select>
+      <button class="chime-preview-btn" onclick="previewChime('chimeSelectPomodoro')" data-i18n-title="chimePreview" title="Preview">
+        <svg class="icon-svg"><use href="#icon-play"></use></svg>
+      </button>
+    </div>
+
+    <hr class="panel-divider">
 
     <div class="panel-header" data-i18n="theaterMode">Theater Mode</div>
     <div class="acct-tabs">

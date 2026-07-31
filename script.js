@@ -138,6 +138,36 @@ const translations = {
     widgetQuickLinks: "Quick Links",
     widgetTimeline: "Timeline",
     widgetCountdown: "Countdown",
+    widgetPomodoro: "Focus Timer",
+    widgetHabits: "Habit Streaks",
+    widgetCrypto: "Crypto Ticker",
+    widgetRss: "News Feed",
+    pomodoroSettingsTitle: "Focus Timer Settings",
+    habitsSettingsTitle: "Manage Habits",
+    cryptoSettingsTitle: "Crypto Ticker Settings",
+    rssSettingsTitle: "News Feed Settings",
+    pomWork: "Work",
+    pomBreak: "Break",
+    pomLongBreak: "Long Break",
+    pomWorkMin: "Work (minutes)",
+    pomBreakMin: "Break (minutes)",
+    pomLongBreakMin: "Long Break (minutes)",
+    pomSessionsUntilLong: "Sessions Until Long Break",
+    pomodoroSettingsSave: "Save",
+    habitsNoStreak: "No active streak",
+    habitNamePlaceholder: "Habit name (e.g. Read)",
+    habitsSettingsDone: "Done",
+    cryptoIdPlaceholder: "Other CoinGecko id (e.g. cardano)",
+    cryptoIdNote: "Use lowercase CoinGecko coin IDs (e.g. \"bitcoin\", \"binancecoin\").",
+    cryptoSettingsDone: "Done",
+    rssLatest: "Latest",
+    rssNoFeed: "Add a feed URL to get started.",
+    rssUrlPlaceholder: "https://example.com/rss.xml",
+    rssUrlNote: "Paste any public RSS/Atom feed URL. Fetched via a free RSS-to-JSON proxy since most feeds don't allow direct browser access.",
+    rssSettingsSave: "Save",
+    chimePomodoroComplete: "Focus Timer",
+    acctLoggedOutBlurb: "Sign in to sync tasks, countdowns, and settings across your devices.",
+    acctGoToLogin: "Sign In / Sign Up →",
     noCountdownsYet: "No countdowns yet",
     countdownManager: "Countdown Manager",
     addCountdown: "+ Add Countdown",
@@ -182,7 +212,7 @@ const translations = {
     tutPanelTitle: "Settings Panel",
     tutPanelBody: "Hover this edge (or tap it on touch devices) to slide out the settings panel.",
     tutWidgetManagerTitle: "Widget Manager",
-    tutWidgetManagerBody: "Toggle any widget on or off here. Your choices are saved automatically.",
+    tutWidgetManagerBody: "Toggle any widget on or off here, including Focus Timer, Habit Streaks, Crypto Ticker, and News Feed - each has its own settings gear icon once turned on. Your choices are saved automatically.",
     tutAddTaskTitle: "Tasks, Routines & Countdowns",
     tutAddTaskBody: "Add one-off tasks, recurring routines, or countdowns to future events — all shown on the clock face and timeline.",
     tutThemeTitle: "Make It Yours",
@@ -209,28 +239,13 @@ const translations = {
     tutBack: "Back",
     tutFinish: "Finish",
     accountTitle: "Account",
-    acctLogin: "Log In",
-    acctSignup: "Sign Up",
-    acctName: "Name",
-    acctEmail: "Email",
-    acctPassword: "Password",
-    acctConfirmPassword: "Confirm Password",
     acctDobOptional: "Date of Birth (optional)",
     acctDobCalendarHijri: "Hijri Calendar",
-    acctLoginBtn: "Log In",
-    acctSignupBtn: "Sign Up",
     acctLogoutBtn: "Log Out",
     acctSaveProfile: "Save Profile",
-    acctEmailVerifyNote: "We'll email you a confirmation link before your account is active.",
-    acctFillRequired: "Please fill in all required fields.",
-    acctPasswordMismatch: "Passwords do not match.",
-    acctPasswordTooShort: "Password must be at least 6 characters.",
-    acctCheckEmail: "Account created! Check your email to confirm it, then log in.",
-    acctSignupSuccess: "Account created! Logging you in...",
     acctWelcomeText: "Welcome, {name}",
     acctProfileSaved: "Profile saved.",
     acctLoginRequired: "Please log in first.",
-    authOpenFullPage: "Open full-page Sign In / Sign Up →",
     theaterMode: "Theater Mode",
     theaterLocalFile: "Local File",
     theaterFromUrl: "From URL",
@@ -385,6 +400,36 @@ const translations = {
     widgetQuickLinks: "روابط سريعة",
     widgetTimeline: "الجدول الزمني",
     widgetCountdown: "العد التنازلي",
+    widgetPomodoro: "مؤقت التركيز",
+    widgetHabits: "سلاسل العادات",
+    widgetCrypto: "أسعار العملات الرقمية",
+    widgetRss: "الأخبار",
+    pomodoroSettingsTitle: "إعدادات مؤقت التركيز",
+    habitsSettingsTitle: "إدارة العادات",
+    cryptoSettingsTitle: "إعدادات أسعار العملات الرقمية",
+    rssSettingsTitle: "إعدادات الأخبار",
+    pomWork: "عمل",
+    pomBreak: "استراحة",
+    pomLongBreak: "استراحة طويلة",
+    pomWorkMin: "مدة العمل (دقائق)",
+    pomBreakMin: "مدة الاستراحة (دقائق)",
+    pomLongBreakMin: "مدة الاستراحة الطويلة (دقائق)",
+    pomSessionsUntilLong: "عدد الجلسات قبل الاستراحة الطويلة",
+    pomodoroSettingsSave: "حفظ",
+    habitsNoStreak: "لا توجد سلسلة نشطة",
+    habitNamePlaceholder: "اسم العادة (مثال: قراءة)",
+    habitsSettingsDone: "تم",
+    cryptoIdPlaceholder: "معرّف آخر من CoinGecko (مثال: cardano)",
+    cryptoIdNote: "استخدم معرّفات عملات CoinGecko بأحرف صغيرة (مثال: \"bitcoin\"، \"binancecoin\").",
+    cryptoSettingsDone: "تم",
+    rssLatest: "الأحدث",
+    rssNoFeed: "أضف رابط خلاصة أخبار للبدء.",
+    rssUrlPlaceholder: "https://example.com/rss.xml",
+    rssUrlNote: "الصق رابط أي خلاصة RSS/Atom عامة. يتم جلبها عبر خدمة وسيطة مجانية لأن معظم الخلاصات لا تسمح بالوصول المباشر من المتصفح.",
+    rssSettingsSave: "حفظ",
+    chimePomodoroComplete: "مؤقت التركيز",
+    acctLoggedOutBlurb: "سجّل الدخول لمزامنة المهام والعدّادات والإعدادات عبر أجهزتك.",
+    acctGoToLogin: "تسجيل الدخول / إنشاء حساب ←",
     noCountdownsYet: "لا توجد عدادات بعد",
     countdownManager: "مدير العد التنازلي",
     addCountdown: "+ إضافة عداد",
@@ -429,7 +474,7 @@ const translations = {
     tutPanelTitle: "لوحة الإعدادات",
     tutPanelBody: "مرر المؤشر فوق هذه الحافة (أو المس على الأجهزة اللمسية) لإظهار لوحة الإعدادات.",
     tutWidgetManagerTitle: "إدارة الأدوات",
-    tutWidgetManagerBody: "فعّل أو أوقف أي أداة من هنا. يتم حفظ اختيارك تلقائيًا.",
+    tutWidgetManagerBody: "فعّل أو أوقف أي أداة من هنا، بما فيها مؤقت التركيز وسلاسل العادات وأسعار العملات الرقمية والأخبار - لكل منها أيقونة إعدادات خاصة بها بعد التفعيل. يتم حفظ اختيارك تلقائيًا.",
     tutAddTaskTitle: "المهام والروتين والعدادات",
     tutAddTaskBody: "أضف مهام لمرة واحدة، روتينات متكررة، أو عدادات تنازلية لأحداث قادمة — تظهر جميعها على وجه الساعة والجدول الزمني.",
     tutThemeTitle: "اجعلها خاصة بك",
@@ -456,28 +501,13 @@ const translations = {
     tutBack: "رجوع",
     tutFinish: "إنهاء",
     accountTitle: "الحساب",
-    acctLogin: "تسجيل الدخول",
-    acctSignup: "إنشاء حساب",
-    acctName: "الاسم",
-    acctEmail: "البريد الإلكتروني",
-    acctPassword: "كلمة المرور",
-    acctConfirmPassword: "تأكيد كلمة المرور",
     acctDobOptional: "تاريخ الميلاد (اختياري)",
     acctDobCalendarHijri: "التقويم الهجري",
-    acctLoginBtn: "تسجيل الدخول",
-    acctSignupBtn: "إنشاء حساب",
     acctLogoutBtn: "تسجيل الخروج",
     acctSaveProfile: "حفظ الملف الشخصي",
-    acctEmailVerifyNote: "سنرسل لك رابط تأكيد عبر البريد الإلكتروني قبل تفعيل حسابك.",
-    acctFillRequired: "الرجاء تعبئة جميع الحقول المطلوبة.",
-    acctPasswordMismatch: "كلمتا المرور غير متطابقتين.",
-    acctPasswordTooShort: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
-    acctCheckEmail: "تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيده، ثم سجّل الدخول.",
-    acctSignupSuccess: "تم إنشاء الحساب! جاري تسجيل الدخول...",
     acctWelcomeText: "مرحبًا، {name}",
     acctProfileSaved: "تم حفظ الملف الشخصي.",
     acctLoginRequired: "الرجاء تسجيل الدخول أولاً.",
-    authOpenFullPage: "فتح صفحة تسجيل الدخول / إنشاء حساب كاملة ←",
     theaterMode: "وضع السينما",
     theaterLocalFile: "ملف محلي",
     theaterFromUrl: "من رابط",
@@ -824,7 +854,7 @@ function previewChime(selectId) {
 }
 
 function populateChimeSelects() {
-  const map = { timerEnd: 'chimeSelectTimerEnd', eventStart: 'chimeSelectEventStart', eventEnd: 'chimeSelectEventEnd', alert: 'chimeSelectAlert' };
+  const map = { timerEnd: 'chimeSelectTimerEnd', eventStart: 'chimeSelectEventStart', eventEnd: 'chimeSelectEventEnd', alert: 'chimeSelectAlert', pomodoroComplete: 'chimeSelectPomodoro' };
   Object.keys(map).forEach(context => {
     const sel = document.getElementById(map[context]);
     if (!sel) return;
@@ -1768,7 +1798,7 @@ function toggleTimeline(btnEl) {
   localStorage.setItem('timelineHidden', hidden ? '1' : '0');
   btnEl.classList.toggle('active-lang', !hidden);
 }
-const ALL_WIDGET_IDS = ['wgSchedule', 'wgWeather', 'wgPrayer', 'wgWorldClock', 'wgSpotify', 'wgLinks', 'wgCountdown'];
+const ALL_WIDGET_IDS = ['wgSchedule', 'wgWeather', 'wgPrayer', 'wgWorldClock', 'wgSpotify', 'wgLinks', 'wgCountdown', 'wgPomodoro', 'wgHabits', 'wgCrypto', 'wgRss'];
 let visibleWidgets = new Set(safeParseJSON('idleVisibleWidgets', []));
 
 function applyWidgetVisibility() {
@@ -2570,6 +2600,8 @@ function updateLiveTimer() {
     checkReminders(new Date(now));
     checkCountdownNotifications(new Date(now));
     updateCountdownLiveTimers(new Date(now));
+    pomodoroTick();
+    checkHabitsDayRollover();
     if (spotifyToken) { updateSpotifyProgressDisplay(); updateSpotifyLyricsHighlight(); }
     updateTimelineHUD();
 
@@ -4300,7 +4332,8 @@ let cloudUser = null;
 
 const CLOUD_SYNC_KEYS = ['idleTasksV4', 'idleGoals', 'idleCountdowns', 'idleVisibleWidgets', 'idleTheme', 'idleMode',
   'idleLang', 'arcStyleMode', 'idleCity', 'idleTitle', 'idleDisplayLayout', 'spotifyArtMode', 'countdownSort',
-  'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert'];
+  'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert',
+  'idlePomodoroSettings', 'idlePomodoroStats', 'idleHabits', 'idleCryptoCoins', 'idleRssFeedUrl', 'chimeSound_pomodoroComplete'];
 
 function collectCloudSnapshot() {
   const snap = {};
@@ -4361,64 +4394,6 @@ async function activateCloudSession(user) {
   }
   renderAccountUI();
   applyBirthdayFromAccount();
-}
-
-function setAccountTab(tab) {
-  document.getElementById('acctTabLoginBtn').classList.toggle('active', tab === 'login');
-  document.getElementById('acctTabSignupBtn').classList.toggle('active', tab === 'signup');
-  document.getElementById('acctLoginForm').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('acctSignupForm').style.display = tab === 'signup' ? 'block' : 'none';
-}
-
-let authSubmitInProgress = false;
-async function submitSignup() {
-  if (authSubmitInProgress) return;
-  authSubmitInProgress = true;
-  try {
-    await submitSignupInner();
-  } finally {
-    authSubmitInProgress = false;
-  }
-}
-async function submitSignupInner() {
-  const name = document.getElementById('signupName').value.trim();
-  const email = document.getElementById('signupEmail').value.trim().toLowerCase();
-  const password = document.getElementById('signupPassword').value;
-  const confirmPw = document.getElementById('signupPasswordConfirm').value;
-  const dob = document.getElementById('signupDob').value;
-  const dobIsHijri = document.getElementById('signupDobIsHijri').checked;
-
-  if (!name || !email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
-  if (password !== confirmPw) { await customAlert(translations[lang].acctPasswordMismatch); return; }
-  if (password.length < 6) { await customAlert(translations[lang].acctPasswordTooShort); return; }
-
-  const { data, error } = await supabaseClient.auth.signUp({
-    email, password,
-    options: { data: { name, dob, dob_is_hijri: dobIsHijri } }
-  });
-  if (error) { await customAlert(error.message); return; }
-  if (data.session) {
-    await customAlert(translations[lang].acctSignupSuccess);
-    await activateCloudSession(data.session.user);
-  } else {
-    await customAlert(translations[lang].acctCheckEmail);
-    setAccountTab('login');
-  }
-}
-
-async function submitLogin() {
-  if (authSubmitInProgress) return;
-  authSubmitInProgress = true;
-  try {
-    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-    const password = document.getElementById('loginPassword').value;
-    if (!email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) { await customAlert(error.message); return; }
-    await activateCloudSession(data.user);
-  } finally {
-    authSubmitInProgress = false;
-  }
 }
 
 async function logoutAccount() {
@@ -4587,6 +4562,10 @@ function setTheaterLayout(modeName, btnEl) {
   document.querySelectorAll('#theaterLayoutGrid .clock-toggle-btn').forEach(b => b.classList.remove('active-lang'));
   if (btnEl) btnEl.classList.add('active-lang');
   const overlay = document.getElementById('theaterOverlay');
+  const win = document.getElementById('theaterWindow');
+  // Drag/resize leave inline left/top/right/width/height on #theaterWindow, and inline
+  // styles always beat the mode-* CSS rules - clear them so each mode's box applies fresh.
+  ['left', 'top', 'right', 'width', 'height'].forEach(p => win.style.removeProperty(p));
   overlay.classList.remove('mode-floating', 'mode-landscape', 'mode-fullscreen');
   overlay.classList.add('mode-' + modeName);
   applyTheaterDim();
@@ -4663,8 +4642,11 @@ function initTheaterDragResize() {
     if (!dragging) return;
     const p = pointerXY(e);
     const dx = p.x - dragStartX, dy = p.y - dragStartY;
-    win.style.left = (winStartX + dx) + 'px';
-    win.style.top = (winStartY + dy) + 'px';
+    const margin = 8;
+    const maxLeft = Math.max(margin, window.innerWidth - win.offsetWidth - margin);
+    const maxTop = Math.max(margin, window.innerHeight - win.offsetHeight - margin);
+    win.style.left = Math.min(Math.max(winStartX + dx, margin), maxLeft) + 'px';
+    win.style.top = Math.min(Math.max(winStartY + dy, margin), maxTop) + 'px';
     win.style.right = 'auto';
   };
   const endDrag = () => { dragging = false; };
@@ -4692,8 +4674,12 @@ function initTheaterDragResize() {
   const moveResize = (e) => {
     if (!resizing) return;
     const p = pointerXY(e);
-    win.style.width = Math.max(200, startW + (p.x - resizeStartX)) + 'px';
-    win.style.height = Math.max(120, startH + (p.y - resizeStartY)) + 'px';
+    const margin = 8;
+    const rect = win.getBoundingClientRect();
+    const maxW = window.innerWidth - rect.left - margin;
+    const maxH = window.innerHeight - rect.top - margin;
+    win.style.width = Math.min(Math.max(200, startW + (p.x - resizeStartX)), maxW) + 'px';
+    win.style.height = Math.min(Math.max(120, startH + (p.y - resizeStartY)), maxH) + 'px';
   };
   const endResize = () => { resizing = false; };
   handle.addEventListener('mousedown', startResize);
@@ -4799,6 +4785,370 @@ function stopTvBarcodeScan() {
   }
   const videoEl = document.getElementById('tvScanVideo');
   if (videoEl) { videoEl.style.display = 'none'; videoEl.srcObject = null; }
+}
+
+/* ==========================================
+   13h. NEW WIDGETS (Pomodoro / Habit Streaks / Crypto Ticker / RSS Feed)
+   ========================================== */
+function dateKey(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function todayKey() { return dateKey(new Date()); }
+function widgetEmptyState(text) { return `<div style="text-align:center; color:var(--text-secondary); font-size:0.75rem; padding:10px 0;">${escapeHTML(text)}</div>`; }
+
+/* ---- Pomodoro Focus Timer ---- */
+let pomodoroSettings = safeParseJSON('idlePomodoroSettings', { workMin: 25, breakMin: 5, longBreakMin: 15, sessionsUntilLongBreak: 4 });
+let pomodoroStats = safeParseJSON('idlePomodoroStats', {});
+let pomodoroState = { running: false, phase: 'work', endTime: 0, remainingMs: pomodoroSettings.workMin * 60000, sessionsThisCycle: 0 };
+
+function pomodoroPhaseDuration(phase) {
+  if (phase === 'work') return pomodoroSettings.workMin * 60000;
+  if (phase === 'longBreak') return pomodoroSettings.longBreakMin * 60000;
+  return pomodoroSettings.breakMin * 60000;
+}
+function formatMMSS(ms) {
+  const totalSec = Math.max(0, Math.floor(ms / 1000));
+  return toNum(`${String(Math.floor(totalSec / 60)).padStart(2, '0')}:${String(totalSec % 60).padStart(2, '0')}`);
+}
+function pomodoroTick() {
+  if (!pomodoroState.running) return;
+  const remaining = pomodoroState.endTime - Date.now();
+  if (remaining <= 0) { pomodoroAdvancePhase(); }
+  else { pomodoroState.remainingMs = remaining; updatePomodoroTimeDisplay(); }
+}
+function updatePomodoroTimeDisplay() {
+  const el = document.getElementById('pomWidgetTime');
+  if (el) el.textContent = formatMMSS(pomodoroState.remainingMs);
+}
+function pomodoroAdvancePhase() {
+  playChime('pomodoroComplete');
+  if (pomodoroState.phase === 'work') {
+    const today = todayKey();
+    pomodoroStats[today] = (pomodoroStats[today] || 0) + 1;
+    localStorage.setItem('idlePomodoroStats', JSON.stringify(pomodoroStats));
+    pomodoroState.sessionsThisCycle++;
+    if (pomodoroState.sessionsThisCycle >= pomodoroSettings.sessionsUntilLongBreak) {
+      pomodoroState.phase = 'longBreak';
+      pomodoroState.sessionsThisCycle = 0;
+    } else {
+      pomodoroState.phase = 'break';
+    }
+  } else {
+    pomodoroState.phase = 'work';
+  }
+  pomodoroState.remainingMs = pomodoroPhaseDuration(pomodoroState.phase);
+  pomodoroState.endTime = Date.now() + pomodoroState.remainingMs;
+  renderPomodoroWidget();
+}
+function pomodoroToggleStartPause() {
+  if (pomodoroState.running) {
+    pomodoroState.running = false;
+    pomodoroState.remainingMs = Math.max(0, pomodoroState.endTime - Date.now());
+  } else {
+    pomodoroState.running = true;
+    pomodoroState.endTime = Date.now() + pomodoroState.remainingMs;
+  }
+  renderPomodoroWidget();
+}
+function pomodoroReset() {
+  pomodoroState.running = false;
+  pomodoroState.phase = 'work';
+  pomodoroState.sessionsThisCycle = 0;
+  pomodoroState.remainingMs = pomodoroPhaseDuration('work');
+  renderPomodoroWidget();
+}
+function renderPomodoroHistoryStrip() {
+  const el = document.getElementById('pomHistoryStrip');
+  if (!el) return;
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push({ label: d.toLocaleDateString(lang === 'en' ? 'en-US' : 'ar', { weekday: 'narrow' }), count: pomodoroStats[dateKey(d)] || 0 });
+  }
+  el.innerHTML = days.map(d => `<div class="pom-history-day"><span class="phd-count">${toNum(d.count)}</span><span>${escapeHTML(d.label)}</span></div>`).join('');
+}
+function renderPomodoroWidget() {
+  updatePomodoroTimeDisplay();
+  const phaseKey = pomodoroState.phase === 'work' ? 'pomWork' : (pomodoroState.phase === 'break' ? 'pomBreak' : 'pomLongBreak');
+  const phaseEl = document.getElementById('pomWidgetPhase');
+  if (phaseEl) phaseEl.textContent = translations[lang][phaseKey];
+  const sessionsEl = document.getElementById('pomWidgetSessionsToday');
+  if (sessionsEl) sessionsEl.textContent = `${toNum(pomodoroStats[todayKey()] || 0)} ${lang === 'en' ? 'today' : 'اليوم'}`;
+  const btn = document.getElementById('pomStartPauseBtn');
+  if (btn) btn.innerHTML = svgIcon(pomodoroState.running ? 'icon-pause' : 'icon-play');
+  renderPomodoroHistoryStrip();
+}
+function openPomodoroSettings() {
+  document.getElementById('pomWorkMinInput').value = pomodoroSettings.workMin;
+  document.getElementById('pomBreakMinInput').value = pomodoroSettings.breakMin;
+  document.getElementById('pomLongBreakMinInput').value = pomodoroSettings.longBreakMin;
+  document.getElementById('pomSessionsUntilLongInput').value = pomodoroSettings.sessionsUntilLongBreak;
+  document.getElementById('pomodoroSettingsModal').classList.add('active');
+}
+function closePomodoroSettings() {
+  document.getElementById('pomodoroSettingsModal').classList.remove('active');
+}
+function savePomodoroSettings() {
+  pomodoroSettings = {
+    workMin: parseInt(document.getElementById('pomWorkMinInput').value, 10) || 25,
+    breakMin: parseInt(document.getElementById('pomBreakMinInput').value, 10) || 5,
+    longBreakMin: parseInt(document.getElementById('pomLongBreakMinInput').value, 10) || 15,
+    sessionsUntilLongBreak: parseInt(document.getElementById('pomSessionsUntilLongInput').value, 10) || 4
+  };
+  localStorage.setItem('idlePomodoroSettings', JSON.stringify(pomodoroSettings));
+  if (!pomodoroState.running) pomodoroState.remainingMs = pomodoroPhaseDuration(pomodoroState.phase);
+  closePomodoroSettings();
+  renderPomodoroWidget();
+}
+
+/* ---- Habit Streak Tracker ---- */
+let habitsList = safeParseJSON('idleHabits', []);
+let habitsLastRenderedDay = null;
+function computeHabitStreak(habit) {
+  let streak = 0, d = new Date();
+  if (!habit.history[dateKey(d)]) d.setDate(d.getDate() - 1);
+  while (habit.history[dateKey(d)]) { streak++; d.setDate(d.getDate() - 1); }
+  return streak;
+}
+function checkHabitsDayRollover() {
+  if (habitsLastRenderedDay !== todayKey()) renderHabitsWidget();
+}
+function renderHabitsWidget() {
+  habitsLastRenderedDay = todayKey();
+  const today = habitsLastRenderedDay;
+  const doneCount = habitsList.filter(h => h.history[today]).length;
+  const countEl = document.getElementById('habitsWidgetDoneCount');
+  if (countEl) countEl.textContent = `${toNum(doneCount)}/${toNum(habitsList.length)}`;
+  let bestStreak = 0;
+  habitsList.forEach(h => { const s = computeHabitStreak(h); if (s > bestStreak) bestStreak = s; });
+  const streakEl = document.getElementById('habitsWidgetStreakLabel');
+  if (streakEl) {
+    streakEl.textContent = bestStreak > 0
+      ? (lang === 'en' ? `🔥 ${toNum(bestStreak)} day streak` : `🔥 سلسلة ${toNum(bestStreak)} يوم`)
+      : translations[lang].habitsNoStreak;
+  }
+  const listEl = document.getElementById('habitsWidgetList');
+  if (!listEl) return;
+  if (!habitsList.length) {
+    listEl.innerHTML = widgetEmptyState(lang === 'en' ? 'No habits yet - add one in settings.' : 'لا توجد عادات بعد - أضف واحدة من الإعدادات.');
+    return;
+  }
+  listEl.innerHTML = habitsList.map(h => {
+    const done = !!h.history[today];
+    const streak = computeHabitStreak(h);
+    return `<div class="widget-task-row" style="--row-color:${done ? '#2ed573' : 'var(--accent)'};" onclick="event.stopPropagation(); toggleHabitToday(${h.id});">
+      <span class="wt-icon">${svgIcon('icon-clipboard-check')}</span>
+      <span class="wt-name">${escapeHTML(h.name)}</span>
+      <span class="wt-time">${done ? '✓ ' : ''}${streak > 0 ? '🔥' + toNum(streak) : ''}</span>
+    </div>`;
+  }).join('');
+}
+function toggleHabitToday(id) {
+  const habit = habitsList.find(h => h.id === id);
+  if (!habit) return;
+  const today = todayKey();
+  if (habit.history[today]) delete habit.history[today];
+  else habit.history[today] = true;
+  localStorage.setItem('idleHabits', JSON.stringify(habitsList));
+  renderHabitsWidget();
+}
+function addHabit() {
+  const input = document.getElementById('newHabitName');
+  const name = input.value.trim();
+  if (!name) return;
+  habitsList.push({ id: Date.now(), name, history: {} });
+  localStorage.setItem('idleHabits', JSON.stringify(habitsList));
+  input.value = '';
+  renderHabitsManageList();
+  renderHabitsWidget();
+}
+async function deleteHabit(id) {
+  const habit = habitsList.find(h => h.id === id);
+  if (!habit) return;
+  const ok = await customConfirm(
+    lang === 'en' ? `Delete habit "${habit.name}"? This also deletes its streak history.` : `حذف عادة "${habit.name}"؟ سيتم حذف سجل السلسلة أيضًا.`,
+    lang === 'en' ? 'Delete Habit' : 'حذف العادة', true);
+  if (!ok) return;
+  habitsList = habitsList.filter(h => h.id !== id);
+  localStorage.setItem('idleHabits', JSON.stringify(habitsList));
+  renderHabitsManageList();
+  renderHabitsWidget();
+}
+function renderHabitsManageList() {
+  const el = document.getElementById('habitsManageList');
+  if (!el) return;
+  if (!habitsList.length) {
+    el.innerHTML = widgetEmptyState(lang === 'en' ? 'No habits yet.' : 'لا توجد عادات بعد.');
+    return;
+  }
+  el.innerHTML = habitsList.map(h => `
+    <div class="sm-item">
+      <div class="sm-item-info">
+        <div class="sm-item-name">${escapeHTML(h.name)}</div>
+        <div class="sm-item-detail">${toNum(computeHabitStreak(h))} ${lang === 'en' ? 'day streak' : 'يوم متتالي'}</div>
+      </div>
+      <div class="sm-item-actions">
+        <button class="sm-btn delete" onclick="deleteHabit(${h.id})">${lang === 'en' ? 'Delete' : 'حذف'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+function openHabitsSettings() {
+  renderHabitsManageList();
+  document.getElementById('habitsSettingsModal').classList.add('active');
+}
+function closeHabitsSettings() {
+  document.getElementById('habitsSettingsModal').classList.remove('active');
+}
+
+/* ---- Crypto Ticker ---- */
+const CRYPTO_PRESET_COINS = ['bitcoin', 'ethereum', 'solana', 'cardano', 'dogecoin', 'ripple', 'litecoin', 'polkadot', 'chainlink', 'binancecoin'];
+const CRYPTO_COIN_LABELS = { bitcoin: 'BTC', ethereum: 'ETH', solana: 'SOL', cardano: 'ADA', dogecoin: 'DOGE', ripple: 'XRP', litecoin: 'LTC', polkadot: 'DOT', chainlink: 'LINK', binancecoin: 'BNB' };
+let cryptoCoins = safeParseJSON('idleCryptoCoins', ['bitcoin', 'ethereum', 'solana']);
+let cryptoCache = safeParseJSON('idleCryptoCache', { data: {}, fetchedAt: 0, error: false });
+function formatCryptoPrice(usd) {
+  return '$' + toNum(usd.toLocaleString(undefined, { maximumFractionDigits: usd < 1 ? 4 : 2 }));
+}
+async function fetchCryptoPrices() {
+  if (!cryptoCoins.length) { renderCryptoWidget(); return; }
+  try {
+    const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(cryptoCoins.join(','))}&vs_currencies=usd&include_24hr_change=true`);
+    if (!res.ok) throw new Error('bad status');
+    cryptoCache = { data: await res.json(), fetchedAt: Date.now(), error: false };
+  } catch (e) {
+    cryptoCache.error = true;
+  }
+  localStorage.setItem('idleCryptoCache', JSON.stringify(cryptoCache));
+  renderCryptoWidget();
+}
+function renderCryptoWidget() {
+  const staleBadge = document.getElementById('cryptoStaleBadge');
+  if (staleBadge) staleBadge.style.display = cryptoCache.error ? 'inline-block' : 'none';
+  const topId = cryptoCoins[0];
+  const topData = topId ? cryptoCache.data[topId] : null;
+  const priceEl = document.getElementById('cryptoWidgetTopPrice');
+  const nameEl = document.getElementById('cryptoWidgetTopName');
+  const changeEl = document.getElementById('cryptoWidgetTopChange');
+  if (topData) {
+    if (priceEl) priceEl.textContent = formatCryptoPrice(topData.usd);
+    if (nameEl) nameEl.textContent = CRYPTO_COIN_LABELS[topId] || topId;
+    if (changeEl) {
+      const chg = topData.usd_24h_change || 0;
+      changeEl.textContent = (chg >= 0 ? '+' : '') + toNum(chg.toFixed(2)) + '%';
+      changeEl.classList.toggle('positive', chg >= 0);
+      changeEl.classList.toggle('negative', chg < 0);
+    }
+  } else {
+    if (priceEl) priceEl.textContent = '$--';
+    if (nameEl) nameEl.textContent = '--';
+    if (changeEl) { changeEl.textContent = '--%'; changeEl.classList.remove('positive', 'negative'); }
+  }
+  const listEl = document.getElementById('cryptoWidgetList');
+  if (!listEl) return;
+  if (!cryptoCoins.length) {
+    listEl.innerHTML = widgetEmptyState(lang === 'en' ? 'No coins configured - add some in settings.' : 'لم يتم تحديد عملات - أضف بعضها من الإعدادات.');
+    return;
+  }
+  listEl.innerHTML = cryptoCoins.map(id => {
+    const d = cryptoCache.data[id];
+    const chg = d ? (d.usd_24h_change || 0) : 0;
+    return `<div class="crypto-row">
+      <span class="cr-name">${escapeHTML(CRYPTO_COIN_LABELS[id] || id)}</span>
+      <span class="cr-price">${d ? formatCryptoPrice(d.usd) : '--'}</span>
+      <span class="crypto-change ${chg >= 0 ? 'positive' : 'negative'}">${d ? (chg >= 0 ? '+' : '') + toNum(chg.toFixed(2)) + '%' : ''}</span>
+    </div>`;
+  }).join('');
+}
+function renderCryptoPresetGrid() {
+  const grid = document.getElementById('cryptoPresetGrid');
+  if (!grid) return;
+  const allIds = Array.from(new Set([...CRYPTO_PRESET_COINS, ...cryptoCoins]));
+  grid.innerHTML = allIds.map(id => `
+    <button type="button" class="clock-toggle-btn ${cryptoCoins.includes(id) ? 'active-lang' : ''}" onclick="toggleCryptoPresetCoin('${id}')">
+      <span>${escapeHTML(CRYPTO_COIN_LABELS[id] || id)}</span>
+    </button>
+  `).join('');
+}
+function toggleCryptoPresetCoin(id) {
+  if (cryptoCoins.includes(id)) cryptoCoins = cryptoCoins.filter(c => c !== id);
+  else cryptoCoins.push(id);
+  localStorage.setItem('idleCryptoCoins', JSON.stringify(cryptoCoins));
+  renderCryptoPresetGrid();
+  fetchCryptoPrices();
+}
+function addCustomCryptoCoin() {
+  const input = document.getElementById('newCryptoId');
+  const id = input.value.trim().toLowerCase();
+  if (id && !cryptoCoins.includes(id)) {
+    cryptoCoins.push(id);
+    localStorage.setItem('idleCryptoCoins', JSON.stringify(cryptoCoins));
+    renderCryptoPresetGrid();
+    fetchCryptoPrices();
+  }
+  input.value = '';
+}
+function openCryptoSettings() {
+  renderCryptoPresetGrid();
+  document.getElementById('cryptoSettingsModal').classList.add('active');
+}
+function closeCryptoSettings() {
+  document.getElementById('cryptoSettingsModal').classList.remove('active');
+}
+
+/* ---- RSS / News Feed ---- */
+let rssFeedUrl = localStorage.getItem('idleRssFeedUrl') || '';
+let rssCache = safeParseJSON('idleRssCache', { items: [], fetchedAt: 0, error: false });
+async function fetchRssFeed() {
+  if (!rssFeedUrl) { renderRssWidget(); return; }
+  try {
+    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssFeedUrl)}`);
+    if (!res.ok) throw new Error('bad status');
+    const json = await res.json();
+    if (json.status !== 'ok') throw new Error('feed error');
+    rssCache = { items: (json.items || []).slice(0, 8).map(it => ({ title: it.title, link: it.link, pubDate: it.pubDate })), fetchedAt: Date.now(), error: false };
+  } catch (e) {
+    rssCache.error = true;
+  }
+  localStorage.setItem('idleRssCache', JSON.stringify(rssCache));
+  renderRssWidget();
+}
+function renderRssWidget() {
+  const titleEl = document.getElementById('rssWidgetLatestTitle');
+  const eyebrowEl = document.getElementById('rssWidgetEyebrow');
+  if (!rssFeedUrl) {
+    if (titleEl) titleEl.textContent = translations[lang].rssNoFeed;
+    if (eyebrowEl) eyebrowEl.textContent = translations[lang].rssLatest;
+  } else if (rssCache.items.length) {
+    if (titleEl) titleEl.textContent = rssCache.items[0].title;
+    if (eyebrowEl) eyebrowEl.textContent = translations[lang].rssLatest + (rssCache.error ? ' ⚠' : '');
+  } else if (rssCache.error) {
+    if (titleEl) titleEl.textContent = lang === 'en' ? 'Could not load this feed.' : 'تعذر تحميل هذا الخبر.';
+  } else {
+    if (titleEl) titleEl.textContent = lang === 'en' ? 'Loading…' : 'جارِ التحميل…';
+  }
+  const listEl = document.getElementById('rssWidgetList');
+  if (!listEl) return;
+  if (!rssCache.items.length) { listEl.innerHTML = ''; return; }
+  listEl.innerHTML = rssCache.items.map(it => `
+    <a class="widget-task-row" href="${escapeHTML(it.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+      <span class="wt-name">${escapeHTML(it.title)}</span>
+      <span class="wt-time">${it.pubDate ? new Date(it.pubDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'ar') : ''}</span>
+    </a>
+  `).join('');
+}
+function openRssSettings() {
+  document.getElementById('rssFeedUrlInput').value = rssFeedUrl;
+  document.getElementById('rssSettingsModal').classList.add('active');
+}
+function closeRssSettings() {
+  document.getElementById('rssSettingsModal').classList.remove('active');
+}
+function saveRssSettings() {
+  rssFeedUrl = document.getElementById('rssFeedUrlInput').value.trim();
+  localStorage.setItem('idleRssFeedUrl', rssFeedUrl);
+  closeRssSettings();
+  rssCache = { items: [], fetchedAt: 0, error: false };
+  renderRssWidget();
+  fetchRssFeed();
 }
 
 /* ==========================================
@@ -4908,9 +5258,15 @@ syncQuoteToggleUI();
 if (quoteRotationActive) { showRandomQuote(); startQuoteRotation(); }
 else document.getElementById('quoteBar').style.display = 'none';
 populateChimeSelects();
+renderPomodoroWidget();
+renderHabitsWidget();
+fetchCryptoPrices();
+fetchRssFeed();
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);
+setInterval(fetchCryptoPrices, 60000);
+setInterval(fetchRssFeed, 20 * 60 * 1000);
 animateWobblyString();
 initializeLocation();
 
