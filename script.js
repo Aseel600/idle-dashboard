@@ -1188,6 +1188,10 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('scheduleManagerModal').classList.contains('active')) { closeScheduleManager(); return; }
   if (document.getElementById('countdownModal').classList.contains('active')) { closeCountdownModal(); return; }
   if (document.getElementById('countdownManagerModal').classList.contains('active')) { closeCountdownManager(); return; }
+  if (document.getElementById('pomodoroSettingsModal').classList.contains('active')) { closePomodoroSettings(); return; }
+  if (document.getElementById('habitsSettingsModal').classList.contains('active')) { closeHabitsSettings(); return; }
+  if (document.getElementById('cryptoSettingsModal').classList.contains('active')) { closeCryptoSettings(); return; }
+  if (document.getElementById('rssSettingsModal').classList.contains('active')) { closeRssSettings(); return; }
 });
 
 /* ==========================================
@@ -1201,7 +1205,11 @@ const MODAL_FOCUS_CONFIG = [
   { sel: '#countdownModal', inner: '.modal-content' },
   { sel: '#timetableModal', inner: '.timetable-container' },
   { sel: '#scheduleManagerModal', inner: '.timetable-container' },
-  { sel: '#countdownManagerModal', inner: '.timetable-container' }
+  { sel: '#countdownManagerModal', inner: '.timetable-container' },
+  { sel: '#pomodoroSettingsModal', inner: '.modal-content' },
+  { sel: '#habitsSettingsModal', inner: '.modal-content' },
+  { sel: '#cryptoSettingsModal', inner: '.modal-content' },
+  { sel: '#rssSettingsModal', inner: '.modal-content' }
 ];
 function getFocusableElements(container) {
   return Array.from(container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
@@ -4506,8 +4514,6 @@ function renderAccountUI() {
   } else {
     loggedOut.style.display = 'block';
     loggedIn.style.display = 'none';
-    const lastEmail = localStorage.getItem('idleLastAccountEmail');
-    if (lastEmail) document.getElementById('loginEmail').value = lastEmail;
   }
 }
 
@@ -4763,9 +4769,9 @@ async function startTvBarcodeScan() {
           const password = raw.substring(idx + 1).trim();
           statusEl.textContent = translations[lang].tvScanFound;
           stopTvBarcodeScan();
-          document.getElementById('loginEmail').value = email;
-          document.getElementById('loginPassword').value = password;
-          await performLogin(email, password);
+          const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+          if (error) { statusEl.textContent = error.message; return; }
+          await activateCloudSession(data.user);
           return;
         } else {
           statusEl.textContent = translations[lang].tvScanBadFormat;
@@ -4888,14 +4894,18 @@ function closePomodoroSettings() {
   document.getElementById('pomodoroSettingsModal').classList.remove('active');
 }
 function savePomodoroSettings() {
+  // Only snap the live countdown to the new duration if it hasn't been touched yet
+  // (still sitting at a full, un-decremented phase) - otherwise saving settings would
+  // silently wipe a paused-but-in-progress session's remaining time.
+  const wasPristine = !pomodoroState.running && pomodoroState.remainingMs === pomodoroPhaseDuration(pomodoroState.phase);
   pomodoroSettings = {
-    workMin: parseInt(document.getElementById('pomWorkMinInput').value, 10) || 25,
-    breakMin: parseInt(document.getElementById('pomBreakMinInput').value, 10) || 5,
-    longBreakMin: parseInt(document.getElementById('pomLongBreakMinInput').value, 10) || 15,
-    sessionsUntilLongBreak: parseInt(document.getElementById('pomSessionsUntilLongInput').value, 10) || 4
+    workMin: Math.max(1, parseInt(document.getElementById('pomWorkMinInput').value, 10) || 25),
+    breakMin: Math.max(1, parseInt(document.getElementById('pomBreakMinInput').value, 10) || 5),
+    longBreakMin: Math.max(1, parseInt(document.getElementById('pomLongBreakMinInput').value, 10) || 15),
+    sessionsUntilLongBreak: Math.max(2, parseInt(document.getElementById('pomSessionsUntilLongInput').value, 10) || 4)
   };
   localStorage.setItem('idlePomodoroSettings', JSON.stringify(pomodoroSettings));
-  if (!pomodoroState.running) pomodoroState.remainingMs = pomodoroPhaseDuration(pomodoroState.phase);
+  if (wasPristine) pomodoroState.remainingMs = pomodoroPhaseDuration(pomodoroState.phase);
   closePomodoroSettings();
   renderPomodoroWidget();
 }
@@ -5077,7 +5087,10 @@ function toggleCryptoPresetCoin(id) {
 }
 function addCustomCryptoCoin() {
   const input = document.getElementById('newCryptoId');
-  const id = input.value.trim().toLowerCase();
+  // Real CoinGecko ids are always lowercase-alphanumeric-with-hyphens; stripping
+  // anything else also keeps this safe to interpolate into the preset grid's
+  // inline onclick without a quote/markup-breaking character sneaking through.
+  const id = input.value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
   if (id && !cryptoCoins.includes(id)) {
     cryptoCoins.push(id);
     localStorage.setItem('idleCryptoCoins', JSON.stringify(cryptoCoins));
@@ -5122,8 +5135,10 @@ function renderRssWidget() {
     if (eyebrowEl) eyebrowEl.textContent = translations[lang].rssLatest + (rssCache.error ? ' ⚠' : '');
   } else if (rssCache.error) {
     if (titleEl) titleEl.textContent = lang === 'en' ? 'Could not load this feed.' : 'تعذر تحميل هذا الخبر.';
+    if (eyebrowEl) eyebrowEl.textContent = translations[lang].rssLatest + ' ⚠';
   } else {
     if (titleEl) titleEl.textContent = lang === 'en' ? 'Loading…' : 'جارِ التحميل…';
+    if (eyebrowEl) eyebrowEl.textContent = translations[lang].rssLatest;
   }
   const listEl = document.getElementById('rssWidgetList');
   if (!listEl) return;
@@ -5260,6 +5275,8 @@ else document.getElementById('quoteBar').style.display = 'none';
 populateChimeSelects();
 renderPomodoroWidget();
 renderHabitsWidget();
+renderCryptoWidget();
+renderRssWidget();
 fetchCryptoPrices();
 fetchRssFeed();
 

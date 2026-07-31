@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.11)</title>
+  <title>Ambient OS | Dashboard (V7.12)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.11</span>
+      <span class="dev-version">v7.12</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,15 +139,17 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.11 CLEAN LOGIN URL, PANEL CLEANUP, THEATER FIX, 4 WIDGETS</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.12 FULL QA PASS - CRITICAL BOOT CRASH FIXED</div>
 
-    <label class="qa-item"><input type="checkbox"> Login Page Moved to /login (No More .html), Old login.html Removed</label>
-    <label class="qa-item"><input type="checkbox"> Inline Sign In/Up Removed From Side Panel, Now Redirects to /login Instead</label>
-    <label class="qa-item"><input type="checkbox"> Side Panel Reordered Into 5 Logical Groups: Account, Appearance, Layout &amp; Device, Content, Extras</label>
-    <label class="qa-item"><input type="checkbox"> Theater Mode Floating/Landscape/Fullscreen Fixed: Stale Inline Drag/Resize Position No Longer Overrides Layout Switches, Added Off-Screen Bounds Clamping</label>
-    <label class="qa-item"><input type="checkbox"> 4 New Widgets Added: Focus Timer, Habit Streaks, Crypto Ticker, News Feed - Each With Mini/Expanded Views and Its Own Settings</label>
-    <label class="qa-item"><input type="checkbox"> Crypto Ticker via CoinGecko (Keyless) and News Feed via rss2json (Keyless) - No Backend Needed, Live-Tested Against Both APIs</label>
-    <label class="qa-item"><input type="checkbox"> New Pomodoro-Complete Chime Context Added Alongside the Existing 4</label>
+    <label class="qa-item"><input type="checkbox"> Critical: renderAccountUI() Referenced a Deleted Inline-Form Element, Crashing the Entire Boot Sequence (Clock, All Widgets, Session Restore) for Any Returning Logged-In-Before User - Fixed and Verified With a Seeded Regression Test</label>
+    <label class="qa-item"><input type="checkbox"> TV "Scan to Log In" Feature Was Fully Dead (Called a Non-Existent performLogin Function, Referenced Deleted Form Fields) - Rewired to Use the Real Supabase Auth Call Directly</label>
+    <label class="qa-item"><input type="checkbox"> Pomodoro: Saving Settings While Paused No Longer Wipes the Remaining Time on an In-Progress Session</label>
+    <label class="qa-item"><input type="checkbox"> Pomodoro: Settings Inputs Now Clamped to Positive Minimums, No More Negative-Duration Timers</label>
+    <label class="qa-item"><input type="checkbox"> Crypto/RSS Widgets No Longer Flash a False "Not Configured" State on Boot for Returning Users - Cached Data Renders Immediately, Before the Network Refetch</label>
+    <label class="qa-item"><input type="checkbox"> RSS Widget No Longer Leaves a Stale Warning Badge Showing After a Feed URL Change Resets the Cache</label>
+    <label class="qa-item"><input type="checkbox"> Custom Crypto Coin IDs Now Sanitized on Input, Closing a Markup-Corruption Risk From Special Characters</label>
+    <label class="qa-item"><input type="checkbox"> All 4 New Settings Modals Added to the Focus-Trap/Auto-Focus and Escape-to-Close Systems, Matching Every Other Modal in the App</label>
+    <label class="qa-item"><input type="checkbox"> 3 Parallel Deep-Audit Passes Run Across Handler/ID Cross-References, Widget Logic, and Navigation/Theater/Tutorial Regressions</label>
     </div>
   </div>
 
