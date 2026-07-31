@@ -476,6 +476,13 @@ body.focus-mode .quote-bar { opacity: 0 !important; pointer-events: none !import
 .quick-btn { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 6px; color: var(--text-secondary); cursor: pointer; padding: 8px 4px; font-size: 0.8rem; transition: all 0.2s; }
 .quick-btn:hover, .quick-btn.active-lang { background: rgba(120, 120, 120, 0.15); color: var(--text-primary); border-color: rgba(120, 120, 120, 0.3); }
 
+.chime-select-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.chime-select-row .mfr-label { flex: 0 0 auto; width: 84px; font-size: 0.78rem; color: var(--text-secondary); }
+.chime-select-row .chime-select { flex: 1; padding: 8px 10px; font-size: 0.8rem; width: auto; }
+.chime-preview-btn { flex: 0 0 auto; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+.chime-preview-btn:hover, .chime-preview-btn:focus-visible { color: var(--accent); border-color: var(--accent); }
+.chime-preview-btn .icon-svg { width: 14px; height: 14px; }
+
 .clock-toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .clock-toggle-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 14px 8px; color: var(--text-secondary); cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; font-size: 0.72rem; font-weight: 600; text-align: center; }
 .clock-toggle-btn .icon-svg { width: 20px; height: 20px; transition: color 0.2s; }

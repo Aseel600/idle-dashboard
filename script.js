@@ -58,6 +58,24 @@ const translations = {
     location: "Location",
     displayTitle: "Display Title",
     quickTimers: "Quick Timers",
+    soundsChimes: "Sounds & Chimes",
+    chimeTimerEnd: "Timer End",
+    chimeEventStart: "Event Start",
+    chimeEventEnd: "Event End",
+    chimeAlerts: "Reminders & Alerts",
+    chimePreview: "Preview",
+    chimeName_classic: "Classic Ding",
+    chimeName_softbell: "Soft Bell",
+    chimeName_digitalbeep: "Digital Beep",
+    chimeName_marimba: "Marimba Pop",
+    chimeName_arpeggio: "Rising Chime",
+    chimeName_alertpulse: "Alert Pulse",
+    chimeName_softpiano: "Soft Piano",
+    chimeName_xylophone: "Xylophone",
+    chimeName_deepgong: "Deep Gong",
+    chimeName_notifpop: "Notification Pop",
+    chimeName_zenbell: "Zen Bell",
+    chimeName_retroblip: "Retro Blip",
     accentColor: "Ambient Theme",
     remaining: "REMAINING",
     paused: "PAUSED",
@@ -177,6 +195,8 @@ const translations = {
     tutTheaterBody: "Play a local video file or a URL — floating, landscape, or fullscreen — with the rest of the screen dimmed to your liking.",
     tutQuotesTitle: "Ambient Quotes",
     tutQuotesBody: "A new quote appears every 10 minutes at the bottom of the screen. Turn it on or off here anytime.",
+    tutChimesTitle: "Sounds & Chimes",
+    tutChimesBody: "Pick which sound plays for Timer End, Event Start, Event End, and Reminders & Alerts. Tap the play icon to preview any of the 12 tones before choosing.",
     tutTimelineTitle: "24-Hour Timeline",
     tutTimelineBody: "A live strip across the top shows your whole day at a glance.",
     tutZenTitle: "Focus Mode",
@@ -291,6 +311,24 @@ const translations = {
     location: "الموقع",
     displayTitle: "العنوان",
     quickTimers: "مؤقتات سريعة",
+    soundsChimes: "الأصوات والرنات",
+    chimeTimerEnd: "انتهاء المؤقت",
+    chimeEventStart: "بداية الحدث",
+    chimeEventEnd: "نهاية الحدث",
+    chimeAlerts: "التذكيرات والتنبيهات",
+    chimePreview: "معاينة",
+    chimeName_classic: "رنين كلاسيكي",
+    chimeName_softbell: "جرس ناعم",
+    chimeName_digitalbeep: "صفير رقمي",
+    chimeName_marimba: "ماريمبا",
+    chimeName_arpeggio: "نغمة صاعدة",
+    chimeName_alertpulse: "نبضة تنبيه",
+    chimeName_softpiano: "بيانو هادئ",
+    chimeName_xylophone: "إكسيليفون",
+    chimeName_deepgong: "جونج عميق",
+    chimeName_notifpop: "نقرة إشعار",
+    chimeName_zenbell: "جرس زِن",
+    chimeName_retroblip: "تنبيه ريترو",
     accentColor: "لون المظهر",
     remaining: "المتبقي",
     paused: "متوقف",
@@ -410,6 +448,8 @@ const translations = {
     tutTheaterBody: "شغّل ملف فيديو محلي أو رابطًا — عائمًا أو أفقيًا أو ملء الشاشة — مع تعتيم بقية الشاشة حسب رغبتك.",
     tutQuotesTitle: "الاقتباسات المحيطة",
     tutQuotesBody: "يظهر اقتباس جديد كل 10 دقائق أسفل الشاشة. فعّله أو أوقفه من هنا في أي وقت.",
+    tutChimesTitle: "الأصوات والرنات",
+    tutChimesBody: "اختر الصوت الذي يُشغَّل عند انتهاء المؤقت، وبداية الحدث، ونهايته، والتذكيرات والتنبيهات. اضغط على أيقونة التشغيل لمعاينة أي من الرنات الاثنتي عشرة قبل الاختيار.",
     tutTimelineTitle: "الجدول الزمني على مدار 24 ساعة",
     tutTimelineBody: "شريط حي أعلى الشاشة يعرض يومك بالكامل بنظرة واحدة.",
     tutZenTitle: "وضع التركيز",
@@ -739,22 +779,81 @@ window.addEventListener('touchstart', resetIdleTimer);
 /* ==========================================
    4. AUDIO CHIME & ZEN MODE
    ========================================== */
-function playChime() {
+const CHIME_LIBRARY = [
+  { id: 'classic', nameKey: 'chimeName_classic', notes: [{ freq: 880, type: 'sine', start: 0, dur: 1.5, gain: 0.1 }] },
+  { id: 'softbell', nameKey: 'chimeName_softbell', notes: [{ freq: 660, type: 'sine', start: 0, dur: 1.2, gain: 0.09 }, { freq: 990, type: 'sine', start: 0.15, dur: 1.1, gain: 0.07 }] },
+  { id: 'digitalbeep', nameKey: 'chimeName_digitalbeep', notes: [{ freq: 1000, type: 'square', start: 0, dur: 0.15, gain: 0.05 }, { freq: 1000, type: 'square', start: 0.22, dur: 0.15, gain: 0.05 }] },
+  { id: 'marimba', nameKey: 'chimeName_marimba', notes: [{ freq: 523.25, type: 'triangle', start: 0, dur: 0.4, gain: 0.12 }] },
+  { id: 'arpeggio', nameKey: 'chimeName_arpeggio', notes: [{ freq: 523.25, type: 'sine', start: 0, dur: 0.5, gain: 0.09 }, { freq: 659.25, type: 'sine', start: 0.12, dur: 0.5, gain: 0.09 }, { freq: 783.99, type: 'sine', start: 0.24, dur: 0.6, gain: 0.09 }] },
+  { id: 'alertpulse', nameKey: 'chimeName_alertpulse', notes: [{ freq: 800, type: 'square', start: 0, dur: 0.12, gain: 0.06 }, { freq: 800, type: 'square', start: 0.18, dur: 0.12, gain: 0.06 }] },
+  { id: 'softpiano', nameKey: 'chimeName_softpiano', notes: [{ freq: 440, type: 'triangle', start: 0, dur: 2.0, gain: 0.08 }] },
+  { id: 'xylophone', nameKey: 'chimeName_xylophone', notes: [{ freq: 1046.5, type: 'triangle', start: 0, dur: 0.3, gain: 0.1 }] },
+  { id: 'deepgong', nameKey: 'chimeName_deepgong', notes: [{ freq: 220, type: 'sine', start: 0, dur: 3.0, gain: 0.12 }] },
+  { id: 'notifpop', nameKey: 'chimeName_notifpop', notes: [{ freq: 523.25, type: 'sine', start: 0, dur: 0.2, gain: 0.09 }, { freq: 659.25, type: 'sine', start: 0.1, dur: 0.3, gain: 0.09 }] },
+  { id: 'zenbell', nameKey: 'chimeName_zenbell', notes: [{ freq: 528, type: 'sine', start: 0, dur: 2.5, gain: 0.07 }] },
+  { id: 'retroblip', nameKey: 'chimeName_retroblip', notes: [{ freq: 600, type: 'square', start: 0, dur: 0.09, gain: 0.05 }, { freq: 800, type: 'square', start: 0.1, dur: 0.09, gain: 0.05 }, { freq: 1000, type: 'square', start: 0.2, dur: 0.12, gain: 0.05 }] }
+];
+
+function playToneSpec(spec) {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    gain.gain.setValueAtTime(0.1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.5);
-    osc.start();
-    osc.stop(ctx.currentTime + 1.5);
+    (spec.notes || []).forEach(n => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = n.type || 'sine';
+      const startAt = ctx.currentTime + (n.start || 0);
+      const dur = n.dur || 1;
+      osc.frequency.setValueAtTime(n.freq, startAt);
+      gain.gain.setValueAtTime(n.gain != null ? n.gain : 0.1, startAt);
+      gain.gain.exponentialRampToValueAtTime(0.001, startAt + dur);
+      osc.start(startAt);
+      osc.stop(startAt + dur + 0.05);
+    });
   } catch (e) {
     console.error("Audio block", e);
   }
+}
+
+function playChimeById(id) {
+  const spec = CHIME_LIBRARY.find(c => c.id === id) || CHIME_LIBRARY[0];
+  playToneSpec(spec);
+}
+
+function getChimeForContext(context) {
+  return localStorage.getItem('chimeSound_' + context) || 'classic';
+}
+
+function setChimeForContext(context, chimeId) {
+  localStorage.setItem('chimeSound_' + context, chimeId);
+  playChimeById(chimeId);
+}
+
+function previewChime(selectId) {
+  const sel = document.getElementById(selectId);
+  if (sel) playChimeById(sel.value);
+}
+
+function populateChimeSelects() {
+  const map = { timerEnd: 'chimeSelectTimerEnd', eventStart: 'chimeSelectEventStart', eventEnd: 'chimeSelectEventEnd', alert: 'chimeSelectAlert' };
+  Object.keys(map).forEach(context => {
+    const sel = document.getElementById(map[context]);
+    if (!sel) return;
+    sel.innerHTML = '';
+    CHIME_LIBRARY.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.setAttribute('data-i18n', c.nameKey);
+      opt.textContent = translations[lang][c.nameKey] || c.id;
+      sel.appendChild(opt);
+    });
+    sel.value = getChimeForContext(context);
+  });
+}
+
+function playChime(context) {
+  playChimeById(getChimeForContext(context || 'alert'));
 }
 function toggleFocusMode() {
   document.body.classList.toggle('focus-mode');
@@ -1455,7 +1554,7 @@ function checkReminders(now) {
 }
 
 function fireReminderAlert(task) {
-  playChime();
+  playChime('alert');
   showReminderToast(task);
   if (window.Notification && Notification.permission === 'granted') {
     try { new Notification(task.name, { body: lang === 'en' ? 'Starting soon' : 'يبدأ قريباً' }); } catch (e) {}
@@ -2387,7 +2486,7 @@ function initializeLocation() {
 let lastCheckedMinute = -1;
 function applyActiveTaskToClock(t, now) {
   const [eH, eM] = t.end.split(':').map(Number);
-  playChime();
+  playChime('eventStart');
   document.getElementById('titleInput').value = t.name;
   displayTitle.textContent = t.name;
   document.documentElement.style.setProperty('--accent', t.color);
@@ -2403,7 +2502,7 @@ function applyActiveTaskToClock(t, now) {
 }
 
 function resetClockToStandby() {
-  playChime();
+  playChime('eventEnd');
   document.getElementById('titleInput').value = translations[lang].systemStandby;
   displayTitle.textContent = translations[lang].systemStandby;
   document.documentElement.style.setProperty('--accent', currentTheme.handle);
@@ -2505,6 +2604,7 @@ function updateLiveTimer() {
         rawTimerDurationMs = originalDurationMs;
         diffMs = originalDurationMs;
         triggerShootingStar();
+        if (!activeTaskObj) playChime('timerEnd');
         if (isSpotifyPlaying) spotifyPause();
       } else {
         timerDurationMs = diffMs;
@@ -3620,7 +3720,7 @@ function checkCountdownNotifications(now) {
   renderCountdownWidget();
 }
 function fireCountdownAlert(ev, key) {
-  playChime();
+  playChime('alert');
   const container = document.getElementById('toastContainer');
   if (container) {
     const toast = document.createElement('div');
@@ -3651,6 +3751,7 @@ const TUTORIAL_STEPS = [
   { target: '#layoutPickerGrid', placement: 'left', titleKey: 'tutLayoutTitle', bodyKey: 'tutLayoutBody', forcePanel: true },
   { target: '#theaterEnterBtn', placement: 'left', titleKey: 'tutTheaterTitle', bodyKey: 'tutTheaterBody', forcePanel: true },
   { target: '#quoteSliderContainer', placement: 'left', titleKey: 'tutQuotesTitle', bodyKey: 'tutQuotesBody', forcePanel: true },
+  { target: '.chime-select-row', placement: 'left', titleKey: 'tutChimesTitle', bodyKey: 'tutChimesBody', forcePanel: true },
   { target: '#timelineContainer', placement: 'bottom', titleKey: 'tutTimelineTitle', bodyKey: 'tutTimelineBody' },
   { target: '.zen-toggle', placement: 'left', titleKey: 'tutZenTitle', bodyKey: 'tutZenBody' },
   { target: null, titleKey: 'tutFinishTitle', bodyKey: 'tutFinishBody' }
@@ -4818,6 +4919,7 @@ setTimeout(() => startTutorial(false), 1000);
 syncQuoteToggleUI();
 if (quoteRotationActive) { showRandomQuote(); startQuoteRotation(); }
 else document.getElementById('quoteBar').style.display = 'none';
+populateChimeSelects();
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);
