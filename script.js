@@ -197,6 +197,8 @@ const translations = {
     tutQuotesBody: "A new quote appears every 10 minutes at the bottom of the screen. Turn it on or off here anytime.",
     tutChimesTitle: "Sounds & Chimes",
     tutChimesBody: "Pick which sound plays for Timer End, Event Start, Event End, and Reminders & Alerts. Tap the play icon to preview any of the 12 tones before choosing.",
+    tutAccountTitle: "Account",
+    tutAccountBody: "Sign up to sync your tasks, countdowns, and settings across every device you log into. Fully optional — everything works fine locally without an account too.",
     tutTimelineTitle: "24-Hour Timeline",
     tutTimelineBody: "A live strip across the top shows your whole day at a glance.",
     tutZenTitle: "Focus Mode",
@@ -207,7 +209,6 @@ const translations = {
     tutBack: "Back",
     tutFinish: "Finish",
     accountTitle: "Account",
-    acctLocalOnlyBadge: "Local device only — no server, no real email sent",
     acctLogin: "Log In",
     acctSignup: "Sign Up",
     acctName: "Name",
@@ -220,23 +221,16 @@ const translations = {
     acctSignupBtn: "Sign Up",
     acctLogoutBtn: "Log Out",
     acctSaveProfile: "Save Profile",
-    acctNoBackendNote: "This site has no backend or email server — verification uses a code shown directly on screen, not a real email.",
+    acctEmailVerifyNote: "We'll email you a confirmation link before your account is active.",
     acctFillRequired: "Please fill in all required fields.",
     acctPasswordMismatch: "Passwords do not match.",
     acctPasswordTooShort: "Password must be at least 6 characters.",
-    acctEmailExists: "An account with this email already exists.",
-    acctNotFound: "No account found with that email.",
-    acctWrongPassword: "Incorrect password.",
-    acctDecryptFailed: "Could not unlock your profile. Please try again.",
-    acctVerifyTitle: "Verify Your Account",
-    acctVerifyMsg: "This site has no backend to send real email, so here is your verification code directly: {code}\n\nEnter it below to confirm your account.",
-    acctVerifyFailed: "Verification code did not match. Signup cancelled.",
+    acctCheckEmail: "Account created! Check your email to confirm it, then log in.",
     acctSignupSuccess: "Account created! Logging you in...",
     acctWelcomeText: "Welcome, {name}",
     acctProfileSaved: "Profile saved.",
     acctLoginRequired: "Please log in first.",
     authOpenFullPage: "Open full-page Sign In / Sign Up →",
-    acctDisabledNotice: "Sign in is temporarily disabled while a real backend is being set up.",
     theaterMode: "Theater Mode",
     theaterLocalFile: "Local File",
     theaterFromUrl: "From URL",
@@ -450,6 +444,8 @@ const translations = {
     tutQuotesBody: "يظهر اقتباس جديد كل 10 دقائق أسفل الشاشة. فعّله أو أوقفه من هنا في أي وقت.",
     tutChimesTitle: "الأصوات والرنات",
     tutChimesBody: "اختر الصوت الذي يُشغَّل عند انتهاء المؤقت، وبداية الحدث، ونهايته، والتذكيرات والتنبيهات. اضغط على أيقونة التشغيل لمعاينة أي من الرنات الاثنتي عشرة قبل الاختيار.",
+    tutAccountTitle: "الحساب",
+    tutAccountBody: "أنشئ حسابًا لمزامنة مهامك وعدّاداتك وإعداداتك عبر كل جهاز تسجّل الدخول منه. اختياري تمامًا — كل شيء يعمل محليًا بشكل طبيعي بدون حساب أيضًا.",
     tutTimelineTitle: "الجدول الزمني على مدار 24 ساعة",
     tutTimelineBody: "شريط حي أعلى الشاشة يعرض يومك بالكامل بنظرة واحدة.",
     tutZenTitle: "وضع التركيز",
@@ -460,7 +456,6 @@ const translations = {
     tutBack: "رجوع",
     tutFinish: "إنهاء",
     accountTitle: "الحساب",
-    acctLocalOnlyBadge: "على هذا الجهاز فقط — لا يوجد خادم، ولا يُرسل بريد إلكتروني حقيقي",
     acctLogin: "تسجيل الدخول",
     acctSignup: "إنشاء حساب",
     acctName: "الاسم",
@@ -473,23 +468,16 @@ const translations = {
     acctSignupBtn: "إنشاء حساب",
     acctLogoutBtn: "تسجيل الخروج",
     acctSaveProfile: "حفظ الملف الشخصي",
-    acctNoBackendNote: "لا يمتلك هذا الموقع خادمًا أو بريدًا إلكترونيًا — يتم التحقق برمز يظهر مباشرة على الشاشة، وليس عبر بريد إلكتروني حقيقي.",
+    acctEmailVerifyNote: "سنرسل لك رابط تأكيد عبر البريد الإلكتروني قبل تفعيل حسابك.",
     acctFillRequired: "الرجاء تعبئة جميع الحقول المطلوبة.",
     acctPasswordMismatch: "كلمتا المرور غير متطابقتين.",
     acctPasswordTooShort: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
-    acctEmailExists: "يوجد حساب بهذا البريد الإلكتروني مسبقًا.",
-    acctNotFound: "لا يوجد حساب بهذا البريد الإلكتروني.",
-    acctWrongPassword: "كلمة المرور غير صحيحة.",
-    acctDecryptFailed: "تعذر فتح ملفك الشخصي. حاول مرة أخرى.",
-    acctVerifyTitle: "تحقق من حسابك",
-    acctVerifyMsg: "لا يمتلك هذا الموقع خادمًا لإرسال بريد إلكتروني حقيقي، لذا إليك رمز التحقق مباشرة: {code}\n\nأدخله أدناه لتأكيد حسابك.",
-    acctVerifyFailed: "رمز التحقق غير مطابق. تم إلغاء إنشاء الحساب.",
+    acctCheckEmail: "تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيده، ثم سجّل الدخول.",
     acctSignupSuccess: "تم إنشاء الحساب! جاري تسجيل الدخول...",
     acctWelcomeText: "مرحبًا، {name}",
     acctProfileSaved: "تم حفظ الملف الشخصي.",
     acctLoginRequired: "الرجاء تسجيل الدخول أولاً.",
     authOpenFullPage: "فتح صفحة تسجيل الدخول / إنشاء حساب كاملة ←",
-    acctDisabledNotice: "تسجيل الدخول معطل مؤقتًا أثناء إعداد خادم حقيقي.",
     theaterMode: "وضع السينما",
     theaterLocalFile: "ملف محلي",
     theaterFromUrl: "من رابط",
@@ -3744,6 +3732,7 @@ const TUTORIAL_STEPS = [
   { target: '#clock', placement: 'bottom', titleKey: 'tutClockTitle', bodyKey: 'tutClockBody' },
   { target: '.left-panel', placement: 'right', titleKey: 'tutWidgetsTitle', bodyKey: 'tutWidgetsBody' },
   { target: '.panel-tab', placement: 'left', titleKey: 'tutPanelTitle', bodyKey: 'tutPanelBody' },
+  { target: '#acctLoggedOutBlock', placement: 'left', titleKey: 'tutAccountTitle', bodyKey: 'tutAccountBody', forcePanel: true },
   { target: '#widgetTogglesGrid', placement: 'left', titleKey: 'tutWidgetManagerTitle', bodyKey: 'tutWidgetManagerBody', forcePanel: true },
   { target: '#addCountdownBtn', placement: 'left', titleKey: 'tutCountdownTitle', bodyKey: 'tutCountdownBody', forcePanel: true },
   { target: '#addTaskBtn', placement: 'left', titleKey: 'tutAddTaskTitle', bodyKey: 'tutAddTaskBody', forcePanel: true },
@@ -4304,41 +4293,74 @@ function startQuoteRotation() {
 }
 
 /* ==========================================
-   13e. ACCOUNT SYSTEM (local-only, encrypted profile)
+   13e. ACCOUNT SYSTEM (Supabase Auth + cloud sync)
    ========================================== */
 let currentAccount = null;
-let currentAccountKey = null;
-let pendingSignupCode = null;
+let cloudUser = null;
 
-function bytesToHex(bytes) { return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(''); }
-function hexToBytes(hex) {
-  const arr = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(hex.substr(i * 2, 2), 16);
-  return arr;
-}
-function randomBytes(n) { return crypto.getRandomValues(new Uint8Array(n)); }
+const CLOUD_SYNC_KEYS = ['idleTasksV4', 'idleGoals', 'idleCountdowns', 'idleVisibleWidgets', 'idleTheme', 'idleMode',
+  'idleLang', 'arcStyleMode', 'idleCity', 'idleTitle', 'idleDisplayLayout', 'spotifyArtMode', 'countdownSort',
+  'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert'];
 
-async function pbkdf2Hash(password, saltBytes, iterations = 100000, lengthBits = 256) {
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
-  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: saltBytes, iterations, hash: 'SHA-256' }, keyMaterial, lengthBits);
-  return new Uint8Array(bits);
+function collectCloudSnapshot() {
+  const snap = {};
+  CLOUD_SYNC_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) snap[k] = v; });
+  snap.acctName = currentAccount ? (currentAccount.name || '') : '';
+  snap.acctDob = currentAccount ? (currentAccount.dob || '') : '';
+  snap.acctDobIsHijri = currentAccount ? !!currentAccount.dobIsHijri : false;
+  return snap;
 }
-async function deriveAesKey(password, saltBytes) {
-  const enc = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
-  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: saltBytes, iterations: 100000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+function applyCloudSnapshot(snap) {
+  CLOUD_SYNC_KEYS.forEach(k => { if (snap[k] !== undefined) localStorage.setItem(k, snap[k]); });
 }
-async function encryptWithKey(key, obj) {
-  const iv = randomBytes(12);
-  const enc = new TextEncoder();
-  const cipherBuf = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(JSON.stringify(obj)));
-  return { iv: bytesToHex(iv), cipher: btoa(String.fromCharCode(...new Uint8Array(cipherBuf))) };
+
+let cloudSyncTimer = null;
+function scheduleCloudSync() {
+  if (!cloudUser) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(pushCloudSnapshot, 1500);
 }
-async function decryptWithKey(key, ivHex, cipherB64) {
-  const cipherBytes = Uint8Array.from(atob(cipherB64), c => c.charCodeAt(0));
-  const plainBuf = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: hexToBytes(ivHex) }, key, cipherBytes);
-  return JSON.parse(new TextDecoder().decode(plainBuf));
+async function pushCloudSnapshot() {
+  if (!cloudUser) return;
+  const snap = collectCloudSnapshot();
+  sessionStorage.setItem('cloudSyncGuard', JSON.stringify(snap));
+  await supabaseClient.from('user_data').upsert({ user_id: cloudUser.id, data: snap, updated_at: new Date().toISOString() });
+}
+
+(function () {
+  const origSetItem = localStorage.setItem.bind(localStorage);
+  localStorage.setItem = function (key, value) {
+    origSetItem(key, value);
+    if (CLOUD_SYNC_KEYS.includes(key)) scheduleCloudSync();
+  };
+})();
+
+async function activateCloudSession(user) {
+  cloudUser = user;
+  localStorage.setItem('idleLastAccountEmail', user.email);
+  const meta = user.user_metadata || {};
+  const { data: row } = await supabaseClient.from('user_data').select('data').eq('user_id', user.id).maybeSingle();
+
+  if (row && row.data && Object.keys(row.data).length) {
+    currentAccount = {
+      email: user.email,
+      name: row.data.acctName || meta.name || '',
+      dob: row.data.acctDob || meta.dob || '',
+      dobIsHijri: row.data.acctDobIsHijri != null ? !!row.data.acctDobIsHijri : !!meta.dob_is_hijri
+    };
+    const snapJSON = JSON.stringify(row.data);
+    if (sessionStorage.getItem('cloudSyncGuard') !== snapJSON) {
+      applyCloudSnapshot(row.data);
+      sessionStorage.setItem('cloudSyncGuard', snapJSON);
+      location.reload();
+      return;
+    }
+  } else {
+    currentAccount = { email: user.email, name: meta.name || '', dob: meta.dob || '', dobIsHijri: !!meta.dob_is_hijri };
+    await pushCloudSnapshot();
+  }
+  renderAccountUI();
+  applyBirthdayFromAccount();
 }
 
 function setAccountTab(tab) {
@@ -4370,30 +4392,18 @@ async function submitSignupInner() {
   if (password !== confirmPw) { await customAlert(translations[lang].acctPasswordMismatch); return; }
   if (password.length < 6) { await customAlert(translations[lang].acctPasswordTooShort); return; }
 
-  const accounts = safeParseJSON('idleAccounts', []);
-  if (accounts.find(a => a.email === email)) { await customAlert(translations[lang].acctEmailExists); return; }
-
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
-  const entered = await customPrompt(translations[lang].acctVerifyMsg.replace('{code}', code), '', translations[lang].acctVerifyTitle);
-  if (entered !== code) { await customAlert(translations[lang].acctVerifyFailed); return; }
-
-  const salt = randomBytes(16);
-  const passHash = await pbkdf2Hash(password, salt);
-  const profileSalt = randomBytes(16);
-  const key = await deriveAesKey(password, profileSalt);
-  const enc = await encryptWithKey(key, { name, dob, dobIsHijri });
-
-  accounts.push({
-    email,
-    salt: bytesToHex(salt),
-    passHash: bytesToHex(passHash),
-    profileSalt: bytesToHex(profileSalt),
-    profileIv: enc.iv,
-    profileCipher: enc.cipher
+  const { data, error } = await supabaseClient.auth.signUp({
+    email, password,
+    options: { data: { name, dob, dob_is_hijri: dobIsHijri } }
   });
-  localStorage.setItem('idleAccounts', JSON.stringify(accounts));
-  await customAlert(translations[lang].acctSignupSuccess);
-  await performLogin(email, password);
+  if (error) { await customAlert(error.message); return; }
+  if (data.session) {
+    await customAlert(translations[lang].acctSignupSuccess);
+    await activateCloudSession(data.session.user);
+  } else {
+    await customAlert(translations[lang].acctCheckEmail);
+    setAccountTab('login');
+  }
 }
 
 async function submitLogin() {
@@ -4403,57 +4413,30 @@ async function submitLogin() {
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
     const password = document.getElementById('loginPassword').value;
     if (!email || !password) { await customAlert(translations[lang].acctFillRequired); return; }
-    await performLogin(email, password);
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { await customAlert(error.message); return; }
+    await activateCloudSession(data.user);
   } finally {
     authSubmitInProgress = false;
   }
 }
 
-async function performLogin(email, password) {
-  const accounts = safeParseJSON('idleAccounts', []);
-  const acct = accounts.find(a => a.email === email);
-  if (!acct) { await customAlert(translations[lang].acctNotFound); return false; }
-  const hash = await pbkdf2Hash(password, hexToBytes(acct.salt));
-  if (bytesToHex(hash) !== acct.passHash) { await customAlert(translations[lang].acctWrongPassword); return false; }
-
-  const key = await deriveAesKey(password, hexToBytes(acct.profileSalt));
-  let profile;
-  try {
-    profile = await decryptWithKey(key, acct.profileIv, acct.profileCipher);
-  } catch (e) {
-    await customAlert(translations[lang].acctDecryptFailed);
-    return false;
-  }
-  currentAccount = { email: acct.email, name: profile.name, dob: profile.dob, dobIsHijri: !!profile.dobIsHijri };
-  currentAccountKey = key;
-  localStorage.setItem('idleLastAccountEmail', acct.email);
-  renderAccountUI();
-  applyBirthdayFromAccount();
-  return true;
-}
-
-function logoutAccount() {
+async function logoutAccount() {
+  if (supabaseClient) await supabaseClient.auth.signOut();
+  cloudUser = null;
   currentAccount = null;
-  currentAccountKey = null;
+  sessionStorage.removeItem('cloudSyncGuard');
   renderAccountUI();
   applyBirthdayFromAccount();
 }
 
 async function saveAccountProfile() {
-  if (!currentAccount || !currentAccountKey) { await customAlert(translations[lang].acctLoginRequired); return; }
+  if (!currentAccount || !cloudUser) { await customAlert(translations[lang].acctLoginRequired); return; }
   const dob = document.getElementById('profileDob').value;
   const dobIsHijri = document.getElementById('profileDobIsHijri').checked;
   currentAccount.dob = dob;
   currentAccount.dobIsHijri = dobIsHijri;
-
-  const accounts = safeParseJSON('idleAccounts', []);
-  const idx = accounts.findIndex(a => a.email === currentAccount.email);
-  if (idx !== -1) {
-    const enc = await encryptWithKey(currentAccountKey, { name: currentAccount.name, dob, dobIsHijri });
-    accounts[idx].profileIv = enc.iv;
-    accounts[idx].profileCipher = enc.cipher;
-    localStorage.setItem('idleAccounts', JSON.stringify(accounts));
-  }
+  await pushCloudSnapshot();
   await customAlert(translations[lang].acctProfileSaved);
   applyBirthdayFromAccount();
 }
@@ -4909,6 +4892,11 @@ setLanguage(lang);
 updateWorldClock();
 applyWidgetVisibility();
 renderAccountUI();
+if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+  supabaseClient.auth.getSession().then(({ data }) => {
+    if (data.session) activateCloudSession(data.session.user);
+  });
+}
 setDisplayLayout(localStorage.getItem('idleDisplayLayout') || detectDeviceLayout());
 setSpotifyArtMode(spotifyArtMode);
 renderCountdownPickers();

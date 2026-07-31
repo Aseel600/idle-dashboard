@@ -2,3 +2,8 @@
 Thumbs.db
 *.log
 .vscode/
+.claude/
+
+# Supabase local CLI state (project ref only, but never track connection cache)
+supabase/.temp
+supabase/.branches
