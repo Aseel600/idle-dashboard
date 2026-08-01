@@ -21,11 +21,20 @@ let dragging = false, prevMouseAngle = null, dragRadius = radius, isBroken = fal
 let lastInteractionTime = Date.now();
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000; // 5 Minutes
 
-let originalDurationMs = 0;
-let timerDurationMs = originalDurationMs;
-let rawTimerDurationMs = timerDurationMs;
-let timerEndTime = Date.now();
-let isTimerRunning = false;
+// Quick Timer state survives a page reload (tab discard, browser memory-saver,
+// laptop sleep, accidental refresh) by persisting to localStorage every tick -
+// without this, a long-running timer looks like it "vanished" with no trace if
+// the tab gets reloaded while it's still counting down, even though the timer
+// itself hadn't actually finished. Restored here before boot; updateLiveTimer's
+// existing end-time comparison (timerEndTime - now) already handles "it finished
+// while the tab was gone" correctly on its own, since it's based on an absolute
+// timestamp, not an accumulated countdown.
+const savedQuickTimerState = safeParseJSON('idleQuickTimerState', null);
+let originalDurationMs = (savedQuickTimerState && savedQuickTimerState.originalDurationMs) || 0;
+let timerDurationMs = (savedQuickTimerState && savedQuickTimerState.timerDurationMs) || originalDurationMs;
+let rawTimerDurationMs = (savedQuickTimerState && savedQuickTimerState.rawTimerDurationMs) || timerDurationMs;
+let timerEndTime = (savedQuickTimerState && savedQuickTimerState.timerEndTime) || Date.now();
+let isTimerRunning = !!(savedQuickTimerState && savedQuickTimerState.isTimerRunning);
 
 function safeParseJSON(key, fallback) {
   try {
@@ -1633,6 +1642,26 @@ function makeTaskArcPath(r, startMins, endMins, color, opacity) {
   return path;
 }
 
+const TASK_ELAPSED_OPACITY_FACTOR = 0.4;
+// Splits a task's arc into an already-elapsed segment (same color, faded) and a
+// still-to-come segment (same color, normal opacity) around the current time -
+// used across every clock face style so elapsed time reads consistently.
+function appendTaskArcWithElapsed(grp, r, startMins, endMins, endMinsRaw, task, normalOpacity, nowMins) {
+  let effectiveNow = nowMins;
+  if (effectiveNow < startMins) effectiveNow += 1440;
+  const elapsedEnd = Math.min(Math.max(effectiveNow, startMins), endMins);
+  if (elapsedEnd > startMins) {
+    const elapsedPath = makeTaskArcPath(r, startMins, elapsedEnd, task.color, normalOpacity * TASK_ELAPSED_OPACITY_FACTOR);
+    addTaskArcTitle(elapsedPath, task, startMins, endMinsRaw);
+    grp.appendChild(elapsedPath);
+  }
+  if (endMins > elapsedEnd) {
+    const remainingPath = makeTaskArcPath(r, elapsedEnd, endMins, task.color, normalOpacity);
+    addTaskArcTitle(remainingPath, task, startMins, endMinsRaw);
+    grp.appendChild(remainingPath);
+  }
+}
+
 function addTaskArcTitle(el, t, startMins, endMinsRaw) {
   const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
   let text = `${ICON_LIBRARY[resolveIconId(t.icon)].legacy} ${t.name} (${format12H(startMins)} - ${format12H(endMinsRaw)})`;
@@ -1647,6 +1676,7 @@ function renderTaskArcs() {
   grp.innerHTML = '';
   const today = new Date();
   const nowIsAM = today.getHours() < 12;
+  const nowMins = getNowMins();
   const todayTasks = scheduledTasks.filter(t => taskOccursOnDate(t, today)).map(t => {
     const [sH, sM] = t.start.split(':').map(Number);
     const [eH, eM] = t.end.split(':').map(Number);
@@ -1685,9 +1715,7 @@ function renderTaskArcs() {
       const group = todayTasks.filter(x => (period === 'am') === x.isAM);
       const r = period === 'am' ? amR : pmR;
       group.forEach(({ task, startMins, endMins, endMinsRaw }) => {
-        const path = makeTaskArcPath(r, startMins, endMins, task.color, 0.8);
-        addTaskArcTitle(path, task, startMins, endMinsRaw);
-        grp.appendChild(path);
+        appendTaskArcWithElapsed(grp, r, startMins, endMins, endMinsRaw, task, 0.8, nowMins);
       });
       for (let i = 0; i < group.length; i++) {
         for (let j = i + 1; j < group.length; j++) {
@@ -1706,15 +1734,11 @@ function renderTaskArcs() {
   } else if (arcStyleMode === 'dimmed') {
     todayTasks.forEach(({ task, startMins, endMins, endMinsRaw, isAM }) => {
       const opacity = isAM === nowIsAM ? 0.9 : 0.25;
-      const path = makeTaskArcPath(radius + 8, startMins, endMins, task.color, opacity);
-      addTaskArcTitle(path, task, startMins, endMinsRaw);
-      grp.appendChild(path);
+      appendTaskArcWithElapsed(grp, radius + 8, startMins, endMins, endMinsRaw, task, opacity, nowMins);
     });
   } else if (arcStyleMode === 'daynight') {
     todayTasks.forEach(({ task, startMins, endMins, endMinsRaw, isAM }) => {
-      const path = makeTaskArcPath(radius + 8, startMins, endMins, task.color, 0.8);
-      addTaskArcTitle(path, task, startMins, endMinsRaw);
-      grp.appendChild(path);
+      appendTaskArcWithElapsed(grp, radius + 8, startMins, endMins, endMinsRaw, task, 0.8, nowMins);
 
       const midAng = minsToAngle((startMins + endMins) / 2);
       const pos = polarToCartesian(cx, cy, radius + 8, midAng);
@@ -1734,9 +1758,7 @@ function renderTaskArcs() {
     });
   } else {
     todayTasks.forEach(({ task, startMins, endMins, endMinsRaw }) => {
-      const path = makeTaskArcPath(radius + 8, startMins, endMins, task.color, 0.8);
-      addTaskArcTitle(path, task, startMins, endMinsRaw);
-      grp.appendChild(path);
+      appendTaskArcWithElapsed(grp, radius + 8, startMins, endMins, endMinsRaw, task, 0.8, nowMins);
     });
   }
 }
@@ -2569,7 +2591,7 @@ function checkV3Logic() {
   const now = new Date();
   const currentMins = now.getHours() * 60 + now.getMinutes();
   if (currentMins === lastCheckedMinute) return;
-  if (arcStyleMode === 'dimmed' && (currentMins === 0 || currentMins === 720)) renderTaskArcs();
+  renderTaskArcs();
   lastCheckedMinute = currentMins;
   let foundActive = false;
   const todayTasks = scheduledTasks.filter(t => taskOccursOnDate(t, now));
@@ -2660,6 +2682,12 @@ function updateLiveTimer() {
       }
     } else {
       diffMs = timerDurationMs;
+    }
+
+    if (originalDurationMs > 0) {
+      localStorage.setItem('idleQuickTimerState', JSON.stringify({ isTimerRunning, timerEndTime, timerDurationMs, originalDurationMs, rawTimerDurationMs }));
+    } else {
+      localStorage.removeItem('idleQuickTimerState');
     }
 
     if (!isTimerRunning && originalDurationMs > 0) {

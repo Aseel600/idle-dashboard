@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.14)</title>
+  <title>Ambient OS | Dashboard (V7.15)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.14</span>
+      <span class="dev-version">v7.15</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,10 +139,12 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.14 SKIP INTRO IS NOW ONE-USE PER VIDEO</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.15 TIMER PERSISTENCE FIX + ELAPSED-TIME FADING</div>
 
-    <label class="qa-item"><input type="checkbox"> "Skip the intro" Button Now Hides Itself Immediately After Use</label>
-    <label class="qa-item"><input type="checkbox"> Button Reappears Fresh Each Time Theater Mode Is (Re-)Entered, So It's Available Again for the Next Video</label>
+    <label class="qa-item"><input type="checkbox"> Critical: Quick Timer State Was Never Persisted, So a Tab Reload/Discard While a Long Timer Was Running Made It Silently Vanish With No Trace - Now Persisted Every Tick and Restored on Boot</label>
+    <label class="qa-item"><input type="checkbox"> A Timer That Finished While the Tab Was Gone Now Correctly Completes (Chime + Shooting Star) on Return Instead of Just Disappearing</label>
+    <label class="qa-item"><input type="checkbox"> A Timer Still Running Resumes Its Live Countdown Seamlessly After Reload - Verified Both Cases With Seeded Regression Tests</label>
+    <label class="qa-item"><input type="checkbox"> Task Arcs on Every Clock Face Style (Original, Dimmed, Day/Night, Dual Track) Now Split Into an Elapsed Segment (Same Color, Faded) and a Remaining Segment (Full Color), Updating Live Every Minute</label>
     </div>
   </div>
 
