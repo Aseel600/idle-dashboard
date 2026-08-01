@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.13)</title>
+  <title>Ambient OS | Dashboard (V7.14)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.13</span>
+      <span class="dev-version">v7.14</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,13 +139,10 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.13 THEATER CONTROLS + AZAN REMINDER TOGGLE</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.14 SKIP INTRO IS NOW ONE-USE PER VIDEO</div>
 
-    <label class="qa-item"><input type="checkbox"> Theater Mode: Arrow Keys Seek ±5s, Space Toggles Play/Pause (Local/Direct Video Only, Not YouTube)</label>
-    <label class="qa-item"><input type="checkbox"> Theater Mode: New "Skip the intro" Button Jumps Forward 90 Seconds</label>
-    <label class="qa-item"><input type="checkbox"> Theater Mode: New Rounded Corners Toggle - Off Gives Square Edges</label>
-    <label class="qa-item"><input type="checkbox"> New Azan Reminder Toggle - Disables the Ambient Glow and Clock Takeover at Prayer Time While Keeping the Prayer Widget's Own Info Display Working</label>
-    <label class="qa-item"><input type="checkbox"> All New Settings Sync Across Devices via the Existing Cloud Sync System</label>
+    <label class="qa-item"><input type="checkbox"> "Skip the intro" Button Now Hides Itself Immediately After Use</label>
+    <label class="qa-item"><input type="checkbox"> Button Reappears Fresh Each Time Theater Mode Is (Re-)Entered, So It's Available Again for the Next Video</label>
     </div>
   </div>
 

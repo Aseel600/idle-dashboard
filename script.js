@@ -4563,6 +4563,7 @@ function theaterSkipIntro() {
   const v = document.getElementById('theaterVideo');
   if (!v) return;
   v.currentTime = Math.min(v.duration || Infinity, v.currentTime + 90);
+  document.getElementById('theaterOverlay').classList.add('theater-intro-skipped');
 }
 
 function setTheaterSourceTab(tab) {
@@ -4648,6 +4649,7 @@ function enterTheaterMode() {
     iframeEl.src = '';
     videoEl.play().catch(() => {});
   }
+  overlay.classList.remove('theater-intro-skipped');
   overlay.classList.toggle('theater-media-iframe', theaterMediaType === 'iframe');
   overlay.classList.add('active');
   setTheaterLayout(theaterLayoutMode, document.querySelector(`#theaterLayoutGrid .clock-toggle-btn[onclick*="'${theaterLayoutMode}'"]`));

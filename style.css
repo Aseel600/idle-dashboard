@@ -444,7 +444,8 @@ body.focus-mode .quote-bar { opacity: 0 !important; pointer-events: none !import
 .theater-skip-intro-btn { display: flex; align-items: center; gap: 6px; background: rgba(255, 255, 255, 0.15); border: none; border-radius: 20px; color: #fff; padding: 6px 14px; margin: 0 8px; font-size: 0.72rem; font-weight: bold; cursor: pointer; transition: 0.2s; white-space: nowrap; }
 .theater-skip-intro-btn:hover { background: var(--accent); color: var(--accent-contrast); }
 .theater-skip-intro-btn .icon-svg { width: 13px; height: 13px; }
-.theater-overlay.theater-media-iframe .theater-skip-intro-btn { display: none; }
+.theater-overlay.theater-media-iframe .theater-skip-intro-btn,
+.theater-overlay.theater-intro-skipped .theater-skip-intro-btn { display: none; }
 .theater-media-container { flex: 1; position: relative; background: #000; }
 .theater-media { width: 100%; height: 100%; object-fit: contain; border: none; display: block; }
 .theater-resize-handle { position: absolute; bottom: 0; right: 0; width: 30px; height: 30px; cursor: nwse-resize; opacity: 0.5; z-index: 3; }
