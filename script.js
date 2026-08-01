@@ -1857,6 +1857,7 @@ function toggleWidgetExpand(widgetId, e) {
   const card = document.getElementById(widgetId);
   if (!card) return;
   card.classList.toggle('expanded');
+  if (widgetId === 'wgSpotify' && typeof updateSpotifyEqAudioState === 'function') updateSpotifyEqAudioState();
 }
 function toggleTimeline(btnEl) {
   const el = document.getElementById('timelineContainer');
@@ -3085,6 +3086,7 @@ async function updateSpotifyUI() {
     isSpotifyPlaying = false;
     const eqBarsOffline = document.getElementById('spEqBars');
     if (eqBarsOffline) eqBarsOffline.classList.remove('sp-eq-playing');
+    stopSpotifyEqMic();
     if (fillEl) fillEl.style.width = '0%';
     if (elapsedEl) elapsedEl.textContent = '0:00';
     if (durationEl) durationEl.textContent = '0:00';
@@ -3099,12 +3101,13 @@ async function updateSpotifyUI() {
   if (data.item.album.images.length > 0) {
     artEl.src = data.item.album.images[0].url;
     artEl.style.display = 'block';
-    if (miniArtEl) { miniArtEl.src = data.item.album.images[0].url; miniArtEl.style.display = 'block'; }
+    if (miniArtEl) { miniArtEl.src = data.item.album.images[0].url; miniArtEl.style.display = spotifyArtMode === 2 ? 'none' : 'block'; }
   }
   isSpotifyPlaying = data.is_playing;
   playBtn.innerHTML = svgIcon(isSpotifyPlaying ? 'icon-pause' : 'icon-play');
   const eqBars = document.getElementById('spEqBars');
   if (eqBars) eqBars.classList.toggle('sp-eq-playing', isSpotifyPlaying);
+  updateSpotifyEqAudioState();
 
   if (fillEl && data.item.duration_ms) {
     const pct = Math.min(100, ((data.progress_ms || 0) / data.item.duration_ms) * 100);
@@ -3197,6 +3200,89 @@ function setSpotifyArtMode(mode) {
   const track = document.getElementById('spArtTrack');
   if (track) track.style.transform = `translateX(-${mode * 33.3333}%)`;
   document.querySelectorAll('#spArtDots .sp-art-dot').forEach((dot, i) => dot.classList.toggle('active', i === mode));
+  const miniArtEl = document.getElementById('spMiniArt');
+  if (miniArtEl && miniArtEl.src) miniArtEl.style.display = mode === 2 ? 'none' : 'block';
+  updateSpotifyEqAudioState();
+}
+
+/* 13b. SPOTIFY EQUALIZER - REAL AUDIO VIA MICROPHONE
+   This page only remote-controls Spotify playback (Web API), it never
+   receives the actual audio stream, so there is no track data to analyze
+   here directly. Listening to the room's sound through the mic (Web Audio
+   AnalyserNode) is the only way to drive genuinely real-time bars without
+   requiring Premium or making this tab a Spotify Connect playback device. */
+let spEqAudioCtx = null;
+let spEqAnalyser = null;
+let spEqStream = null;
+let spEqRafId = null;
+let spEqMicDenied = false;
+let spEqFreqData = null;
+
+function updateSpotifyEqAudioState() {
+  const card = document.getElementById('wgSpotify');
+  const shouldBeActive = spotifyArtMode === 2 && card && card.classList.contains('expanded');
+  if (shouldBeActive) startSpotifyEqMic(); else stopSpotifyEqMic();
+}
+
+async function startSpotifyEqMic() {
+  const hint = document.getElementById('spEqMicHint');
+  if (spEqAudioCtx) return;
+  if (spEqMicDenied) {
+    if (hint) { hint.textContent = lang === 'en' ? 'Mic unavailable - showing animated pulse' : 'الميكروفون غير متاح - يتم عرض نبض متحرك'; hint.classList.add('visible'); }
+    return;
+  }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { spEqMicDenied = true; updateSpotifyEqAudioState(); return; }
+  try {
+    spEqStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    spEqMicDenied = true;
+    if (hint) { hint.textContent = lang === 'en' ? 'Mic access denied - showing animated pulse' : 'تم رفض إذن الميكروفون - يتم عرض نبض متحرك'; hint.classList.add('visible'); }
+    return;
+  }
+  if (spotifyArtMode !== 2 || !document.getElementById('wgSpotify')?.classList.contains('expanded')) { spEqStream.getTracks().forEach(t => t.stop()); spEqStream = null; return; }
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  spEqAudioCtx = new AudioCtx();
+  const source = spEqAudioCtx.createMediaStreamSource(spEqStream);
+  spEqAnalyser = spEqAudioCtx.createAnalyser();
+  spEqAnalyser.fftSize = 64;
+  spEqAnalyser.smoothingTimeConstant = 0.75;
+  source.connect(spEqAnalyser);
+  spEqFreqData = new Uint8Array(spEqAnalyser.frequencyBinCount);
+  const bars = document.getElementById('spEqBars');
+  if (bars) bars.classList.add('sp-eq-real');
+  if (hint) { hint.textContent = lang === 'en' ? 'Real-time from your mic' : 'مباشر من الميكروفون'; hint.classList.add('visible'); }
+  spEqAnimateBars();
+}
+
+function spEqAnimateBars() {
+  if (!spEqAnalyser) return;
+  spEqAnalyser.getByteFrequencyData(spEqFreqData);
+  const bars = document.querySelectorAll('#spEqBars span');
+  const binCount = spEqFreqData.length;
+  const bucketSize = Math.max(1, Math.floor(binCount / bars.length));
+  bars.forEach((bar, i) => {
+    let sum = 0;
+    const start = i * bucketSize;
+    for (let j = start; j < start + bucketSize; j++) sum += spEqFreqData[j] || 0;
+    const avg = sum / bucketSize;
+    bar.style.height = `${8 + (avg / 255) * 36}px`;
+    bar.style.opacity = String(0.55 + (avg / 255) * 0.45);
+  });
+  spEqRafId = requestAnimationFrame(spEqAnimateBars);
+}
+
+function stopSpotifyEqMic() {
+  if (spEqRafId) { cancelAnimationFrame(spEqRafId); spEqRafId = null; }
+  if (spEqStream) { spEqStream.getTracks().forEach(t => t.stop()); spEqStream = null; }
+  if (spEqAudioCtx) { spEqAudioCtx.close().catch(() => {}); spEqAudioCtx = null; }
+  spEqAnalyser = null;
+  const bars = document.getElementById('spEqBars');
+  if (bars) {
+    bars.classList.remove('sp-eq-real');
+    bars.querySelectorAll('span').forEach(s => { s.style.height = ''; s.style.opacity = ''; });
+  }
+  const hint = document.getElementById('spEqMicHint');
+  if (hint) hint.classList.remove('visible');
 }
 
 function parseLRC(text) {

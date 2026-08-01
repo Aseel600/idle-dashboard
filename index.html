@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.16)</title>
+  <title>Ambient OS | Dashboard (V7.17)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.16</span>
+      <span class="dev-version">v7.17</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,16 +139,12 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.16 ACCOUNT SETTINGS, LOGIN SECURITY, SPOTIFY SYNC + WIDGET POLISH</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.17 SPOTIFY MINI-TITLE FIX + REAL MIC-DRIVEN EQUALIZER</div>
 
-    <label class="qa-item"><input type="checkbox"> DOB Moved Out of the Account Panel Into a New Gear-Icon Settings Modal, Alongside a New Change Password Feature</label>
-    <label class="qa-item"><input type="checkbox"> Login/Signup No Longer Leave /index.html in the Address Bar - Redirects to a Clean Root URL</label>
-    <label class="qa-item"><input type="checkbox"> Forgot Password Flow Added (Was Completely Missing) - Email Reset Link + Set New Password, Wired to Supabase's Recovery Session Event</label>
-    <label class="qa-item"><input type="checkbox"> Login Now Has Client-Side Brute-Force Throttling (5 Failures = 60s Lockout) - Was Completely Absent Before</label>
-    <label class="qa-item"><input type="checkbox"> Spotify Login Now Syncs Across Devices via the Existing Cloud Sync System - No More Reconnecting on Every New PC</label>
-    <label class="qa-item"><input type="checkbox"> Fixed: Topmost Widget's Hover Glow Was Getting Clipped by the Widget Bar's Own Edge</label>
-    <label class="qa-item"><input type="checkbox"> Fixed: Spotify Widget No Longer Shows Both the Mini and Expanded Album Art at Once - Mini Fades Out, Expanded Grows In</label>
-    <label class="qa-item"><input type="checkbox"> Spotify's "Hide Art" Mode Replaced With a Pulsing Equalizer Animation Instead of a Static Icon</label>
+    <label class="qa-item"><input type="checkbox"> Fixed: Track Title No Longer Sits Next to an Empty Space When "Hide Art" Mode is Active - Shifts Left to Fill the Row</label>
+    <label class="qa-item"><input type="checkbox"> Spotify's Equalizer Bars Are Now Genuinely Real-Time, Driven by the Device Microphone via the Web Audio API (Not a Simulated Animation)</label>
+    <label class="qa-item"><input type="checkbox"> Equalizer Gracefully Falls Back to the Old Animated Pulse if Mic Access is Denied or Unavailable</label>
+    <label class="qa-item"><input type="checkbox"> Microphone Only Activates While the Spotify Widget is Expanded and in "Hide Art" Mode - Stops Immediately Otherwise</label>
     </div>
   </div>
 
@@ -741,6 +737,7 @@
                 <div class="sp-eq-bars" id="spEqBars">
                   <span></span><span></span><span></span><span></span><span></span>
                 </div>
+                <div class="sp-eq-mic-hint" id="spEqMicHint"></div>
               </div>
             </div>
           </div>

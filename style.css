@@ -128,7 +128,7 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .sp-art-track { display: flex; width: 300%; height: 100%; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
 .sp-art-track.dragging { transition: none; }
 .sp-art-slide { width: 33.3333%; height: 100%; flex-shrink: 0; position: relative; }
-.sp-art-slide-hidden-mode { display: flex; align-items: center; justify-content: center; background: var(--input-bg); }
+.sp-art-slide-hidden-mode { display: flex; align-items: center; justify-content: center; background: var(--input-bg); position: relative; }
 .sp-eq-bars { display: flex; align-items: flex-end; justify-content: center; gap: 5px; height: 44px; }
 .sp-eq-bars span { display: block; width: 5px; height: 8px; border-radius: 3px; background: var(--accent); opacity: 0.55; transition: height 0.3s ease, opacity 0.3s ease; }
 .sp-eq-bars.sp-eq-playing span { animation: spEqPulse 1.1s ease-in-out infinite; opacity: 1; }
@@ -137,6 +137,9 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .sp-eq-bars span:nth-child(3) { animation-delay: -1.1s; }
 .sp-eq-bars span:nth-child(4) { animation-delay: -0.2s; }
 .sp-eq-bars span:nth-child(5) { animation-delay: -0.7s; }
+.sp-eq-bars.sp-eq-real span { animation: none !important; transition: height 0.05s linear, opacity 0.05s linear; }
+.sp-eq-mic-hint { position: absolute; bottom: 6px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--text-secondary); opacity: 0.7; padding: 0 8px; display: none; }
+.sp-eq-mic-hint.visible { display: block; }
 @keyframes spEqPulse {
   0%, 100% { height: 8px; }
   25% { height: 30px; }
