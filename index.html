@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.12)</title>
+  <title>Ambient OS | Dashboard (V7.13)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.12</span>
+      <span class="dev-version">v7.13</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,17 +139,13 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.12 FULL QA PASS - CRITICAL BOOT CRASH FIXED</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.13 THEATER CONTROLS + AZAN REMINDER TOGGLE</div>
 
-    <label class="qa-item"><input type="checkbox"> Critical: renderAccountUI() Referenced a Deleted Inline-Form Element, Crashing the Entire Boot Sequence (Clock, All Widgets, Session Restore) for Any Returning Logged-In-Before User - Fixed and Verified With a Seeded Regression Test</label>
-    <label class="qa-item"><input type="checkbox"> TV "Scan to Log In" Feature Was Fully Dead (Called a Non-Existent performLogin Function, Referenced Deleted Form Fields) - Rewired to Use the Real Supabase Auth Call Directly</label>
-    <label class="qa-item"><input type="checkbox"> Pomodoro: Saving Settings While Paused No Longer Wipes the Remaining Time on an In-Progress Session</label>
-    <label class="qa-item"><input type="checkbox"> Pomodoro: Settings Inputs Now Clamped to Positive Minimums, No More Negative-Duration Timers</label>
-    <label class="qa-item"><input type="checkbox"> Crypto/RSS Widgets No Longer Flash a False "Not Configured" State on Boot for Returning Users - Cached Data Renders Immediately, Before the Network Refetch</label>
-    <label class="qa-item"><input type="checkbox"> RSS Widget No Longer Leaves a Stale Warning Badge Showing After a Feed URL Change Resets the Cache</label>
-    <label class="qa-item"><input type="checkbox"> Custom Crypto Coin IDs Now Sanitized on Input, Closing a Markup-Corruption Risk From Special Characters</label>
-    <label class="qa-item"><input type="checkbox"> All 4 New Settings Modals Added to the Focus-Trap/Auto-Focus and Escape-to-Close Systems, Matching Every Other Modal in the App</label>
-    <label class="qa-item"><input type="checkbox"> 3 Parallel Deep-Audit Passes Run Across Handler/ID Cross-References, Widget Logic, and Navigation/Theater/Tutorial Regressions</label>
+    <label class="qa-item"><input type="checkbox"> Theater Mode: Arrow Keys Seek ±5s, Space Toggles Play/Pause (Local/Direct Video Only, Not YouTube)</label>
+    <label class="qa-item"><input type="checkbox"> Theater Mode: New "Skip the intro" Button Jumps Forward 90 Seconds</label>
+    <label class="qa-item"><input type="checkbox"> Theater Mode: New Rounded Corners Toggle - Off Gives Square Edges</label>
+    <label class="qa-item"><input type="checkbox"> New Azan Reminder Toggle - Disables the Ambient Glow and Clock Takeover at Prayer Time While Keeping the Prayer Widget's Own Info Display Working</label>
+    <label class="qa-item"><input type="checkbox"> All New Settings Sync Across Devices via the Existing Cloud Sync System</label>
     </div>
   </div>
 
@@ -593,6 +589,7 @@
     <div class="theater-window" id="theaterWindow">
       <div class="theater-header" id="theaterHeader">
         <span class="theater-drag-hint"><svg class="icon-svg"><use href="#icon-picture-in-picture"></use></svg></span>
+        <button class="theater-skip-intro-btn" onclick="theaterSkipIntro()" data-i18n-title="theaterSkipIntro" title="Skip the intro" aria-label="Skip the intro"><svg class="icon-svg"><use href="#icon-skip-forward"></use></svg> <span data-i18n="theaterSkipIntro">Skip the intro</span></button>
         <button class="theater-close-btn" onclick="exitTheaterMode()" aria-label="Close theater mode"><svg class="icon-svg"><use href="#icon-x"></use></svg></button>
       </div>
       <div class="theater-media-container" id="theaterMediaContainer">
@@ -972,6 +969,15 @@
     <div class="panel-header" data-i18n="location">Location</div>
     <input type="text" class="title-input" id="cityInput" value="Jeddah" placeholder="Enter City" data-i18n-placeholder="enterCity" />
 
+    <div class="panel-header" data-i18n="azanReminder">Azan Reminder</div>
+    <div class="modal-field-row">
+      <span class="mfr-label" data-i18n="azanReminderToggle">Glow &amp; Clock Takeover at Prayer Time</span>
+      <label class="ios-toggle">
+        <input type="checkbox" id="azanReminderToggle" checked onchange="setAzanReminderEnabled(this.checked)">
+        <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+      </label>
+    </div>
+
     <div class="panel-header" data-i18n="displayTitle">Display Title</div>
     <input type="text" class="title-input" id="titleInput" value="System Standby" />
 
@@ -1119,6 +1125,13 @@
     </div>
     <div class="panel-header" style="font-size:0.7rem; margin-top:10px;"><span data-i18n="theaterDimLevel">Dim Level</span>: <span id="theaterDimValue">70%</span></div>
     <input type="range" id="theaterDimSlider" min="0" max="100" value="70" class="sp-volume-slider" style="width:100%;" oninput="setTheaterDimLevel(this.value)" />
+    <div class="modal-field-row" style="margin-top: 8px;">
+      <span class="mfr-label" data-i18n="theaterRoundedEdges">Rounded Corners</span>
+      <label class="ios-toggle">
+        <input type="checkbox" id="theaterRoundedToggle" checked onchange="setTheaterRoundedEdges(this.checked)">
+        <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+      </label>
+    </div>
     <button class="add-task-btn" style="margin-top:10px;" id="theaterEnterBtn" onclick="enterTheaterMode()" disabled data-i18n="theaterEnter">Enter Theater Mode</button>
 
     <div class="panel-header" data-i18n="musicIntegration">Music (Spotify)</div>

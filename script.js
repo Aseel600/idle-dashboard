@@ -80,6 +80,8 @@ const translations = {
     remaining: "REMAINING",
     paused: "PAUSED",
     enterCity: "Enter City...",
+    azanReminder: "Azan Reminder",
+    azanReminderToggle: "Glow & Clock Takeover at Prayer Time",
     displayMode: "Display Mode",
     quotesToggleLabel: "Ambient Quotes",
     quotesOn: "On",
@@ -257,6 +259,8 @@ const translations = {
     theaterLandscape: "Landscape",
     theaterFullscreen: "Fullscreen",
     theaterDimLevel: "Dim Level",
+    theaterRoundedEdges: "Rounded Corners",
+    theaterSkipIntro: "Skip the intro",
     theaterEnter: "Enter Theater Mode",
     theaterNoSource: "Please choose a video file or enter a URL first.",
     theaterInvalidUrl: "Could not load that URL as a video.",
@@ -342,6 +346,8 @@ const translations = {
     remaining: "المتبقي",
     paused: "متوقف",
     enterCity: "أدخل المدينة...",
+    azanReminder: "تذكير الأذان",
+    azanReminderToggle: "التوهج وتغيير الساعة عند وقت الصلاة",
     displayMode: "المظهر",
     quotesToggleLabel: "الاقتباسات المحيطة",
     quotesOn: "تشغيل",
@@ -519,6 +525,8 @@ const translations = {
     theaterLandscape: "أفقي",
     theaterFullscreen: "ملء الشاشة",
     theaterDimLevel: "مستوى التعتيم",
+    theaterRoundedEdges: "زوايا مدورة",
+    theaterSkipIntro: "تخطي المقدمة",
     theaterEnter: "بدء وضع السينما",
     theaterNoSource: "الرجاء اختيار ملف فيديو أو إدخال رابط أولاً.",
     theaterInvalidUrl: "تعذر تحميل هذا الرابط كفيديو.",
@@ -748,6 +756,15 @@ let currentTheme = themes[localStorage.getItem('idleTheme')] || themes.blue;
 let currentMode = localStorage.getItem('idleMode') || 'dark';
 let arcStyleMode = localStorage.getItem('arcStyleMode') || 'original';
 const iqamaOffsets = { Fajr: 20, Dhuhr: 15, Asr: 15, Maghrib: 10, Isha: 15 };
+let azanReminderEnabled = localStorage.getItem('idleAzanReminderEnabled') !== '0';
+function setAzanReminderEnabled(enabled) {
+  azanReminderEnabled = enabled;
+  localStorage.setItem('idleAzanReminderEnabled', enabled ? '1' : '0');
+  if (!enabled) {
+    ambientGlow.classList.remove("prayer-glow-active");
+    if (clockInterruptedByPrayer) resumeClockFromPrayerInterruption();
+  }
+}
 
 /* ==========================================
    2. DOM ELEMENTS (THE NERVOUS SYSTEM)
@@ -2420,7 +2437,6 @@ function updatePrayerUI() {
   if (nowMs >= iqamaMs) { calculateNextPrayer(); return; }
 
   if (nowMs >= azanMs && nowMs < iqamaMs) {
-    ambientGlow.classList.add("prayer-glow-active");
     wName.classList.add("prayer-text-highlight");
     wName.textContent = translations[lang].iqamaFor + pName;
     wTime.textContent = "";
@@ -2430,17 +2446,22 @@ function updatePrayerUI() {
     wCount.textContent = toNum(`(${mins}:${secs})`);
     wCount.style.color = "#FFD700";
 
-    if (!clockInterruptedByPrayer) {
-      clockInterruptedByPrayer = true;
-      document.getElementById('displayTitle').style.color = '#FFD700';
+    if (azanReminderEnabled) {
+      ambientGlow.classList.add("prayer-glow-active");
+      if (!clockInterruptedByPrayer) {
+        clockInterruptedByPrayer = true;
+        document.getElementById('displayTitle').style.color = '#FFD700';
+      }
+      document.documentElement.style.setProperty('--accent', '#FFD700');
+      displayTitle.textContent = translations[lang].iqamaFor + pName;
+      timerEndTime = iqamaMs;
+      timerDurationMs = diffMs;
+      rawTimerDurationMs = diffMs;
+      originalDurationMs = diffMs;
+      isTimerRunning = true;
+    } else {
+      ambientGlow.classList.remove("prayer-glow-active");
     }
-    document.documentElement.style.setProperty('--accent', '#FFD700');
-    displayTitle.textContent = translations[lang].iqamaFor + pName;
-    timerEndTime = iqamaMs;
-    timerDurationMs = diffMs;
-    rawTimerDurationMs = diffMs;
-    originalDurationMs = diffMs;
-    isTimerRunning = true;
   } else {
     ambientGlow.classList.remove("prayer-glow-active");
     wName.classList.remove("prayer-text-highlight");
@@ -4341,7 +4362,8 @@ let cloudUser = null;
 const CLOUD_SYNC_KEYS = ['idleTasksV4', 'idleGoals', 'idleCountdowns', 'idleVisibleWidgets', 'idleTheme', 'idleMode',
   'idleLang', 'arcStyleMode', 'idleCity', 'idleTitle', 'idleDisplayLayout', 'spotifyArtMode', 'countdownSort',
   'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert',
-  'idlePomodoroSettings', 'idlePomodoroStats', 'idleHabits', 'idleCryptoCoins', 'idleRssFeedUrl', 'chimeSound_pomodoroComplete'];
+  'idlePomodoroSettings', 'idlePomodoroStats', 'idleHabits', 'idleCryptoCoins', 'idleRssFeedUrl', 'chimeSound_pomodoroComplete',
+  'idleTheaterRoundedEdges', 'idleAzanReminderEnabled'];
 
 function collectCloudSnapshot() {
   const snap = {};
@@ -4525,6 +4547,23 @@ let theaterLayoutMode = 'floating';
 let theaterDimLevel = 70;
 let theaterMediaType = null;
 let theaterObjectUrl = null;
+let theaterRoundedEdges = localStorage.getItem('idleTheaterRoundedEdges') !== '0';
+
+function setTheaterRoundedEdges(enabled) {
+  theaterRoundedEdges = enabled;
+  localStorage.setItem('idleTheaterRoundedEdges', enabled ? '1' : '0');
+  applyTheaterRoundedEdges();
+}
+function applyTheaterRoundedEdges() {
+  const overlay = document.getElementById('theaterOverlay');
+  if (overlay) overlay.classList.toggle('theater-square-edges', !theaterRoundedEdges);
+}
+function theaterSkipIntro() {
+  if (theaterMediaType === 'iframe') return;
+  const v = document.getElementById('theaterVideo');
+  if (!v) return;
+  v.currentTime = Math.min(v.duration || Infinity, v.currentTime + 90);
+}
 
 function setTheaterSourceTab(tab) {
   theaterSourceTab = tab;
@@ -4609,6 +4648,7 @@ function enterTheaterMode() {
     iframeEl.src = '';
     videoEl.play().catch(() => {});
   }
+  overlay.classList.toggle('theater-media-iframe', theaterMediaType === 'iframe');
   overlay.classList.add('active');
   setTheaterLayout(theaterLayoutMode, document.querySelector(`#theaterLayoutGrid .clock-toggle-btn[onclick*="'${theaterLayoutMode}'"]`));
   initTheaterDragResize();
@@ -4621,6 +4661,20 @@ function exitTheaterMode() {
   videoEl.pause();
   iframeEl.src = '';
 }
+
+// Arrow keys seek ±5s, Space toggles play/pause - only while Theater Mode is
+// open and playing a local/direct video (can't control a cross-origin
+// YouTube iframe this way, so this is a no-op during iframe playback).
+window.addEventListener('keydown', (e) => {
+  const overlay = document.getElementById('theaterOverlay');
+  if (!overlay || !overlay.classList.contains('active') || theaterMediaType === 'iframe') return;
+  if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+  const v = document.getElementById('theaterVideo');
+  if (!v) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); v.currentTime = Math.min(v.duration || Infinity, v.currentTime + 5); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); v.currentTime = Math.max(0, v.currentTime - 5); }
+  else if (e.key === ' ' || e.code === 'Space') { e.preventDefault(); if (v.paused) v.play().catch(() => {}); else v.pause(); }
+});
 
 let theaterDragInit = false;
 function pointerXY(e) {
@@ -5279,6 +5333,9 @@ renderCryptoWidget();
 renderRssWidget();
 fetchCryptoPrices();
 fetchRssFeed();
+applyTheaterRoundedEdges();
+document.getElementById('theaterRoundedToggle').checked = theaterRoundedEdges;
+document.getElementById('azanReminderToggle').checked = azanReminderEnabled;
 
 setInterval(updateLiveTimer, 1000);
 setInterval(updateWorldClock, 60000);
