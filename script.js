@@ -257,6 +257,15 @@ const translations = {
     acctWelcomeText: "Welcome, {name}",
     acctProfileSaved: "Profile saved.",
     acctLoginRequired: "Please log in first.",
+    acctSettingsTitle: "Account Settings",
+    acctSettingsDone: "Done",
+    acctChangePassword: "Change Password",
+    acctNewPasswordPlaceholder: "New password",
+    acctConfirmPassword: "Confirm Password",
+    acctChangePasswordBtn: "Change Password",
+    acctPasswordMismatch: "Passwords do not match.",
+    acctPasswordTooShort: "Password must be at least 6 characters.",
+    acctPasswordChanged: "Password changed.",
     theaterMode: "Theater Mode",
     theaterLocalFile: "Local File",
     theaterFromUrl: "From URL",
@@ -523,6 +532,15 @@ const translations = {
     acctWelcomeText: "مرحبًا، {name}",
     acctProfileSaved: "تم حفظ الملف الشخصي.",
     acctLoginRequired: "الرجاء تسجيل الدخول أولاً.",
+    acctSettingsTitle: "إعدادات الحساب",
+    acctSettingsDone: "تم",
+    acctChangePassword: "تغيير كلمة المرور",
+    acctNewPasswordPlaceholder: "كلمة المرور الجديدة",
+    acctConfirmPassword: "تأكيد كلمة المرور",
+    acctChangePasswordBtn: "تغيير كلمة المرور",
+    acctPasswordMismatch: "كلمتا المرور غير متطابقتين.",
+    acctPasswordTooShort: "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل.",
+    acctPasswordChanged: "تم تغيير كلمة المرور.",
     theaterMode: "وضع السينما",
     theaterLocalFile: "ملف محلي",
     theaterFromUrl: "من رابط",
@@ -1218,6 +1236,7 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('habitsSettingsModal').classList.contains('active')) { closeHabitsSettings(); return; }
   if (document.getElementById('cryptoSettingsModal').classList.contains('active')) { closeCryptoSettings(); return; }
   if (document.getElementById('rssSettingsModal').classList.contains('active')) { closeRssSettings(); return; }
+  if (document.getElementById('accountSettingsModal').classList.contains('active')) { closeAccountSettings(); return; }
 });
 
 /* ==========================================
@@ -1235,7 +1254,8 @@ const MODAL_FOCUS_CONFIG = [
   { sel: '#pomodoroSettingsModal', inner: '.modal-content' },
   { sel: '#habitsSettingsModal', inner: '.modal-content' },
   { sel: '#cryptoSettingsModal', inner: '.modal-content' },
-  { sel: '#rssSettingsModal', inner: '.modal-content' }
+  { sel: '#rssSettingsModal', inner: '.modal-content' },
+  { sel: '#accountSettingsModal', inner: '.modal-content' }
 ];
 function getFocusableElements(container) {
   return Array.from(container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
@@ -3063,6 +3083,8 @@ async function updateSpotifyUI() {
     artEl.style.display = 'none';
     if (miniArtEl) miniArtEl.style.display = 'none';
     isSpotifyPlaying = false;
+    const eqBarsOffline = document.getElementById('spEqBars');
+    if (eqBarsOffline) eqBarsOffline.classList.remove('sp-eq-playing');
     if (fillEl) fillEl.style.width = '0%';
     if (elapsedEl) elapsedEl.textContent = '0:00';
     if (durationEl) durationEl.textContent = '0:00';
@@ -3081,6 +3103,8 @@ async function updateSpotifyUI() {
   }
   isSpotifyPlaying = data.is_playing;
   playBtn.innerHTML = svgIcon(isSpotifyPlaying ? 'icon-pause' : 'icon-play');
+  const eqBars = document.getElementById('spEqBars');
+  if (eqBars) eqBars.classList.toggle('sp-eq-playing', isSpotifyPlaying);
 
   if (fillEl && data.item.duration_ms) {
     const pct = Math.min(100, ((data.progress_ms || 0) / data.item.duration_ms) * 100);
@@ -4391,7 +4415,8 @@ const CLOUD_SYNC_KEYS = ['idleTasksV4', 'idleGoals', 'idleCountdowns', 'idleVisi
   'idleLang', 'arcStyleMode', 'idleCity', 'idleTitle', 'idleDisplayLayout', 'spotifyArtMode', 'countdownSort',
   'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert',
   'idlePomodoroSettings', 'idlePomodoroStats', 'idleHabits', 'idleCryptoCoins', 'idleRssFeedUrl', 'chimeSound_pomodoroComplete',
-  'idleTheaterRoundedEdges', 'idleAzanReminderEnabled'];
+  'idleTheaterRoundedEdges', 'idleAzanReminderEnabled',
+  'spotify_token', 'spotify_token_expiry', 'spotify_refresh_token'];
 
 function collectCloudSnapshot() {
   const snap = {};
@@ -4553,18 +4578,41 @@ function triggerConfetti() {
 function renderAccountUI() {
   const loggedOut = document.getElementById('acctLoggedOutBlock');
   const loggedIn = document.getElementById('acctLoggedInBlock');
+  const settingsBtn = document.getElementById('acctSettingsBtn');
   if (!loggedOut || !loggedIn) return;
   if (currentAccount) {
     loggedOut.style.display = 'none';
     loggedIn.style.display = 'block';
+    if (settingsBtn) settingsBtn.style.display = 'inline-flex';
     document.getElementById('acctWelcomeText').textContent = translations[lang].acctWelcomeText.replace('{name}', currentAccount.name);
     document.getElementById('acctEmailText').textContent = currentAccount.email;
-    document.getElementById('profileDob').value = currentAccount.dob || '';
-    document.getElementById('profileDobIsHijri').checked = !!currentAccount.dobIsHijri;
   } else {
     loggedOut.style.display = 'block';
     loggedIn.style.display = 'none';
+    if (settingsBtn) settingsBtn.style.display = 'none';
   }
+}
+function openAccountSettings() {
+  if (!currentAccount) return;
+  document.getElementById('profileDob').value = currentAccount.dob || '';
+  document.getElementById('profileDobIsHijri').checked = !!currentAccount.dobIsHijri;
+  document.getElementById('acctNewPassword').value = '';
+  document.getElementById('acctNewPasswordConfirm').value = '';
+  document.getElementById('accountSettingsModal').classList.add('active');
+}
+function closeAccountSettings() {
+  document.getElementById('accountSettingsModal').classList.remove('active');
+}
+async function changeAccountPassword() {
+  const pw = document.getElementById('acctNewPassword').value;
+  const confirm = document.getElementById('acctNewPasswordConfirm').value;
+  if (!pw || pw.length < 6) { await customAlert(translations[lang].acctPasswordTooShort); return; }
+  if (pw !== confirm) { await customAlert(translations[lang].acctPasswordMismatch); return; }
+  const { error } = await supabaseClient.auth.updateUser({ password: pw });
+  if (error) { await customAlert(error.message); return; }
+  document.getElementById('acctNewPassword').value = '';
+  document.getElementById('acctNewPasswordConfirm').value = '';
+  await customAlert(translations[lang].acctPasswordChanged);
 }
 
 /* ==========================================

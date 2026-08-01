@@ -15,7 +15,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.15)</title>
+  <title>Ambient OS | Dashboard (V7.16)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -127,7 +127,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.15</span>
+      <span class="dev-version">v7.16</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -139,12 +139,16 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.15 TIMER PERSISTENCE FIX + ELAPSED-TIME FADING</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.16 ACCOUNT SETTINGS, LOGIN SECURITY, SPOTIFY SYNC + WIDGET POLISH</div>
 
-    <label class="qa-item"><input type="checkbox"> Critical: Quick Timer State Was Never Persisted, So a Tab Reload/Discard While a Long Timer Was Running Made It Silently Vanish With No Trace - Now Persisted Every Tick and Restored on Boot</label>
-    <label class="qa-item"><input type="checkbox"> A Timer That Finished While the Tab Was Gone Now Correctly Completes (Chime + Shooting Star) on Return Instead of Just Disappearing</label>
-    <label class="qa-item"><input type="checkbox"> A Timer Still Running Resumes Its Live Countdown Seamlessly After Reload - Verified Both Cases With Seeded Regression Tests</label>
-    <label class="qa-item"><input type="checkbox"> Task Arcs on Every Clock Face Style (Original, Dimmed, Day/Night, Dual Track) Now Split Into an Elapsed Segment (Same Color, Faded) and a Remaining Segment (Full Color), Updating Live Every Minute</label>
+    <label class="qa-item"><input type="checkbox"> DOB Moved Out of the Account Panel Into a New Gear-Icon Settings Modal, Alongside a New Change Password Feature</label>
+    <label class="qa-item"><input type="checkbox"> Login/Signup No Longer Leave /index.html in the Address Bar - Redirects to a Clean Root URL</label>
+    <label class="qa-item"><input type="checkbox"> Forgot Password Flow Added (Was Completely Missing) - Email Reset Link + Set New Password, Wired to Supabase's Recovery Session Event</label>
+    <label class="qa-item"><input type="checkbox"> Login Now Has Client-Side Brute-Force Throttling (5 Failures = 60s Lockout) - Was Completely Absent Before</label>
+    <label class="qa-item"><input type="checkbox"> Spotify Login Now Syncs Across Devices via the Existing Cloud Sync System - No More Reconnecting on Every New PC</label>
+    <label class="qa-item"><input type="checkbox"> Fixed: Topmost Widget's Hover Glow Was Getting Clipped by the Widget Bar's Own Edge</label>
+    <label class="qa-item"><input type="checkbox"> Fixed: Spotify Widget No Longer Shows Both the Mini and Expanded Album Art at Once - Mini Fades Out, Expanded Grows In</label>
+    <label class="qa-item"><input type="checkbox"> Spotify's "Hide Art" Mode Replaced With a Pulsing Equalizer Animation Instead of a Static Icon</label>
     </div>
   </div>
 
@@ -490,6 +494,31 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="accountSettingsModal">
+    <div class="modal-content">
+      <div class="modal-header" data-i18n="acctSettingsTitle">Account Settings</div>
+      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;" data-i18n="acctDobOptional">Date of Birth (optional)</div>
+      <div class="modal-field-row" style="margin-top: 2px;">
+        <span class="mfr-label" data-i18n="acctDobCalendarHijri">Hijri Calendar</span>
+        <label class="ios-toggle">
+          <input type="checkbox" id="profileDobIsHijri">
+          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
+        </label>
+      </div>
+      <input type="date" class="date-input" id="profileDob" />
+      <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="saveAccountProfile()" data-i18n="acctSaveProfile">Save Profile</button>
+
+      <div class="panel-header" style="font-size:0.7rem; margin-top:14px;" data-i18n="acctChangePassword">Change Password</div>
+      <input type="password" class="title-input" id="acctNewPassword" placeholder="New password" data-i18n-placeholder="acctNewPasswordPlaceholder" autocomplete="new-password" />
+      <input type="password" class="title-input" id="acctNewPasswordConfirm" placeholder="Confirm new password" data-i18n-placeholder="acctConfirmPassword" autocomplete="new-password" style="margin-top:8px;" />
+      <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="changeAccountPassword()" data-i18n="acctChangePasswordBtn">Change Password</button>
+
+      <div class="modal-btns">
+        <button class="modal-btn save" onclick="closeAccountSettings()" data-i18n="acctSettingsDone">Done</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="pomodoroSettingsModal">
     <div class="modal-content">
       <div class="modal-header" data-i18n="pomodoroSettingsTitle">Focus Timer Settings</div>
@@ -709,7 +738,9 @@
                 </div>
               </div>
               <div class="sp-art-slide sp-art-slide-hidden-mode">
-                <svg class="icon-svg"><use href="#icon-eye-off"></use></svg>
+                <div class="sp-eq-bars" id="spEqBars">
+                  <span></span><span></span><span></span><span></span><span></span>
+                </div>
               </div>
             </div>
           </div>
@@ -840,7 +871,10 @@
   <div class="side-panel" id="sidePanel">
     <div class="panel-tab" onclick="toggleSidePanelTouch(event)" role="button" tabindex="0" aria-label="Toggle settings panel" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSidePanelTouch(event);}">‹</div>
 
-    <div class="panel-header" style="margin-top: 0; color: var(--text-primary);" data-i18n="accountTitle">Account</div>
+    <div class="panel-header" style="margin-top: 0; color: var(--text-primary);">
+      <span data-i18n="accountTitle">Account</span>
+      <button type="button" class="widget-settings-btn" style="display:none;" id="acctSettingsBtn" onclick="openAccountSettings()" data-i18n-title="acctSettingsTitle" title="Account Settings" aria-label="Account Settings"><svg class="icon-svg"><use href="#icon-gear"></use></svg></button>
+    </div>
     <div id="acctLoggedOutBlock">
       <div class="acct-note" data-i18n="acctLoggedOutBlurb">Sign in to sync tasks, countdowns, and settings across your devices.</div>
       <button class="add-task-btn" style="margin-top: 10px;" onclick="location.href='/login'" data-i18n="acctGoToLogin">Sign In / Sign Up →</button>
@@ -848,16 +882,6 @@
     <div id="acctLoggedInBlock" style="display:none;">
       <div class="acct-welcome" id="acctWelcomeText"></div>
       <div class="acct-email" id="acctEmailText"></div>
-      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 8px;" data-i18n="acctDobOptional">Date of Birth (optional)</div>
-      <div class="modal-field-row" style="margin-top: 2px;">
-        <span class="mfr-label" data-i18n="acctDobCalendarHijri">Hijri Calendar</span>
-        <label class="ios-toggle">
-          <input type="checkbox" id="profileDobIsHijri">
-          <span class="ios-toggle-track"><span class="ios-toggle-thumb"></span></span>
-        </label>
-      </div>
-      <input type="date" class="date-input" id="profileDob" />
-      <button class="add-task-btn secondary" style="margin-top: 10px;" onclick="saveAccountProfile()" data-i18n="acctSaveProfile">Save Profile</button>
       <button class="add-task-btn secondary" style="margin-top: 10px; border-color:#ff4757; color:#ff4757;" onclick="logoutAccount()" data-i18n="acctLogoutBtn">Log Out</button>
     </div>
 

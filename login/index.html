@@ -40,6 +40,19 @@
       <input type="email" class="title-input" id="loginEmail" placeholder="Email" data-i18n-placeholder="acctEmail" autocomplete="username" />
       <input type="password" class="title-input" id="loginPassword" placeholder="Password" data-i18n-placeholder="acctPassword" autocomplete="current-password" style="margin-top:8px;" />
       <button class="add-task-btn" style="margin-top: 12px;" onclick="submitLogin()" data-i18n="acctLoginBtn">Log In</button>
+      <a href="#" class="auth-back-link" style="margin-top:12px;" onclick="event.preventDefault(); showForgotForm();" data-i18n="acctForgotPassword">Forgot password?</a>
+    </div>
+
+    <div id="acctForgotForm" style="display:none;">
+      <input type="email" class="title-input" id="forgotEmail" placeholder="Email" data-i18n-placeholder="acctEmail" autocomplete="username" />
+      <button class="add-task-btn" style="margin-top: 12px;" onclick="sendPasswordReset()" data-i18n="acctSendResetLink">Send Reset Link</button>
+      <a href="#" class="auth-back-link" onclick="event.preventDefault(); showLoginFormFromForgot();" data-i18n="acctBackToLogin">← Back to Log In</a>
+    </div>
+
+    <div id="acctResetForm" style="display:none;">
+      <input type="password" class="title-input" id="resetNewPassword" placeholder="New password" data-i18n-placeholder="acctNewPasswordPlaceholder" autocomplete="new-password" />
+      <input type="password" class="title-input" id="resetNewPasswordConfirm" placeholder="Confirm new password" data-i18n-placeholder="acctConfirmPassword" autocomplete="new-password" style="margin-top:8px;" />
+      <button class="add-task-btn" style="margin-top: 12px;" onclick="submitPasswordReset()" data-i18n="acctSetNewPassword">Set New Password</button>
     </div>
 
     <div id="acctSignupForm" style="display:none;">
@@ -60,7 +73,7 @@
       <div class="acct-note" data-i18n="acctEmailVerifyNote">We'll email you a confirmation link before your account is active.</div>
     </div>
 
-    <a href="../index.html" class="auth-back-link" data-i18n="authBackToDashboard">← Back to dashboard</a>
+    <a href="/" class="auth-back-link" data-i18n="authBackToDashboard">← Back to dashboard</a>
   </div>
 
   <div class="modal-overlay" id="customDialogModal">

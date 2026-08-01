@@ -96,7 +96,7 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 /* ==========================================
    5. LEFT WIDGET PANEL (iOS STYLE)
    ========================================== */
-.left-panel { position: fixed; left: 24px; top: 100px; height: calc(100vh - 180px); width: 300px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; z-index: 60; transition: opacity 0.5s ease; padding: 0 14px 60px 14px; scrollbar-width: none; -ms-overflow-style: none; }
+.left-panel { position: fixed; left: 24px; top: 100px; height: calc(100vh - 180px); width: 300px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; z-index: 60; transition: opacity 0.5s ease; padding: 20px 14px 60px 14px; scrollbar-width: none; -ms-overflow-style: none; }
 .left-panel::-webkit-scrollbar { display: none; }
 
 /* Frosted glass widgets with dynamic theme shadow */
@@ -115,9 +115,11 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .quick-link-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; background: var(--input-bg); color: var(--text-primary); text-decoration: none; font-size: 0.85rem; font-weight: bold; transition: background 0.2s ease; }
 .quick-link-item:hover { background: rgba(120, 120, 120, 0.2); }
 
-.sp-widget-art { width: 100%; height: 100%; border-radius: 12px; background: #222; object-fit: cover; display: block; }
+.sp-widget-art { width: 100%; height: 100%; border-radius: 12px; background: #222; object-fit: cover; display: block; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; transform: scale(0.85); opacity: 0; }
+.widget-card.expanded .sp-widget-art { transform: scale(1); opacity: 1; }
 .sp-mini-row { display: flex; align-items: center; gap: 10px; }
-.sp-mini-art { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #222; }
+.sp-mini-art { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #222; transition: opacity 0.2s ease; }
+.widget-card.expanded .sp-mini-art { opacity: 0; }
 .sp-mini-info { flex: 1; min-width: 0; }
 .sp-mini-track { font-weight: bold; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sp-mini-artist { font-size: 0.7rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -127,7 +129,20 @@ body[dir="rtl"] .dev-toggle { left: auto; right: 24px; }
 .sp-art-track.dragging { transition: none; }
 .sp-art-slide { width: 33.3333%; height: 100%; flex-shrink: 0; position: relative; }
 .sp-art-slide-hidden-mode { display: flex; align-items: center; justify-content: center; background: var(--input-bg); }
-.sp-art-slide-hidden-mode .icon-svg { width: 32px; height: 32px; color: var(--text-secondary); opacity: 0.5; }
+.sp-eq-bars { display: flex; align-items: flex-end; justify-content: center; gap: 5px; height: 44px; }
+.sp-eq-bars span { display: block; width: 5px; height: 8px; border-radius: 3px; background: var(--accent); opacity: 0.55; transition: height 0.3s ease, opacity 0.3s ease; }
+.sp-eq-bars.sp-eq-playing span { animation: spEqPulse 1.1s ease-in-out infinite; opacity: 1; }
+.sp-eq-bars span:nth-child(1) { animation-delay: -0.9s; }
+.sp-eq-bars span:nth-child(2) { animation-delay: -0.5s; }
+.sp-eq-bars span:nth-child(3) { animation-delay: -1.1s; }
+.sp-eq-bars span:nth-child(4) { animation-delay: -0.2s; }
+.sp-eq-bars span:nth-child(5) { animation-delay: -0.7s; }
+@keyframes spEqPulse {
+  0%, 100% { height: 8px; }
+  25% { height: 30px; }
+  50% { height: 16px; }
+  75% { height: 40px; }
+}
 .sp-lyrics-scroll { width: 100%; height: 100%; overflow: hidden; background: linear-gradient(145deg, #1a1a1a, #000); position: relative; }
 .sp-lyrics-inner { position: absolute; top: 0; left: 0; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 10px; box-sizing: border-box; transition: transform 0.4s ease; width: 100%; }
 .sp-lyrics-line { font-size: 0.7rem; color: rgba(255, 255, 255, 0.35); text-align: center; line-height: 1.3; transition: color 0.3s ease, transform 0.3s ease, font-size 0.3s ease; padding: 0 8px; }

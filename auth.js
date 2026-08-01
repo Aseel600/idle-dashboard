@@ -20,7 +20,15 @@ const T = {
     acctCheckEmail: "Account created! Check your email to confirm it, then log in.",
     authRedirecting: "Success! Taking you to the dashboard...",
     authTagline: "Sign in to sync tasks, countdowns, and settings across your devices",
-    authBackToDashboard: "← Back to dashboard"
+    authBackToDashboard: "← Back to dashboard",
+    acctForgotPassword: "Forgot password?",
+    acctSendResetLink: "Send Reset Link",
+    acctResetEmailSent: "Check your email for a password reset link.",
+    acctBackToLogin: "← Back to Log In",
+    acctSetNewPassword: "Set New Password",
+    acctNewPasswordPlaceholder: "New password",
+    acctPasswordResetSuccess: "Password updated! Taking you to the dashboard...",
+    acctTooManyAttempts: "Too many attempts. Try again in {n}s."
   },
   ar: {
     acctLogin: "تسجيل الدخول", acctSignup: "إنشاء حساب", acctName: "الاسم", acctEmail: "البريد الإلكتروني",
@@ -34,7 +42,15 @@ const T = {
     acctCheckEmail: "تم إنشاء الحساب! تحقق من بريدك الإلكتروني لتأكيده، ثم سجّل الدخول.",
     authRedirecting: "تم بنجاح! جارٍ نقلك إلى لوحة التحكم...",
     authTagline: "سجّل الدخول لمزامنة المهام والعدّادات والإعدادات عبر أجهزتك",
-    authBackToDashboard: "← العودة إلى لوحة التحكم"
+    authBackToDashboard: "← العودة إلى لوحة التحكم",
+    acctForgotPassword: "نسيت كلمة المرور؟",
+    acctSendResetLink: "إرسال رابط إعادة التعيين",
+    acctResetEmailSent: "تحقق من بريدك الإلكتروني للحصول على رابط إعادة تعيين كلمة المرور.",
+    acctBackToLogin: "← العودة لتسجيل الدخول",
+    acctSetNewPassword: "تعيين كلمة مرور جديدة",
+    acctNewPasswordPlaceholder: "كلمة المرور الجديدة",
+    acctPasswordResetSuccess: "تم تحديث كلمة المرور! جارٍ نقلك إلى لوحة التحكم...",
+    acctTooManyAttempts: "محاولات كثيرة جدًا. حاول مرة أخرى بعد {n} ثانية."
   }
 };
 const lang = localStorage.getItem('idleLang') || 'en';
@@ -156,15 +172,95 @@ async function submitLoginInner() {
   const password = document.getElementById('loginPassword').value;
   if (!email || !password) { await customAlert(T[lang].acctFillRequired); return; }
 
+  const waitSecs = checkLoginThrottle();
+  if (waitSecs > 0) { await customAlert(T[lang].acctTooManyAttempts.replace('{n}', waitSecs)); return; }
+
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) { await customAlert(error.message); return; }
+  if (error) { recordLoginFailure(); await customAlert(error.message); return; }
+  clearLoginThrottle();
   localStorage.setItem('idleLastAccountEmail', email);
   await finishAuthAndRedirect();
 }
 
 async function finishAuthAndRedirect() {
   await customAlert(T[lang].authRedirecting);
-  window.location.href = '../index.html';
+  window.location.href = '/';
 }
+
+/* Client-side login throttle - a UI-layer deterrent against scripted brute
+   forcing, not a substitute for Supabase's own server-side rate limiting
+   which applies regardless of anything here. 5 failures -> 60s lockout,
+   resets after 15 minutes of no attempts. */
+function checkLoginThrottle() {
+  const state = JSON.parse(localStorage.getItem('idleLoginThrottle') || 'null') || { count: 0, firstAttemptAt: 0, lockedUntil: 0 };
+  if (Date.now() < state.lockedUntil) return Math.ceil((state.lockedUntil - Date.now()) / 1000);
+  if (Date.now() - state.firstAttemptAt > 15 * 60 * 1000) { state.count = 0; state.firstAttemptAt = 0; localStorage.setItem('idleLoginThrottle', JSON.stringify(state)); }
+  return 0;
+}
+function recordLoginFailure() {
+  const state = JSON.parse(localStorage.getItem('idleLoginThrottle') || 'null') || { count: 0, firstAttemptAt: 0, lockedUntil: 0 };
+  if (!state.firstAttemptAt) state.firstAttemptAt = Date.now();
+  state.count++;
+  if (state.count >= 5) state.lockedUntil = Date.now() + 60000;
+  localStorage.setItem('idleLoginThrottle', JSON.stringify(state));
+}
+function clearLoginThrottle() { localStorage.removeItem('idleLoginThrottle'); }
+
+/* Forgot password / reset flow */
+function showForgotForm() {
+  document.getElementById('acctLoginForm').style.display = 'none';
+  document.getElementById('acctSignupForm').style.display = 'none';
+  document.getElementById('acctForgotForm').style.display = 'block';
+  document.getElementById('acctResetForm').style.display = 'none';
+  document.querySelector('.acct-tabs').style.display = 'none';
+}
+function showLoginFormFromForgot() {
+  document.querySelector('.acct-tabs').style.display = 'flex';
+  document.getElementById('acctForgotForm').style.display = 'none';
+  document.getElementById('acctResetForm').style.display = 'none';
+  setAccountTab('login');
+}
+function showResetForm() {
+  document.querySelector('.acct-tabs').style.display = 'none';
+  document.getElementById('acctLoginForm').style.display = 'none';
+  document.getElementById('acctSignupForm').style.display = 'none';
+  document.getElementById('acctForgotForm').style.display = 'none';
+  document.getElementById('acctResetForm').style.display = 'block';
+}
+let forgotSubmitInProgress = false;
+async function sendPasswordReset() {
+  if (forgotSubmitInProgress) return;
+  forgotSubmitInProgress = true;
+  try {
+    const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+    if (!email) { await customAlert(T[lang].acctFillRequired); return; }
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/login' });
+    if (error) { await customAlert(error.message); return; }
+    await customAlert(T[lang].acctResetEmailSent);
+    showLoginFormFromForgot();
+  } finally {
+    forgotSubmitInProgress = false;
+  }
+}
+let resetSubmitInProgress = false;
+async function submitPasswordReset() {
+  if (resetSubmitInProgress) return;
+  resetSubmitInProgress = true;
+  try {
+    const pw = document.getElementById('resetNewPassword').value;
+    const confirmPw = document.getElementById('resetNewPasswordConfirm').value;
+    if (!pw || pw.length < 6) { await customAlert(T[lang].acctPasswordTooShort); return; }
+    if (pw !== confirmPw) { await customAlert(T[lang].acctPasswordMismatch); return; }
+    const { error } = await supabaseClient.auth.updateUser({ password: pw });
+    if (error) { await customAlert(error.message); return; }
+    await customAlert(T[lang].acctPasswordResetSuccess);
+    window.location.href = '/';
+  } finally {
+    resetSubmitInProgress = false;
+  }
+}
+supabaseClient.auth.onAuthStateChange((event) => {
+  if (event === 'PASSWORD_RECOVERY') showResetForm();
+});
 
 applyAuthPageChrome();
