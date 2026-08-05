@@ -622,6 +622,38 @@ function escapeHTML(str) {
   return div.innerHTML;
 }
 
+/* Entity ids were previously raw Date.now(), which silently collides when two
+   items are created inside the same millisecond (a real risk in the countdown
+   import path, which creates in a loop). A duplicate id makes edit/delete act on
+   whichever item matches first - i.e. the wrong one. This keeps ids numeric on
+   purpose: they are local-only handles inside the per-user RLS-scoped blob, never
+   exposed in a URL or used for cross-user lookup, so switching to UUID strings
+   would buy no security while breaking every `id ===` comparison and every bare
+   `onclick="fn(${id})"` interpolation against already-stored data. */
+let lastGeneratedEntityId = 0;
+function generateEntityId() {
+  const now = Date.now();
+  lastGeneratedEntityId = now > lastGeneratedEntityId ? now : lastGeneratedEntityId + 1;
+  return lastGeneratedEntityId;
+}
+
+/* Returns a URL only if it uses a safe browsing scheme, otherwise ''. escapeHTML
+   neutralizes markup characters but NOT URI schemes, so a link arriving from an
+   external source (e.g. an RSS feed) could otherwise reach an href as
+   "javascript:..." and run in this page's origin - where the Supabase session
+   token lives in localStorage. Applied both when caching and when rendering, so
+   entries cached before this check existed can't slip through either. */
+function safeExternalUrl(url) {
+  if (url == null) return '';
+  const raw = String(url).trim();
+  try {
+    const scheme = new URL(raw, window.location.href).protocol;
+    return (scheme === 'http:' || scheme === 'https:') ? raw : '';
+  } catch (e) {
+    return '';
+  }
+}
+
 let quickTimers = [10, 15, 30, 60, 120];
 const themes = {
   blue: { name: 'blue', start: "#00c6ff", end: "#0072ff", handle: "#00c6ff" },
@@ -1237,6 +1269,7 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('cryptoSettingsModal').classList.contains('active')) { closeCryptoSettings(); return; }
   if (document.getElementById('rssSettingsModal').classList.contains('active')) { closeRssSettings(); return; }
   if (document.getElementById('accountSettingsModal').classList.contains('active')) { closeAccountSettings(); return; }
+  if (document.getElementById('errorLogModal').classList.contains('active')) { closeErrorLog(); return; }
 });
 
 /* ==========================================
@@ -1255,7 +1288,8 @@ const MODAL_FOCUS_CONFIG = [
   { sel: '#habitsSettingsModal', inner: '.modal-content' },
   { sel: '#cryptoSettingsModal', inner: '.modal-content' },
   { sel: '#rssSettingsModal', inner: '.modal-content' },
-  { sel: '#accountSettingsModal', inner: '.modal-content' }
+  { sel: '#accountSettingsModal', inner: '.modal-content' },
+  { sel: '#errorLogModal', inner: '.modal-content' }
 ];
 function getFocusableElements(container) {
   return Array.from(container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
@@ -1521,7 +1555,7 @@ async function saveScheduledTask() {
   const eM = isAllDay ? '59' : Math.floor(miniEndMins % 60).toString().padStart(2, '0');
 
   const taskData = {
-    id: editingTaskId || Date.now(),
+    id: editingTaskId || generateEntityId(),
     name, location, allDay: isAllDay,
     isRoutine, days: isRoutine ? [...selectedRoutineDays].sort() : undefined,
     date: isRoutine ? undefined : dateVal, endDate: isRoutine ? undefined : endDateVal,
@@ -1554,7 +1588,7 @@ async function deleteCurrentTask() {
 function addDailyGoal() {
   const name = document.getElementById('newGoalName').value;
   if (!name) return;
-  dailyGoals.push({ id: Date.now(), name, completed: false });
+  dailyGoals.push({ id: generateEntityId(), name, completed: false });
   localStorage.setItem('idleGoals', JSON.stringify(dailyGoals));
   document.getElementById('newGoalName').value = '';
   renderV3UI();
@@ -3573,7 +3607,7 @@ async function saveCountdownFromModal() {
     try { await Notification.requestPermission(); } catch (e) {}
   }
   const ev = {
-    id: editingCountdownId || Date.now(),
+    id: editingCountdownId || generateEntityId(),
     title,
     date: document.getElementById('cdDate').value,
     time: document.getElementById('cdTime').value || '00:00',
@@ -3652,7 +3686,7 @@ async function checkCountdownImportFromURL() {
     const confirmed = await customConfirm(msg, translations[lang].importCountdownTitle);
     if (!confirmed) return;
     countdownEvents.push({
-      id: Date.now(),
+      id: generateEntityId(),
       title: payload.title || 'Untitled',
       icon: payload.icon || 'star',
       color: payload.color || '#1e90ff',
@@ -4689,6 +4723,67 @@ function openAccountSettings() {
 function closeAccountSettings() {
   document.getElementById('accountSettingsModal').classList.remove('active');
 }
+
+/* ---- Error log viewer (QA Tools > Error Log) ----
+   Reads the rolling buffer written by the capture shim installed in index.html's
+   <head>. Kept out of CLOUD_SYNC_KEYS on purpose: diagnostics describe one
+   device's session, so syncing them between devices would mix unrelated traces. */
+function readErrorLog() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem('idleErrorLog') || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+function refreshErrorCountBadge() {
+  const badge = document.getElementById('devErrorCount');
+  if (!badge) return;
+  const n = readErrorLog().length;
+  badge.textContent = n ? `(${toNum(n)})` : '';
+  badge.style.color = n ? '#ff4757' : '';
+}
+function openErrorLog() {
+  const listEl = document.getElementById('errorLogList');
+  const entries = readErrorLog();
+  if (!entries.length) {
+    listEl.innerHTML = `<div class="error-log-empty">No errors captured on this device. ${escapeHTML('\u{1F389}')}</div>`;
+  } else {
+    listEl.innerHTML = entries.slice().reverse().map(en => {
+      const when = new Date(en.at || 0).toLocaleString(lang === 'en' ? 'en-US' : 'ar');
+      return `<div class="error-log-entry">
+        <div class="ele-top"><span class="ele-kind ele-kind-${escapeHTML(en.kind || 'error')}">${escapeHTML(en.kind || 'error')}</span><span class="ele-time">${escapeHTML(when)}</span></div>
+        <div class="ele-msg">${escapeHTML(en.msg || '')}</div>
+        ${en.src ? `<div class="ele-src">${escapeHTML(en.src)}</div>` : ''}
+        ${en.stack ? `<pre class="ele-stack">${escapeHTML(en.stack)}</pre>` : ''}
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('errorLogModal').classList.add('active');
+}
+function closeErrorLog() {
+  document.getElementById('errorLogModal').classList.remove('active');
+}
+async function copyErrorLog() {
+  const entries = readErrorLog();
+  if (!entries.length) { await customAlert(lang === 'en' ? 'Nothing to copy - the error log is empty.' : 'لا يوجد شيء لنسخه - سجل الأخطاء فارغ.'); return; }
+  const text = entries.map(en => `[${new Date(en.at || 0).toISOString()}] (${en.kind}) ${en.msg}${en.src ? `\n  at ${en.src}` : ''}${en.stack ? `\n${en.stack}` : ''}`).join('\n\n');
+  try {
+    await navigator.clipboard.writeText(text);
+    await customAlert(lang === 'en' ? 'Error log copied to clipboard.' : 'تم نسخ سجل الأخطاء.');
+  } catch (e) {
+    await customAlert(lang === 'en' ? 'Could not access the clipboard.' : 'تعذر الوصول إلى الحافظة.');
+  }
+}
+async function clearErrorLog() {
+  const ok = await customConfirm(
+    lang === 'en' ? 'Clear all captured errors on this device?' : 'مسح جميع الأخطاء المسجلة على هذا الجهاز؟',
+    lang === 'en' ? 'Clear Error Log' : 'مسح سجل الأخطاء', true);
+  if (!ok) return;
+  localStorage.removeItem('idleErrorLog');
+  refreshErrorCountBadge();
+  openErrorLog();
+}
 async function changeAccountPassword() {
   const pw = document.getElementById('acctNewPassword').value;
   const confirm = document.getElementById('acctNewPasswordConfirm').value;
@@ -5183,7 +5278,7 @@ function addHabit() {
   const input = document.getElementById('newHabitName');
   const name = input.value.trim();
   if (!name) return;
-  habitsList.push({ id: Date.now(), name, history: {} });
+  habitsList.push({ id: generateEntityId(), name, history: {} });
   localStorage.setItem('idleHabits', JSON.stringify(habitsList));
   input.value = '';
   renderHabitsManageList();
@@ -5335,7 +5430,7 @@ async function fetchRssFeed() {
     if (!res.ok) throw new Error('bad status');
     const json = await res.json();
     if (json.status !== 'ok') throw new Error('feed error');
-    rssCache = { items: (json.items || []).slice(0, 8).map(it => ({ title: it.title, link: it.link, pubDate: it.pubDate })), fetchedAt: Date.now(), error: false };
+    rssCache = { items: (json.items || []).slice(0, 8).map(it => ({ title: it.title, link: safeExternalUrl(it.link), pubDate: it.pubDate })), fetchedAt: Date.now(), error: false };
   } catch (e) {
     rssCache.error = true;
   }
@@ -5362,7 +5457,7 @@ function renderRssWidget() {
   if (!listEl) return;
   if (!rssCache.items.length) { listEl.innerHTML = ''; return; }
   listEl.innerHTML = rssCache.items.map(it => `
-    <a class="widget-task-row" href="${escapeHTML(it.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+    <a class="widget-task-row" href="${escapeHTML(safeExternalUrl(it.link))}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
       <span class="wt-name">${escapeHTML(it.title)}</span>
       <span class="wt-time">${it.pubDate ? new Date(it.pubDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'ar') : ''}</span>
     </a>
@@ -5498,6 +5593,7 @@ renderRssWidget();
 fetchCryptoPrices();
 fetchRssFeed();
 applyTheaterRoundedEdges();
+refreshErrorCountBadge();
 document.getElementById('theaterRoundedToggle').checked = theaterRoundedEdges;
 document.getElementById('azanReminderToggle').checked = azanReminderEnabled;
 

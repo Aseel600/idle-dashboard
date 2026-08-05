@@ -2,6 +2,42 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    /* Global error capture - mirrors index.html. Especially load-bearing on this
+       page: it is the only entry point to auth, so a silent CDN/SRI failure here
+       would look identical to "login is broken for no reason". */
+    (function () {
+      var KEY = 'idleErrorLog', MAX = 50;
+      window.__ambientLogError = function (entry) {
+        try {
+          var log = JSON.parse(localStorage.getItem(KEY) || '[]');
+          log.push(entry);
+          if (log.length > MAX) log = log.slice(-MAX);
+          localStorage.setItem(KEY, JSON.stringify(log));
+        } catch (e) { /* storage blocked or full: logging must never break the page */ }
+      };
+      window.addEventListener('error', function (e) {
+        var tgt = e.target && (e.target.src || e.target.href);
+        window.__ambientLogError({
+          at: Date.now(),
+          kind: e.message ? 'error' : 'resource',
+          msg: String(e.message || ('Failed to load: ' + (tgt || 'unknown'))),
+          src: String(e.filename || tgt || '') + (e.lineno ? ':' + e.lineno : ''),
+          stack: (e.error && e.error.stack) ? String(e.error.stack).slice(0, 600) : ''
+        });
+      }, true);
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        window.__ambientLogError({
+          at: Date.now(),
+          kind: 'promise',
+          msg: String((r && r.message) || r || 'Unhandled promise rejection'),
+          src: '',
+          stack: (r && r.stack) ? String(r.stack).slice(0, 600) : ''
+        });
+      });
+    })();
+  </script>
   <script src="../maintenance-config.js"></script>
   <script>
     (function () {
@@ -88,7 +124,10 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Pinned + SRI-verified; see the matching note in index.html. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.min.js"
+          integrity="sha384-ZM8CwwQOJp5puchJk/gzqVbkGOUMVxHQPIY7mDCclfX3C8u6+ZyCjOcwaMC8hbnQ"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="../supabase-client.js"></script>
   <script src="../auth.js"></script>
 </body>

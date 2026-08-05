@@ -2,6 +2,45 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    /* Global error capture. Deliberately the very first script on the page so it
+       also catches failures in the Supabase CDN bundle and supabase-client.js -
+       including an SRI mismatch blocking the CDN file, which would otherwise fail
+       completely silently. Uses the capture phase so resource load errors (which
+       do not bubble) are seen too. Writes to a capped rolling buffer in
+       localStorage, readable from QA Tools > Error Log. */
+    (function () {
+      var KEY = 'idleErrorLog', MAX = 50;
+      window.__ambientLogError = function (entry) {
+        try {
+          var log = JSON.parse(localStorage.getItem(KEY) || '[]');
+          log.push(entry);
+          if (log.length > MAX) log = log.slice(-MAX);
+          localStorage.setItem(KEY, JSON.stringify(log));
+        } catch (e) { /* storage blocked or full: logging must never break the page */ }
+      };
+      window.addEventListener('error', function (e) {
+        var tgt = e.target && (e.target.src || e.target.href);
+        window.__ambientLogError({
+          at: Date.now(),
+          kind: e.message ? 'error' : 'resource',
+          msg: String(e.message || ('Failed to load: ' + (tgt || 'unknown'))),
+          src: String(e.filename || tgt || '') + (e.lineno ? ':' + e.lineno : ''),
+          stack: (e.error && e.error.stack) ? String(e.error.stack).slice(0, 600) : ''
+        });
+      }, true);
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = e.reason;
+        window.__ambientLogError({
+          at: Date.now(),
+          kind: 'promise',
+          msg: String((r && r.message) || r || 'Unhandled promise rejection'),
+          src: '',
+          stack: (r && r.stack) ? String(r.stack).slice(0, 600) : ''
+        });
+      });
+    })();
+  </script>
   <script src="maintenance-config.js"></script>
   <script>
     (function () {
@@ -15,7 +54,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.17)</title>
+  <title>Ambient OS | Dashboard (V7.18)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -120,6 +159,7 @@
       <symbol id="icon-umbrella" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12a10 10 0 0 1 20 0z"/><line x1="12" y1="12" x2="12" y2="19"/><path d="M9 19a3 3 0 0 0 6 0"/></symbol>
       <symbol id="icon-paw" viewBox="0 0 24 24" fill="currentColor" stroke="none"><circle cx="7" cy="8" r="2"/><circle cx="12" cy="6" r="2"/><circle cx="17" cy="8" r="2"/><path d="M6 15a3 3 0 0 1 3-4h6a3 3 0 0 1 3 4c0 2-2.5 4-6 4s-6-2-6-4z"/></symbol>
       <symbol id="icon-baby" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="4"/><path d="M6 21v-3a6 6 0 0 1 12 0v3"/><circle cx="9" cy="6" r="0.5" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="0.5" fill="currentColor" stroke="none"/><path d="M10 9a2 2 0 0 0 4 0"/></symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
       <symbol id="icon-tree" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L6 10h3l-4 6h4l-3 6h12l-3-6h4l-4-6h3z"/><line x1="12" y1="22" x2="12" y2="18"/></symbol>
     </defs>
   </svg>
@@ -127,7 +167,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.17</span>
+      <span class="dev-version">v7.18</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -135,16 +175,20 @@
       <button class="dev-btn" onclick="triggerSnapEasterEgg()"><svg class="icon-svg"><use href="#icon-zap"></use></svg><span>Trigger Snap</span></button>
       <button class="dev-btn" onclick="testHolyGlow()" id="glowBtn"><svg class="icon-svg"><use href="#icon-mosque"></use></svg><span id="glowBtnLabel">Azan Glow</span></button>
       <button class="dev-btn" onclick="startTutorial(true)"><svg class="icon-svg"><use href="#icon-help-circle"></use></svg><span>Start Tutorial</span></button>
+      <button class="dev-btn" onclick="openErrorLog()"><svg class="icon-svg"><use href="#icon-alert"></use></svg><span>Error Log <span id="devErrorCount"></span></span></button>
     </div>
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.17 SPOTIFY MINI-TITLE FIX + REAL MIC-DRIVEN EQUALIZER</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.18 PRE-DEPLOYMENT HARDENING</div>
 
-    <label class="qa-item"><input type="checkbox"> Fixed: Track Title No Longer Sits Next to an Empty Space When "Hide Art" Mode is Active - Shifts Left to Fill the Row</label>
-    <label class="qa-item"><input type="checkbox"> Spotify's Equalizer Bars Are Now Genuinely Real-Time, Driven by the Device Microphone via the Web Audio API (Not a Simulated Animation)</label>
-    <label class="qa-item"><input type="checkbox"> Equalizer Gracefully Falls Back to the Old Animated Pulse if Mic Access is Denied or Unavailable</label>
-    <label class="qa-item"><input type="checkbox"> Microphone Only Activates While the Spotify Widget is Expanded and in "Hide Art" Mode - Stops Immediately Otherwise</label>
+    <label class="qa-item"><input type="checkbox"> Security Fix: RSS Feed Links Are Now Scheme-Validated - a Malicious Feed Can No Longer Deliver a javascript: Link Into the Page</label>
+    <label class="qa-item"><input type="checkbox"> Supabase CDN Script Pinned to an Exact Version With a Subresource Integrity Hash (Was Floating on "@2")</label>
+    <label class="qa-item"><input type="checkbox"> Global Error Capture Added - Uncaught Errors and Promise Rejections Are Recorded, Viewable via QA Tools > Error Log</label>
+    <label class="qa-item"><input type="checkbox"> Error Log Modal Works: Shows Entries, Copy Button, Clear Button, Escape Closes It</label>
+    <label class="qa-item"><input type="checkbox"> Custom 404 Page Now Shows for Bad URLs Instead of GitHub's Default</label>
+    <label class="qa-item"><input type="checkbox"> Entity IDs No Longer Collide When Two Items Are Created in the Same Millisecond</label>
+    <label class="qa-item"><input type="checkbox"> (Pending) CI Pipeline Written but Not Yet Enabled - Needs the 'workflow' Token Scope Before It Can Be Pushed</label>
     </div>
   </div>
 
@@ -511,6 +555,21 @@
 
       <div class="modal-btns">
         <button class="modal-btn save" onclick="closeAccountSettings()" data-i18n="acctSettingsDone">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="errorLogModal">
+    <div class="modal-content">
+      <div class="modal-header">Error Log</div>
+      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px;">
+        Uncaught errors and unhandled promise rejections captured on this device (most recent last, capped at 50). Stored locally only — never synced to your account.
+      </div>
+      <div id="errorLogList" class="error-log-list"></div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeErrorLog()">Close</button>
+        <button class="modal-btn cancel" onclick="copyErrorLog()">Copy</button>
+        <button class="modal-btn" style="background:#ff4757;" onclick="clearErrorLog()">Clear</button>
       </div>
     </div>
   </div>
@@ -1221,7 +1280,13 @@
     </svg>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <!-- Pinned to an exact version + Subresource Integrity: "@2" floats to any new
+       2.x release automatically, so a bad release or a compromised CDN would ship
+       straight to production unverified. The browser now refuses to run this file
+       unless its hash matches exactly. Bumping the version means recomputing the hash. -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.1/dist/umd/supabase.min.js"
+          integrity="sha384-ZM8CwwQOJp5puchJk/gzqVbkGOUMVxHQPIY7mDCclfX3C8u6+ZyCjOcwaMC8hbnQ"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="supabase-client.js"></script>
   <script src="script.js"></script>
 </body>

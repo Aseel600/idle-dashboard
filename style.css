@@ -653,3 +653,16 @@ body[data-layout="tv"] .zen-toggle, body[data-layout="tv"] .dev-toggle { width: 
 body[data-layout="tv"] #tvPairBlock { display: block; }
 .tv-scan-video { width: 100%; border-radius: 10px; background: #000; margin-top: 8px; display: none; }
 .tv-scan-status { font-size: 0.7rem; color: var(--text-secondary); margin-top: 6px; text-align: center; }
+
+/* Error log viewer (QA Tools > Error Log) */
+.error-log-list { max-height: 45vh; overflow-y: auto; margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.error-log-empty { font-size: 0.8rem; color: var(--text-secondary); text-align: center; padding: 24px 8px; }
+.error-log-entry { background: var(--input-bg); border-radius: 10px; padding: 10px; border-left: 3px solid #ff4757; }
+.ele-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 5px; }
+.ele-kind { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; padding: 2px 7px; border-radius: 20px; background: rgba(255, 71, 87, 0.15); color: #ff4757; }
+.ele-kind-promise { background: rgba(255, 165, 2, 0.15); color: #ffa502; }
+.ele-kind-resource { background: rgba(0, 198, 255, 0.15); color: var(--accent); }
+.ele-time { font-size: 0.65rem; color: var(--text-secondary); white-space: nowrap; }
+.ele-msg { font-size: 0.78rem; color: var(--text-primary); word-break: break-word; line-height: 1.4; }
+.ele-src { font-size: 0.65rem; color: var(--text-secondary); margin-top: 4px; word-break: break-all; }
+.ele-stack { font-size: 0.6rem; color: var(--text-secondary); margin-top: 6px; white-space: pre-wrap; word-break: break-all; max-height: 90px; overflow-y: auto; opacity: 0.8; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
