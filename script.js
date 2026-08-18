@@ -176,6 +176,12 @@ const translations = {
     rssUrlPlaceholder: "https://example.com/rss.xml",
     rssUrlNote: "Paste any public RSS/Atom feed URL. Fetched via a free RSS-to-JSON proxy since most feeds don't allow direct browser access.",
     rssSettingsSave: "Save",
+    quickLinksSettingsTitle: "Quick Links",
+    quickLinkNamePlaceholder: "Name",
+    quickLinkUrlPlaceholder: "https://example.com",
+    quickLinkAdd: "Add Link",
+    quickLinkNote: "Only http and https links are accepted.",
+    close: "Close",
     chimePomodoroComplete: "Focus Timer",
     acctLoggedOutBlurb: "Sign in to sync tasks, countdowns, and settings across your devices.",
     acctGoToLogin: "Sign In / Sign Up →",
@@ -451,6 +457,12 @@ const translations = {
     rssUrlPlaceholder: "https://example.com/rss.xml",
     rssUrlNote: "الصق رابط أي خلاصة RSS/Atom عامة. يتم جلبها عبر خدمة وسيطة مجانية لأن معظم الخلاصات لا تسمح بالوصول المباشر من المتصفح.",
     rssSettingsSave: "حفظ",
+    quickLinksSettingsTitle: "روابط سريعة",
+    quickLinkNamePlaceholder: "الاسم",
+    quickLinkUrlPlaceholder: "https://example.com",
+    quickLinkAdd: "إضافة رابط",
+    quickLinkNote: "يُسمح بروابط http و https فقط.",
+    close: "إغلاق",
     chimePomodoroComplete: "مؤقت التركيز",
     acctLoggedOutBlurb: "سجّل الدخول لمزامنة المهام والعدّادات والإعدادات عبر أجهزتك.",
     acctGoToLogin: "تسجيل الدخول / إنشاء حساب ←",
@@ -1270,6 +1282,7 @@ window.addEventListener('keydown', (e) => {
   if (document.getElementById('rssSettingsModal').classList.contains('active')) { closeRssSettings(); return; }
   if (document.getElementById('accountSettingsModal').classList.contains('active')) { closeAccountSettings(); return; }
   if (document.getElementById('errorLogModal').classList.contains('active')) { closeErrorLog(); return; }
+  if (document.getElementById('quickLinksSettingsModal').classList.contains('active')) { closeQuickLinksSettings(); return; }
 });
 
 /* ==========================================
@@ -1289,7 +1302,8 @@ const MODAL_FOCUS_CONFIG = [
   { sel: '#cryptoSettingsModal', inner: '.modal-content' },
   { sel: '#rssSettingsModal', inner: '.modal-content' },
   { sel: '#accountSettingsModal', inner: '.modal-content' },
-  { sel: '#errorLogModal', inner: '.modal-content' }
+  { sel: '#errorLogModal', inner: '.modal-content' },
+  { sel: '#quickLinksSettingsModal', inner: '.modal-content' }
 ];
 function getFocusableElements(container) {
   return Array.from(container.querySelectorAll('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'))
@@ -4536,7 +4550,7 @@ const CLOUD_SYNC_KEYS = ['idleTasksV4', 'idleGoals', 'idleCountdowns', 'idleVisi
   'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert',
   'idlePomodoroSettings', 'idlePomodoroStats', 'idleHabits', 'idleCryptoCoins', 'idleRssFeedUrl', 'chimeSound_pomodoroComplete',
   'idleTheaterRoundedEdges', 'idleAzanReminderEnabled',
-  'spotify_token', 'spotify_token_expiry', 'spotify_refresh_token'];
+  'spotify_token', 'spotify_token_expiry', 'spotify_refresh_token', 'idleQuickLinks'];
 
 function collectCloudSnapshot() {
   const snap = {};
@@ -5420,6 +5434,98 @@ function closeCryptoSettings() {
   document.getElementById('cryptoSettingsModal').classList.remove('active');
 }
 
+/* ---- Quick Links ----
+   These two links used to be hardcoded <a> tags in index.html pointing at bare
+   github.com / youtube.com homepages, with no way for anyone to change them -
+   placeholder markup that shipped as if it were a feature. Now user-owned and
+   synced. Defaults keep the original two so existing dashboards don't change
+   shape; they can be deleted like any other link. */
+let quickLinks = safeParseJSON('idleQuickLinks', [
+  { name: 'GitHub', url: 'https://github.com', icon: 'icon-package' },
+  { name: 'YouTube', url: 'https://youtube.com', icon: 'icon-play-circle' }
+]);
+function quickLinkIcon(icon) {
+  return /^icon-[a-z-]+$/.test(icon || '') ? icon : 'icon-link';
+}
+function renderQuickLinks() {
+  const listEl = document.getElementById('quickLinksList');
+  if (!listEl) return;
+  if (!quickLinks.length) {
+    listEl.innerHTML = widgetEmptyState(lang === 'en' ? 'No links yet - add one in settings.' : 'لا توجد روابط بعد - أضف واحداً من الإعدادات.');
+    return;
+  }
+  listEl.innerHTML = quickLinks.map(l => {
+    const href = safeExternalUrl(l.url);
+    if (!href) return '';
+    return `<a href="${escapeHTML(href)}" target="_blank" rel="noopener" class="quick-link-item">${svgIcon(quickLinkIcon(l.icon))} ${escapeHTML(l.name)}</a>`;
+  }).join('');
+}
+function renderQuickLinksManageList() {
+  const el = document.getElementById('quickLinksManageList');
+  if (!el) return;
+  if (!quickLinks.length) {
+    el.innerHTML = widgetEmptyState(lang === 'en' ? 'No links yet.' : 'لا توجد روابط بعد.');
+    return;
+  }
+  el.innerHTML = quickLinks.map((l, i) => `
+    <div class="sm-item">
+      <div class="sm-item-info">
+        <div class="sm-item-name">${escapeHTML(l.name)}</div>
+        <div class="sm-item-detail">${escapeHTML(l.url)}</div>
+      </div>
+      <div class="sm-item-actions">
+        <button class="sm-btn delete" onclick="deleteQuickLink(${i})">${lang === 'en' ? 'Delete' : 'حذف'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+/* Turns what someone actually types into a safe absolute URL, or '' to reject.
+   A bare "example.com" must become https rather than resolving as a relative
+   path against this site, while "javascript:..." must never be rescued that way.
+   The host:port case is the awkward one - "example.com:8080" superficially looks
+   like a scheme, so it is matched explicitly before the scheme check rejects it. */
+function normalizeQuickLinkUrl(raw) {
+  const t = String(raw || '').trim();
+  if (!t) return '';
+  if (/^https?:\/\//i.test(t)) return safeExternalUrl(t);
+  const looksLikeHostPort = /^[^\s:\/]+:\d+(?:[\/?#]|$)/.test(t);
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(t) && !looksLikeHostPort) return '';
+  return safeExternalUrl('https://' + t);
+}
+async function addQuickLink() {
+  const nameEl = document.getElementById('newQuickLinkName');
+  const urlEl = document.getElementById('newQuickLinkUrl');
+  const name = nameEl.value.trim();
+  const url = normalizeQuickLinkUrl(urlEl.value);
+  if (!name || !urlEl.value.trim()) { await customAlert(lang === 'en' ? 'Enter both a name and a URL.' : 'أدخل الاسم والرابط معاً.'); return; }
+  if (!url) { await customAlert(lang === 'en' ? 'Only http and https links are allowed.' : 'يُسمح بروابط http و https فقط.'); return; }
+  quickLinks.push({ name, url, icon: 'icon-link' });
+  localStorage.setItem('idleQuickLinks', JSON.stringify(quickLinks));
+  nameEl.value = '';
+  urlEl.value = '';
+  renderQuickLinksManageList();
+  renderQuickLinks();
+}
+async function deleteQuickLink(index) {
+  const link = quickLinks[index];
+  if (!link) return;
+  const ok = await customConfirm(
+    lang === 'en' ? `Remove "${link.name}" from Quick Links?` : `إزالة "${link.name}" من الروابط السريعة؟`,
+    lang === 'en' ? 'Remove Link' : 'إزالة الرابط', true);
+  if (!ok) return;
+  quickLinks.splice(index, 1);
+  localStorage.setItem('idleQuickLinks', JSON.stringify(quickLinks));
+  renderQuickLinksManageList();
+  renderQuickLinks();
+}
+function openQuickLinksSettings() {
+  renderQuickLinksManageList();
+  document.getElementById('quickLinksSettingsModal').classList.add('active');
+}
+function closeQuickLinksSettings() {
+  document.getElementById('quickLinksSettingsModal').classList.remove('active');
+}
+
 /* ---- RSS / News Feed ---- */
 let rssFeedUrl = localStorage.getItem('idleRssFeedUrl') || '';
 let rssCache = safeParseJSON('idleRssCache', { items: [], fetchedAt: 0, error: false });
@@ -5590,6 +5696,7 @@ renderPomodoroWidget();
 renderHabitsWidget();
 renderCryptoWidget();
 renderRssWidget();
+renderQuickLinks();
 fetchCryptoPrices();
 fetchRssFeed();
 applyTheaterRoundedEdges();

@@ -54,7 +54,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.18)</title>
+  <title>Ambient OS | Dashboard (V7.19)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -167,7 +167,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.18</span>
+      <span class="dev-version">v7.19</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -180,15 +180,14 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.18 PRE-DEPLOYMENT HARDENING</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.19 QUICK LINKS ARE NOW YOURS TO EDIT</div>
 
-    <label class="qa-item"><input type="checkbox"> Security Fix: RSS Feed Links Are Now Scheme-Validated - a Malicious Feed Can No Longer Deliver a javascript: Link Into the Page</label>
-    <label class="qa-item"><input type="checkbox"> Supabase CDN Script Pinned to an Exact Version With a Subresource Integrity Hash (Was Floating on "@2")</label>
-    <label class="qa-item"><input type="checkbox"> Global Error Capture Added - Uncaught Errors and Promise Rejections Are Recorded, Viewable via QA Tools > Error Log</label>
-    <label class="qa-item"><input type="checkbox"> Error Log Modal Works: Shows Entries, Copy Button, Clear Button, Escape Closes It</label>
-    <label class="qa-item"><input type="checkbox"> Custom 404 Page Now Shows for Bad URLs Instead of GitHub's Default</label>
-    <label class="qa-item"><input type="checkbox"> Entity IDs No Longer Collide When Two Items Are Created in the Same Millisecond</label>
-    <label class="qa-item"><input type="checkbox"> (Pending) CI Pipeline Written but Not Yet Enabled - Needs the 'workflow' Token Scope Before It Can Be Pushed</label>
+    <label class="qa-item"><input type="checkbox"> Quick Links Widget Is No Longer Hardcoded Placeholder Markup - Add and Remove Your Own Links via the New Gear Icon</label>
+    <label class="qa-item"><input type="checkbox"> Adding a Link Without a Scheme (e.g. "example.com") Correctly Becomes https, Not a Broken Relative Link</label>
+    <label class="qa-item"><input type="checkbox"> Non-http/https Links Are Rejected With a Clear Message</label>
+    <label class="qa-item"><input type="checkbox"> Quick Links Sync Across Devices With the Rest of Your Account Data</label>
+    <label class="qa-item"><input type="checkbox"> Removing Every Link Shows a Tidy Empty State Instead of a Blank Widget</label>
+    <label class="qa-item"><input type="checkbox"> Escape Closes the Quick Links Settings Modal</label>
     </div>
   </div>
 
@@ -641,6 +640,24 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="quickLinksSettingsModal">
+    <div class="modal-content">
+      <div class="modal-header" data-i18n="quickLinksSettingsTitle">Quick Links</div>
+      <div id="quickLinksManageList"></div>
+      <div class="modal-field-row" style="margin-top: 10px;">
+        <input type="text" class="title-input" id="newQuickLinkName" placeholder="Name" data-i18n-placeholder="quickLinkNamePlaceholder" style="flex:1;" />
+      </div>
+      <div class="modal-field-row">
+        <input type="text" class="title-input" id="newQuickLinkUrl" placeholder="https://example.com" data-i18n-placeholder="quickLinkUrlPlaceholder" style="flex:1;" />
+      </div>
+      <button class="add-task-btn secondary" onclick="addQuickLink()" data-i18n="quickLinkAdd">Add Link</button>
+      <div class="acct-note" data-i18n="quickLinkNote">Only http and https links are accepted.</div>
+      <div class="modal-btns">
+        <button class="modal-btn cancel" onclick="closeQuickLinksSettings()" data-i18n="close">Close</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <div class="tutorial-overlay" id="tutorialOverlay">
@@ -819,11 +836,12 @@
     </div>
 
     <div class="widget-card wg-boot-hidden" id="wgLinks">
-      <div class="widget-header"><span class="widget-icon"><svg class="icon-svg"><use href="#icon-link"></use></svg></span> <span data-i18n="widgetQuickLinks">Quick Links</span></div>
-      <div id="quickLinksList" style="display: flex; flex-direction: column; gap: 8px;">
-        <a href="https://github.com" target="_blank" class="quick-link-item"><svg class="icon-svg"><use href="#icon-package"></use></svg> GitHub</a>
-        <a href="https://youtube.com" target="_blank" class="quick-link-item"><svg class="icon-svg"><use href="#icon-play-circle"></use></svg> YouTube</a>
+      <div class="widget-header">
+        <span class="widget-icon"><svg class="icon-svg"><use href="#icon-link"></use></svg></span>
+        <span data-i18n="widgetQuickLinks">Quick Links</span>
+        <button type="button" class="widget-settings-btn" onclick="event.stopPropagation(); openQuickLinksSettings();" data-i18n-title="quickLinksSettingsTitle" title="Settings" aria-label="Quick links settings"><svg class="icon-svg"><use href="#icon-gear"></use></svg></button>
       </div>
+      <div id="quickLinksList" style="display: flex; flex-direction: column; gap: 8px;"></div>
     </div>
 
     <div class="widget-card clickable wg-boot-hidden" id="wgCountdown" onclick="openCountdownManager()">
