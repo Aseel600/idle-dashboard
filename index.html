@@ -54,7 +54,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.20)</title>
+  <title>Ambient OS | Dashboard (V7.21)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -167,7 +167,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.20</span>
+      <span class="dev-version">v7.21</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -180,21 +180,15 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.20 CLOCK, TUTORIAL & POLISH</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.21 RTL FIXES + CLASSIC TEXT SIZE</div>
 
-    <label class="qa-item"><input type="checkbox"> Theme Colour Dots No Longer Show a Square Seam Inside the Circle When Zoomed In</label>
-    <label class="qa-item"><input type="checkbox"> Classic Face: Time Readout Sits Between Centre and 12, Dimmed, Clear of the Hands</label>
-    <label class="qa-item"><input type="checkbox"> Clock Face Choice Now Survives a Reload (It Used to Reset to Default Every Time)</label>
-    <label class="qa-item"><input type="checkbox"> Radar Clock Face Removed</label>
-    <label class="qa-item"><input type="checkbox"> Display Title Fades Out After 5s Idle and Returns on Input; Toggle in the Menu</label>
-    <label class="qa-item"><input type="checkbox"> Dim Level Slider Is Disabled With an Explanation in Floating Mode (Where It Could Never Work) and Persists</label>
-    <label class="qa-item"><input type="checkbox"> Tutorial Skips Steps Whose Target Is Hidden on This Device (Fixes Empty Highlights on Mobile)</label>
-    <label class="qa-item"><input type="checkbox"> Tutorial Tooltip Flips Above/Below the Target on Narrow Screens Instead of Covering It</label>
-    <label class="qa-item"><input type="checkbox"> Tutorial Covers Quick Timer, Clock Face, Clock Size, Display Title, Spotify, Focus Timer, Prayer and Quick Links</label>
-    <label class="qa-item"><input type="checkbox"> Dev Panel No Longer Flashes on Load - Opt In With ?dev=1</label>
-    <label class="qa-item"><input type="checkbox"> Location Section Explains It Is Only Used for Prayer Times and the Clock</label>
-    <label class="qa-item"><input type="checkbox"> Clock Size Slider Works and Persists</label>
-    <label class="qa-item"><input type="checkbox"> Arabic: Login Dialog Buttons and Error Log Modal Are Translated</label>
+    <label class="qa-item"><input type="checkbox"> Arabic: Slider Fill Now Runs From the Correct Side (Was Filling Opposite the Thumb)</label>
+    <label class="qa-item"><input type="checkbox"> Clock Size and Dim Level Sliders Now Actually Repaint Their Fill (Were Frozen at 50%)</label>
+    <label class="qa-item"><input type="checkbox"> Arabic: Settings Panel No Longer Runs Under the Focus Mode Button - Bottom Padding Restored to 90px</label>
+    <label class="qa-item"><input type="checkbox"> Toggle Button Icons Stay Aligned When an Arabic Label Wraps to Two Lines</label>
+    <label class="qa-item"><input type="checkbox"> Dim Level Label and Value Sit at Opposite Ends Instead of a Stray Colon Floating in RTL</label>
+    <label class="qa-item"><input type="checkbox"> New: Classic Text Size Slider Appears Only When the Classic Face Is Selected</label>
+    <label class="qa-item"><input type="checkbox"> Classic Text Size Scales the Readout in Place and Persists Across Reloads</label>
     </div>
   </div>
 
@@ -987,6 +981,12 @@
     <input type="range" id="clockSizeSlider" min="60" max="100" value="100" class="sp-volume-slider" style="width:100%;" oninput="setClockSize(this.value)" aria-label="Clock size" />
     <div class="acct-note" data-i18n="clockSizeNote">Scales the main clock face without affecting anything else on screen.</div>
 
+    <div id="classicTextSizeRow" style="display:none;">
+      <div class="panel-header" data-i18n="classicTextSize">Classic Text Size</div>
+      <input type="range" id="classicTextSizeSlider" min="60" max="140" value="100" class="sp-volume-slider" style="width:100%;" oninput="setClassicTextSize(this.value)" aria-label="Classic face text size" />
+      <div class="acct-note" data-i18n="classicTextSizeNote">Resizes the time readout on the Classic face, so it can sit quietly behind the hands or take the lead.</div>
+    </div>
+
     <div class="panel-header" data-i18n="arcStyle">AM/PM Arc Style</div>
     <div class="clock-toggle-grid" id="arcStyleGrid" style="grid-template-columns: 1fr 1fr;">
       <button class="clock-toggle-btn active-lang" onclick="setArcStyle('original', this)">
@@ -1237,7 +1237,7 @@
       </button>
     </div>
     <div id="theaterDimRow">
-      <div class="panel-header" style="font-size:0.7rem; margin-top:10px;"><span data-i18n="theaterDimLevel">Dim Level</span>: <span id="theaterDimValue">70%</span></div>
+      <div class="panel-header" style="font-size:0.7rem; margin-top:10px; display:flex; justify-content:space-between; gap:8px;"><span data-i18n="theaterDimLevel">Dim Level</span><span id="theaterDimValue">70%</span></div>
       <input type="range" id="theaterDimSlider" min="0" max="100" value="70" class="sp-volume-slider" style="width:100%;" oninput="setTheaterDimLevel(this.value)" />
     </div>
     <div class="acct-note" id="theaterDimNote" style="display:none;" data-i18n="theaterDimFloatingNote">Dimming applies to Landscape and Fullscreen only - Floating deliberately keeps the dashboard behind it visible.</div>

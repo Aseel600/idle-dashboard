@@ -184,6 +184,8 @@ const translations = {
     close: "Close",
     clockSize: "Clock Size",
     clockSizeNote: "Scales the main clock face without affecting anything else on screen.",
+    classicTextSize: "Classic Text Size",
+    classicTextSizeNote: "Resizes the time readout on the Classic face, so it can sit quietly behind the hands or take the lead.",
     locationNote: "Your location is used only to line up prayer times and the clock with where you actually are. It stays on your device and is never sent anywhere except to look up those times.",
     displayTitleAutoHide: "Hide When Idle",
     displayTitleAutoHideNote: "Fades the title out after 5 seconds without input, and brings it back on any movement or key press.",
@@ -491,6 +493,8 @@ const translations = {
     close: "إغلاق",
     clockSize: "حجم الساعة",
     clockSizeNote: "يغيّر حجم قرص الساعة الرئيسي دون التأثير على أي عنصر آخر في الشاشة.",
+    classicTextSize: "حجم نص الوجه الكلاسيكي",
+    classicTextSizeNote: "يغيّر حجم عرض الوقت في الوجه الكلاسيكي، ليبقى هادئاً خلف العقارب أو ليتصدّر المشهد.",
     locationNote: "يُستخدم موقعك فقط لضبط أوقات الصلاة والساعة حسب مكانك الفعلي. يبقى على جهازك ولا يُرسل إلى أي جهة سوى لجلب تلك الأوقات.",
     displayTitleAutoHide: "إخفاء عند الخمول",
     displayTitleAutoHideNote: "يُخفي العنوان تدريجياً بعد 5 ثوانٍ من عدم النشاط، ويعيده عند أي حركة أو ضغطة مفتاح.",
@@ -937,6 +941,7 @@ if (devToolsEnabled) document.body.classList.add('dev-tools-enabled');
    ========================================== */
 let clockFaceMode = localStorage.getItem('idleClockFace') === 'classic' ? 'classic' : 'default';
 let clockSizePercent = parseInt(localStorage.getItem('idleClockSize') || '100', 10);
+let classicTextScale = parseInt(localStorage.getItem('idleClassicTextSize') || '100', 10);
 let displayTitleAutoHide = localStorage.getItem('idleDisplayTitleAutoHide') !== '0';
 
 function resetIdleTimer() {
@@ -2043,6 +2048,7 @@ function setClockFace(faceType, btnEl) {
     svg.classList.remove('face-default', 'face-classic');
     svg.classList.add('face-' + faceType);
   }
+  refreshClassicTextSizeVisibility();
 }
 
 /* Scales the main dial only. The SVG has a viewBox and no intrinsic width, so a
@@ -2052,6 +2058,25 @@ function setClockSize(val) {
   localStorage.setItem('idleClockSize', String(clockSizePercent));
   const svg = document.getElementById('clock');
   if (svg) svg.style.width = clockSizePercent + '%';
+  setVolumeSliderFill(document.getElementById('clockSizeSlider'));
+}
+
+/* Classic-only: scales the time readout. The Classic face already moves the readout up
+   between the centre and the 12 marker, and how big it should be there is a matter of
+   taste, so this is exposed only while that face is selected. Scaling the whole group
+   keeps every part of the readout in proportion, which setting font-size piecemeal
+   would not - the five texts get their sizes from a mix of CSS classes and SVG
+   presentation attributes. */
+function setClassicTextSize(val) {
+  classicTextScale = Math.max(60, Math.min(140, parseInt(val, 10) || 100));
+  localStorage.setItem('idleClassicTextSize', String(classicTextScale));
+  const svg = document.getElementById('clock');
+  if (svg) svg.style.setProperty('--classic-text-scale', String(classicTextScale / 100));
+  setVolumeSliderFill(document.getElementById('classicTextSizeSlider'));
+}
+function refreshClassicTextSizeVisibility() {
+  const row = document.getElementById('classicTextSizeRow');
+  if (row) row.style.display = clockFaceMode === 'classic' ? 'block' : 'none';
 }
 
 /* Display title auto-hide: fades the title out after a few seconds with no input.
@@ -2141,6 +2166,11 @@ function setLanguage(selectedLang) {
   });
   const calTypeBtn = document.getElementById('calTypeBtn');
   if (calTypeBtn) calTypeBtn.textContent = isHijri ? translations[lang].hijri : translations[lang].gregorian;
+  // Slider fills are drawn as a directional gradient, so they have to be repainted
+  // when the page direction flips or the filled side ends up mirrored.
+  refreshAllSliderFills();
+  const dimValEl = document.getElementById('theaterDimValue');
+  if (dimValEl) dimValEl.textContent = toNum(theaterDimLevel + '%');
   refreshDayBubbleLetters();
   if (document.getElementById('taskModal').classList.contains('active')) {
     document.getElementById('modalHeaderTitle').textContent = editingTaskId ? translations[lang].editEvent : translations[lang].newEvent;
@@ -3307,10 +3337,22 @@ async function spotifyTransfer(deviceId) {
   setTimeout(() => { updateSpotifyUI(); fetchSpotifyDevices(); }, 800);
 }
 
+/* The filled portion is painted as a gradient rather than by the native track, so the
+   direction has to be flipped under RTL: a range input mirrors itself there (min on the
+   right), and a hardcoded `to right` gradient would leave the fill on the wrong side of
+   the thumb entirely. */
 function setVolumeSliderFill(el) {
   if (!el) return;
   const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
-  el.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${pct}%, var(--input-bg) ${pct}%, var(--input-bg) 100%)`;
+  const dir = document.body.getAttribute('dir') === 'rtl' ? 'to left' : 'to right';
+  el.style.background = `linear-gradient(${dir}, var(--accent) 0%, var(--accent) ${pct}%, var(--input-bg) ${pct}%, var(--input-bg) 100%)`;
+}
+/* Every gradient-filled slider on the page. They were previously only refreshed for
+   the Spotify volume control, so the others sat frozen at the stylesheet's static 50%
+   no matter what value they actually held. */
+function refreshAllSliderFills() {
+  ['spVolumeSlider', 'clockSizeSlider', 'theaterDimSlider', 'classicTextSizeSlider']
+    .forEach(id => setVolumeSliderFill(document.getElementById(id)));
 }
 function spotifyVolumeInput(el) {
   spVolumeDragging = true;
@@ -5047,7 +5089,8 @@ function setTheaterLayout(modeName, btnEl) {
 function setTheaterDimLevel(val) {
   theaterDimLevel = parseInt(val, 10);
   localStorage.setItem('idleTheaterDim', String(theaterDimLevel));
-  document.getElementById('theaterDimValue').textContent = theaterDimLevel + '%';
+  document.getElementById('theaterDimValue').textContent = toNum(theaterDimLevel + '%');
+  setVolumeSliderFill(document.getElementById('theaterDimSlider'));
   applyTheaterDim();
 }
 function applyTheaterDim() {
@@ -5877,10 +5920,16 @@ applyTheaterRoundedEdges();
 refreshErrorCountBadge();
 setClockFace(clockFaceMode, null);
 setClockSize(clockSizePercent);
-document.getElementById('theaterDimSlider').value = theaterDimLevel;
-document.getElementById('theaterDimValue').textContent = theaterDimLevel + '%';
-refreshTheaterDimAvailability();
+// Every slider's value is seeded before refreshAllSliderFills() runs - the fill is
+// computed from the element's current value, so painting first would leave any
+// slider whose stored value isn't the markup default showing the wrong fill.
 document.getElementById('clockSizeSlider').value = clockSizePercent;
+document.getElementById('classicTextSizeSlider').value = classicTextScale;
+setClassicTextSize(classicTextScale);
+document.getElementById('theaterDimSlider').value = theaterDimLevel;
+document.getElementById('theaterDimValue').textContent = toNum(theaterDimLevel + '%');
+refreshTheaterDimAvailability();
+refreshAllSliderFills();
 document.getElementById('displayTitleAutoHideToggle').checked = displayTitleAutoHide;
 scheduleDisplayTitleHide();
 document.getElementById('theaterRoundedToggle').checked = theaterRoundedEdges;

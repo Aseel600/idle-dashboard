@@ -53,7 +53,11 @@ body.light-mode {
 
 body { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top, rgba(120, 120, 120, 0.05), transparent 40%), var(--bg-color-main); color: var(--text-primary); overflow: hidden; user-select: none; transition: direction 0.3s ease, background-color 0.4s ease; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 body[dir="rtl"] { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body[dir="rtl"] .side-panel { right: auto; left: 0; transform: translateX(calc(-100% + 40px)); border-left: none; border-right: 1px solid var(--input-border); padding: 40px 50px 30px 30px; }
+/* Bottom padding must stay 90px like the LTR rule. Mirroring left/right here had
+   also dropped it to 30px, and since the Focus Mode toggle is fixed at bottom-left -
+   which is where this panel lives under RTL - the last control in the panel ended up
+   sitting underneath that button. */
+body[dir="rtl"] .side-panel { right: auto; left: 0; transform: translateX(calc(-100% + 40px)); border-left: none; border-right: 1px solid var(--input-border); padding: 40px 50px 90px 30px; }
 body[dir="rtl"] .side-panel:hover, body[dir="rtl"] .side-panel:focus-within, body[dir="rtl"] .side-panel.touch-open { transform: translateX(0); }
 body[dir="rtl"] .panel-tab { left: auto; right: 15px; transform: translateY(-50%) rotate(180deg); }
 body[dir="rtl"] .left-panel { left: auto; right: 24px; }
@@ -537,7 +541,12 @@ body.focus-mode .quote-bar { opacity: 0 !important; pointer-events: none !import
 .chime-preview-btn .icon-svg { width: 14px; height: 14px; }
 
 .clock-toggle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.clock-toggle-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 14px 8px; color: var(--text-secondary); cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; font-size: 0.72rem; font-weight: 600; text-align: center; }
+/* justify-content is flex-start, not center: grid stretches every button to the same
+   height, so when one label wraps to two lines (common in Arabic - "ملء الشاشة" does)
+   centring pushes that button's icon up out of line with its neighbours. Anchoring to
+   the top keeps every icon on the same baseline whatever the label length. */
+.clock-toggle-btn { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 14px 6px; color: var(--text-secondary); cursor: pointer; transition: background 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s; font-size: 0.72rem; font-weight: 600; text-align: center; line-height: 1.25; }
+.clock-toggle-btn .icon-svg { flex-shrink: 0; }
 .clock-toggle-btn .icon-svg { width: 20px; height: 20px; transition: color 0.2s; }
 .clock-toggle-btn:hover { border-color: rgba(120, 120, 120, 0.4); color: var(--text-primary); }
 .clock-toggle-btn.active-lang { background: color-mix(in srgb, var(--accent) 14%, var(--input-bg)); border-color: var(--accent); color: var(--text-primary); box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 25%, transparent); }
@@ -578,8 +587,11 @@ body[dir="rtl"] .slide-second { transform: translateX(-100%); }
 /* On the Classic face the hands sweep straight through the middle of the dial, so the
    readout sits between the centre and the 12 marker and is dimmed to read as a
    background layer rather than fighting the hands for the same pixels. */
-#clockReadout { transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease; }
-#clock.face-classic #clockReadout { transform: translateY(-74px); opacity: 0.55; }
+/* transform-origin sits at the readout's own centre in viewBox units (the dial centre
+   is 200,200 and the readout block sits just below it) so the Classic text-size slider
+   scales it in place instead of swinging it around the dial centre. */
+#clockReadout { transform-origin: 200px 220px; transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease; }
+#clock.face-classic #clockReadout { transform: translateY(-74px) scale(var(--classic-text-scale, 1)); opacity: 0.55; }
 
 /* The QA dev menu is opt-in via ?dev=1. It used to render by default and was only
    hidden after an async IP lookup resolved, which made it flash on every page load. */
