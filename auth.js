@@ -28,7 +28,9 @@ const T = {
     acctSetNewPassword: "Set New Password",
     acctNewPasswordPlaceholder: "New password",
     acctPasswordResetSuccess: "Password updated! Taking you to the dashboard...",
-    acctTooManyAttempts: "Too many attempts. Try again in {n}s."
+    acctTooManyAttempts: "Too many attempts. Try again in {n}s.",
+    dialogOk: "OK",
+    dialogCancel: "Cancel"
   },
   ar: {
     acctLogin: "تسجيل الدخول", acctSignup: "إنشاء حساب", acctName: "الاسم", acctEmail: "البريد الإلكتروني",
@@ -50,7 +52,9 @@ const T = {
     acctSetNewPassword: "تعيين كلمة مرور جديدة",
     acctNewPasswordPlaceholder: "كلمة المرور الجديدة",
     acctPasswordResetSuccess: "تم تحديث كلمة المرور! جارٍ نقلك إلى لوحة التحكم...",
-    acctTooManyAttempts: "محاولات كثيرة جدًا. حاول مرة أخرى بعد {n} ثانية."
+    acctTooManyAttempts: "محاولات كثيرة جدًا. حاول مرة أخرى بعد {n} ثانية.",
+    dialogOk: "موافق",
+    dialogCancel: "إلغاء"
   }
 };
 const lang = localStorage.getItem('idleLang') || 'en';
@@ -94,7 +98,12 @@ function showDialog({ title, message, showCancel = true, showInput = false, defa
     const input = document.getElementById('dialogPromptInput');
     input.style.display = showInput ? 'block' : 'none';
     input.value = defaultValue;
-    document.getElementById('dialogCancelBtn').style.display = showCancel ? 'block' : 'none';
+    const cancelBtn = document.getElementById('dialogCancelBtn');
+    cancelBtn.style.display = showCancel ? 'block' : 'none';
+    // These were left as the markup's hardcoded English, so the Arabic login page
+    // showed "OK"/"Cancel" untranslated - the main app's dialog already localises them.
+    document.getElementById('dialogOkBtn').textContent = T[lang].dialogOk;
+    cancelBtn.textContent = T[lang].dialogCancel;
     document.getElementById('customDialogModal').classList.add('active');
     if (showInput) setTimeout(() => input.focus(), 50);
   });

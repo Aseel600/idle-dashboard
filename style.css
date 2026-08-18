@@ -516,7 +516,13 @@ body.focus-mode .quote-bar { opacity: 0 !important; pointer-events: none !import
 .add-task-btn.secondary:hover { border-color: var(--accent); }
 .panel-divider { border: 0; height: 1px; background: var(--input-border); margin: 15px 0 5px 0; }
 .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-.theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; }
+/* background-origin must be border-box: with the default padding-box the gradient
+   is sized to the 24x24 padding box but painted across the 28x28 border box, so the
+   2px transparent border ring gets the gradient's clamped edge colour - which reads
+   as a hard-edged square inside the circle when zoomed. The swatch colour is applied
+   as background-image (not the `background` shorthand) precisely so it cannot reset
+   this longhand back to padding-box. */
+.theme-dot { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; background-origin: border-box; transition: transform 0.2s, border-color 0.2s; }
 .theme-dot.active { border-color: var(--text-primary); transform: scale(1.15); }
 .quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; }
 .quick-grid.tight { grid-template-columns: repeat(3, 1fr); }
@@ -560,7 +566,26 @@ body[dir="rtl"] .slide-second { transform: translateX(-100%); }
    11. MAIN CLOCK ENGINE
    ========================================== */
 .container { width: 100%; max-width: 500px; padding: 20px; text-align: center; position: relative; z-index: 10; pointer-events: auto; }
-.display-title { font-size: 1.15rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 30px; transition: color 0.4s; }
+.display-title { font-size: 1.15rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-primary); margin-bottom: 30px; transition: color 0.4s, opacity 0.6s ease; }
+/* Auto-hide after a few seconds of no input. Kept as opacity (not display) so the
+   layout below it never shifts when it fades in and out. */
+/* !important is load-bearing: the title also carries .timer-ui-element, and
+   `.container.timer-active .timer-ui-element { opacity: 1 }` further down the sheet has
+   equal specificity, so it would otherwise win and keep the title visible in exactly
+   the case that matters - a running timer. */
+.display-title.title-auto-hidden { opacity: 0 !important; }
+
+/* On the Classic face the hands sweep straight through the middle of the dial, so the
+   readout sits between the centre and the 12 marker and is dimmed to read as a
+   background layer rather than fighting the hands for the same pixels. */
+#clockReadout { transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease; }
+#clock.face-classic #clockReadout { transform: translateY(-74px); opacity: 0.55; }
+
+/* The QA dev menu is opt-in via ?dev=1. It used to render by default and was only
+   hidden after an async IP lookup resolved, which made it flash on every page load. */
+.dev-menu, .dev-toggle { display: none; }
+body.dev-tools-enabled .dev-menu { display: flex; }
+body.dev-tools-enabled .dev-toggle { display: flex; }
 svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5)); }
 .clock-bg { fill: var(--clock-bg); stroke: var(--clock-stroke); transition: fill 0.4s, stroke 0.4s; }
 .clock-inner { fill: var(--clock-inner); transition: fill 0.4s; }

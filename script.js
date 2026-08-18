@@ -182,6 +182,32 @@ const translations = {
     quickLinkAdd: "Add Link",
     quickLinkNote: "Only http and https links are accepted.",
     close: "Close",
+    clockSize: "Clock Size",
+    clockSizeNote: "Scales the main clock face without affecting anything else on screen.",
+    locationNote: "Your location is used only to line up prayer times and the clock with where you actually are. It stays on your device and is never sent anywhere except to look up those times.",
+    displayTitleAutoHide: "Hide When Idle",
+    displayTitleAutoHideNote: "Fades the title out after 5 seconds without input, and brings it back on any movement or key press.",
+    theaterDimFloatingNote: "Dimming applies to Landscape and Fullscreen only - Floating deliberately keeps the dashboard behind it visible.",
+    errorLogTitle: "Error Log",
+    errorLogNote: "Uncaught errors and unhandled promise rejections captured on this device (most recent last, capped at 50). Stored locally only, never synced to your account.",
+    copy: "Copy",
+    clear: "Clear",
+    tutQuickTimerTitle: "Set a Timer by Dragging",
+    tutQuickTimerBody: "Drag the handle around the dial to set a quick timer. The arc fills as it counts down, and the finish time is shown underneath.",
+    tutClockFaceTitle: "Clock Face",
+    tutClockFaceBody: "Switch between the default minimal dial and a Classic face with real hour and minute hands.",
+    tutClockSizeTitle: "Clock Size",
+    tutClockSizeBody: "Scale the dial up or down to taste - handy on smaller screens or when you want the widgets to take centre stage.",
+    tutDisplayTitleTitle: "Display Title",
+    tutDisplayTitleBody: "Name your dashboard whatever you like. Leave 'Hide When Idle' on and the title fades away while you're not touching anything.",
+    tutSpotifyTitle: "Now Playing",
+    tutSpotifyBody: "Connect Spotify to control playback, follow along with synced lyrics, or swap the art for a live equaliser.",
+    tutPomodoroTitle: "Focus Timer",
+    tutPomodoroBody: "A full Pomodoro cycle with work, short break and long break - all adjustable from the widget's gear icon.",
+    tutPrayerTitle: "Prayer Times",
+    tutPrayerBody: "Prayer times for your city, with a countdown to the next one and an optional ambient glow when it arrives.",
+    tutQuickLinksTitle: "Quick Links",
+    tutQuickLinksBody: "Keep the sites you open most within one click. Add and remove them from the widget's gear icon.",
     chimePomodoroComplete: "Focus Timer",
     acctLoggedOutBlurb: "Sign in to sync tasks, countdowns, and settings across your devices.",
     acctGoToLogin: "Sign In / Sign Up →",
@@ -463,6 +489,32 @@ const translations = {
     quickLinkAdd: "إضافة رابط",
     quickLinkNote: "يُسمح بروابط http و https فقط.",
     close: "إغلاق",
+    clockSize: "حجم الساعة",
+    clockSizeNote: "يغيّر حجم قرص الساعة الرئيسي دون التأثير على أي عنصر آخر في الشاشة.",
+    locationNote: "يُستخدم موقعك فقط لضبط أوقات الصلاة والساعة حسب مكانك الفعلي. يبقى على جهازك ولا يُرسل إلى أي جهة سوى لجلب تلك الأوقات.",
+    displayTitleAutoHide: "إخفاء عند الخمول",
+    displayTitleAutoHideNote: "يُخفي العنوان تدريجياً بعد 5 ثوانٍ من عدم النشاط، ويعيده عند أي حركة أو ضغطة مفتاح.",
+    theaterDimFloatingNote: "التعتيم يعمل في وضعي العرض العريض وملء الشاشة فقط - الوضع العائم يُبقي لوحة التحكم خلفه ظاهرة عن قصد.",
+    errorLogTitle: "سجل الأخطاء",
+    errorLogNote: "الأخطاء غير المعالجة المسجّلة على هذا الجهاز (الأحدث في الأسفل، بحد أقصى 50). تُحفظ محلياً فقط ولا تُزامَن مع حسابك.",
+    copy: "نسخ",
+    clear: "مسح",
+    tutQuickTimerTitle: "اضبط مؤقتاً بالسحب",
+    tutQuickTimerBody: "اسحب المقبض حول القرص لضبط مؤقت سريع. يمتلئ القوس أثناء العد التنازلي، ويظهر وقت الانتهاء بالأسفل.",
+    tutClockFaceTitle: "وجه الساعة",
+    tutClockFaceBody: "بدّل بين القرص البسيط الافتراضي والوجه الكلاسيكي بعقارب ساعات ودقائق حقيقية.",
+    tutClockSizeTitle: "حجم الساعة",
+    tutClockSizeBody: "كبّر القرص أو صغّره حسب ذوقك - مفيد على الشاشات الصغيرة أو عندما تريد إبراز الأدوات.",
+    tutDisplayTitleTitle: "عنوان اللوحة",
+    tutDisplayTitleBody: "سمِّ لوحتك بما تشاء. أبقِ خيار «إخفاء عند الخمول» مفعّلاً ليختفي العنوان عندما لا تستخدم الجهاز.",
+    tutSpotifyTitle: "قيد التشغيل",
+    tutSpotifyBody: "اربط Spotify للتحكم بالتشغيل، ومتابعة الكلمات المتزامنة، أو استبدال الغلاف بمعادل صوتي حي.",
+    tutPomodoroTitle: "مؤقت التركيز",
+    tutPomodoroBody: "دورة بومودورو كاملة مع فترات عمل واستراحة قصيرة وطويلة - كلها قابلة للتعديل من أيقونة الإعدادات.",
+    tutPrayerTitle: "أوقات الصلاة",
+    tutPrayerBody: "أوقات الصلاة لمدينتك، مع عدّ تنازلي للصلاة القادمة وتوهّج اختياري عند دخول الوقت.",
+    tutQuickLinksTitle: "روابط سريعة",
+    tutQuickLinksBody: "أبقِ المواقع التي تفتحها كثيراً على بُعد نقرة واحدة. أضفها أو احذفها من أيقونة إعدادات الأداة.",
     chimePomodoroComplete: "مؤقت التركيز",
     acctLoggedOutBlurb: "سجّل الدخول لمزامنة المهام والعدّادات والإعدادات عبر أجهزتك.",
     acctGoToLogin: "تسجيل الدخول / إنشاء حساب ←",
@@ -859,28 +911,43 @@ const themeGrid = document.getElementById("themeGrid");
 const devMenu = document.getElementById("devMenu");
 
 /* ==========================================
-   2b. DEV MENU IP GATE (client-side visibility only, not real security)
-   ========================================== */
-const DEV_MENU_ALLOWED_IP = "93.112.153.30";
-let devMenuIpAllowed = true;
-fetch('https://api.ipify.org?format=json').then(r => r.json()).then(data => {
-  devMenuIpAllowed = data.ip === DEV_MENU_ALLOWED_IP;
-  if (!devMenuIpAllowed) {
-    devMenu.style.display = 'none';
-    const devToggleBtn = document.querySelector('.dev-toggle');
-    if (devToggleBtn) devToggleBtn.style.display = 'none';
+   2b. DEV MENU (opt-in via ?dev=1)
+   ==========================================
+   Previously the menu rendered by default and was hidden only after an async
+   lookup to api.ipify.org resolved, so every visitor got a red QA panel flashing
+   at them on load - and their IP was sent to a third party to decide it. Both are
+   gone: CSS hides the menu outright and it only appears when explicitly asked for.
+   The preference is remembered so the QA tools stay available across reloads
+   without re-adding the query string. */
+const devToolsEnabled = (function () {
+  try {
+    if (new URLSearchParams(location.search).get('dev') === '1') {
+      sessionStorage.setItem('devToolsEnabled', '1');
+      return true;
+    }
+    return sessionStorage.getItem('devToolsEnabled') === '1';
+  } catch (e) {
+    return false;
   }
-}).catch(() => { /* IP lookup failed (offline/blocked) - leave dev menu visible */ });
+})();
+if (devToolsEnabled) document.body.classList.add('dev-tools-enabled');
 
 /* ==========================================
    3. AMBIENT IDLE TRACKING
    ========================================== */
+let clockFaceMode = localStorage.getItem('idleClockFace') === 'classic' ? 'classic' : 'default';
+let clockSizePercent = parseInt(localStorage.getItem('idleClockSize') || '100', 10);
+let displayTitleAutoHide = localStorage.getItem('idleDisplayTitleAutoHide') !== '0';
+
 function resetIdleTimer() {
   lastInteractionTime = Date.now();
+  scheduleDisplayTitleHide();
 }
 window.addEventListener('mousemove', resetIdleTimer);
 window.addEventListener('keydown', resetIdleTimer);
 window.addEventListener('touchstart', resetIdleTimer);
+window.addEventListener('pointerdown', resetIdleTimer);
+window.addEventListener('wheel', resetIdleTimer, { passive: true });
 
 /* ==========================================
    4. AUDIO CHIME & ZEN MODE
@@ -989,7 +1056,7 @@ window.addEventListener('mousemove', (e) => {
 window.addEventListener('mouseup', () => devDrag = false);
 
 function toggleDevMenu() {
-  if (!devMenuIpAllowed) return;
+  if (!devToolsEnabled) return;
   const hidden = devMenu.classList.toggle('dev-menu-hidden');
   localStorage.setItem('devMenuHidden', hidden ? '1' : '0');
 }
@@ -1953,22 +2020,60 @@ function toggleClockElement(elementClassOrId, btnEl) {
     }
   }
 }
+/* The chosen face is persisted (it previously reset to Default on every reload) and
+   mirrored onto #clock as a face-* class, which is what drives the Classic-only
+   readout offset in CSS. */
 function setClockFace(faceType, btnEl) {
+  if (faceType !== 'classic') faceType = 'default';
+  clockFaceMode = faceType;
+  localStorage.setItem('idleClockFace', faceType);
   document.querySelectorAll('#clockFaceGrid .clock-toggle-btn').forEach(btn => btn.classList.remove('active-lang'));
-  btnEl.classList.add('active-lang');
-  document.querySelectorAll('.clock-face-classic, .clock-face-radar').forEach(el => {
-    el.style.display = 'none';
-    el.style.opacity = '0';
-  });
-  if (faceType === 'default') {
-    // Numbers visibility is controlled independently by the Numbers toggle
-  } else if (faceType === 'classic') {
-    document.querySelector('.clock-face-classic').style.display = 'block';
-    document.querySelector('.clock-face-classic').style.opacity = '1';
-  } else if (faceType === 'radar') {
-    document.querySelector('.clock-face-radar').style.display = 'block';
-    document.querySelector('.clock-face-radar').style.opacity = '0.1';
+  if (btnEl) btnEl.classList.add('active-lang');
+  else {
+    const match = document.querySelector(`#clockFaceGrid .clock-toggle-btn[onclick*="'${faceType}'"]`);
+    if (match) match.classList.add('active-lang');
   }
+  const classic = document.querySelector('.clock-face-classic');
+  if (classic) {
+    classic.style.display = faceType === 'classic' ? 'block' : 'none';
+    classic.style.opacity = faceType === 'classic' ? '1' : '0';
+  }
+  const svg = document.getElementById('clock');
+  if (svg) {
+    svg.classList.remove('face-default', 'face-classic');
+    svg.classList.add('face-' + faceType);
+  }
+}
+
+/* Scales the main dial only. The SVG has a viewBox and no intrinsic width, so a
+   percentage width shrinks it proportionally and it stays centred in the container. */
+function setClockSize(val) {
+  clockSizePercent = Math.max(60, Math.min(100, parseInt(val, 10) || 100));
+  localStorage.setItem('idleClockSize', String(clockSizePercent));
+  const svg = document.getElementById('clock');
+  if (svg) svg.style.width = clockSizePercent + '%';
+}
+
+/* Display title auto-hide: fades the title out after a few seconds with no input.
+   Deliberately separate from IDLE_TIMEOUT_MS, which is a 5-minute timer that clears
+   an abandoned quick timer - a different concept on a completely different scale. */
+const DISPLAY_TITLE_IDLE_MS = 5000;
+let displayTitleIdleTimer = null;
+function setDisplayTitleAutoHide(enabled) {
+  displayTitleAutoHide = !!enabled;
+  localStorage.setItem('idleDisplayTitleAutoHide', displayTitleAutoHide ? '1' : '0');
+  scheduleDisplayTitleHide();
+}
+function scheduleDisplayTitleHide() {
+  const el = document.getElementById('displayTitle');
+  if (!el) return;
+  if (displayTitleIdleTimer) { clearTimeout(displayTitleIdleTimer); displayTitleIdleTimer = null; }
+  el.classList.remove('title-auto-hidden');
+  if (!displayTitleAutoHide) return;
+  displayTitleIdleTimer = setTimeout(() => {
+    const cur = document.getElementById('displayTitle');
+    if (cur && displayTitleAutoHide) cur.classList.add('title-auto-hidden');
+  }, DISPLAY_TITLE_IDLE_MS);
 }
 
 function setArcStyle(mode, btnEl) {
@@ -3992,9 +4097,46 @@ const TUTORIAL_STEPS = [
   { target: '.zen-toggle', placement: 'left', titleKey: 'tutZenTitle', bodyKey: 'tutZenBody' },
   { target: null, titleKey: 'tutFinishTitle', bodyKey: 'tutFinishBody' }
 ];
+
+/* Steps for features that shipped without one. Spliced in before the closing step so
+   the tour still ends on the sign-off, and so this list stays easy to extend. Widget
+   steps target elements inside the left rail, which is display:none on phones - those
+   are skipped automatically there by isTutorialTargetVisible(). */
+TUTORIAL_STEPS.splice(TUTORIAL_STEPS.length - 1, 0,
+  { target: '#endHandle', placement: 'bottom', titleKey: 'tutQuickTimerTitle', bodyKey: 'tutQuickTimerBody' },
+  { target: '#clockFaceGrid', placement: 'left', titleKey: 'tutClockFaceTitle', bodyKey: 'tutClockFaceBody', forcePanel: true },
+  { target: '#clockSizeSlider', placement: 'left', titleKey: 'tutClockSizeTitle', bodyKey: 'tutClockSizeBody', forcePanel: true },
+  { target: '#displayTitleAutoHideToggle', placement: 'left', titleKey: 'tutDisplayTitleTitle', bodyKey: 'tutDisplayTitleBody', forcePanel: true },
+  { target: '#wgSpotify', placement: 'right', titleKey: 'tutSpotifyTitle', bodyKey: 'tutSpotifyBody' },
+  { target: '#wgPomodoro', placement: 'right', titleKey: 'tutPomodoroTitle', bodyKey: 'tutPomodoroBody' },
+  { target: '#wgPrayer', placement: 'right', titleKey: 'tutPrayerTitle', bodyKey: 'tutPrayerBody' },
+  { target: '#wgLinks', placement: 'right', titleKey: 'tutQuickLinksTitle', bodyKey: 'tutQuickLinksBody' }
+);
 let tutorialStepIndex = 0;
 let tutorialForcedPanelOpen = false;
 let tutorialActive = false;
+
+/* A target that is display:none (or otherwise unrendered) has a zero-size rect, which
+   would put the spotlight in the top-left corner highlighting nothing. Several targets
+   are legitimately hidden per device - the whole left widget rail and the timeline are
+   display:none under 760px - so steps pointing at them are skipped on that device
+   rather than shown as an empty highlight. */
+function isTutorialTargetVisible(step) {
+  if (!step.target) return true;
+  const el = document.querySelector(step.target);
+  if (!el) return false;
+  const rect = el.getBoundingClientRect();
+  if (rect.width === 0 && rect.height === 0) return false;
+  return getComputedStyle(el).display !== 'none';
+}
+function findNextVisibleStep(from, direction) {
+  let i = from;
+  while (i >= 0 && i < TUTORIAL_STEPS.length) {
+    if (isTutorialTargetVisible(TUTORIAL_STEPS[i])) return i;
+    i += direction;
+  }
+  return -1;
+}
 
 function positionTutorialUI(step) {
   const spotlight = document.getElementById('tutorialSpotlight');
@@ -4015,10 +4157,16 @@ function positionTutorialUI(step) {
   spotlight.style.width = (rect.width + pad * 2) + 'px';
   spotlight.style.height = (rect.height + pad * 2) + 'px';
 
-  const placement = step.placement || 'bottom';
+  let placement = step.placement || 'bottom';
   const gap = 16;
   const tw = tooltip.offsetWidth || 300;
   const th = tooltip.offsetHeight || 120;
+  /* On a phone there is no room to sit a ~300px tooltip beside a target: a 'left' or
+     'right' placement gets clamped back over the very element it is pointing at. Flip
+     to whichever of above/below the target has more room so the highlight stays visible. */
+  if ((placement === 'left' || placement === 'right') && window.innerWidth < tw + 120) {
+    placement = (rect.top > window.innerHeight - rect.bottom) ? 'top' : 'bottom';
+  }
   let top, left;
   if (placement === 'bottom') {
     top = rect.bottom + pad + gap;
@@ -4056,13 +4204,18 @@ function showTutorialStep(i) {
 
   document.getElementById('tutorialTitle').textContent = translations[lang][step.titleKey] || '';
   document.getElementById('tutorialBody').textContent = translations[lang][step.bodyKey] || '';
-  document.getElementById('tutorialBackBtn').style.visibility = i === 0 ? 'hidden' : 'visible';
+  const hasPrev = findNextVisibleStep(i - 1, -1) !== -1;
+  const hasNext = findNextVisibleStep(i + 1, 1) !== -1;
+  document.getElementById('tutorialBackBtn').style.visibility = hasPrev ? 'visible' : 'hidden';
   document.getElementById('tutorialBackBtn').textContent = translations[lang].tutBack;
-  document.getElementById('tutorialNextBtn').textContent = (i === TUTORIAL_STEPS.length - 1) ? translations[lang].tutFinish : translations[lang].tutNext;
+  document.getElementById('tutorialNextBtn').textContent = hasNext ? translations[lang].tutNext : translations[lang].tutFinish;
 
+  // Only count steps that are actually reachable on this device, so the progress dots
+  // match the tour the user is really getting rather than the full desktop list.
   const dotsEl = document.getElementById('tutorialDots');
   dotsEl.innerHTML = '';
-  TUTORIAL_STEPS.forEach((_, idx) => {
+  TUTORIAL_STEPS.forEach((s, idx) => {
+    if (!isTutorialTargetVisible(s)) return;
     const dot = document.createElement('div');
     dot.className = 'tutorial-dot' + (idx === i ? ' active' : '');
     dotsEl.appendChild(dot);
@@ -4072,19 +4225,22 @@ function showTutorialStep(i) {
   else requestAnimationFrame(() => positionTutorialUI(step));
 }
 function nextTutorialStep() {
-  if (tutorialStepIndex >= TUTORIAL_STEPS.length - 1) { endTutorial(); return; }
-  showTutorialStep(tutorialStepIndex + 1);
+  const next = findNextVisibleStep(tutorialStepIndex + 1, 1);
+  if (next === -1) { endTutorial(); return; }
+  showTutorialStep(next);
 }
 function prevTutorialStep() {
-  if (tutorialStepIndex <= 0) return;
-  showTutorialStep(tutorialStepIndex - 1);
+  const prev = findNextVisibleStep(tutorialStepIndex - 1, -1);
+  if (prev === -1) return;
+  showTutorialStep(prev);
 }
 function startTutorial(force) {
   if (!force && localStorage.getItem('hasSeenTutorial') === '1') return;
   tutorialActive = true;
   tutorialForcedPanelOpen = false;
   document.getElementById('tutorialOverlay').classList.add('active');
-  showTutorialStep(0);
+  const first = findNextVisibleStep(0, 1);
+  showTutorialStep(first === -1 ? 0 : first);
 }
 function endTutorial() {
   tutorialActive = false;
@@ -4815,7 +4971,7 @@ async function changeAccountPassword() {
    ========================================== */
 let theaterSourceTab = 'file';
 let theaterLayoutMode = 'floating';
-let theaterDimLevel = 70;
+let theaterDimLevel = parseInt(localStorage.getItem('idleTheaterDim') || '70', 10);
 let theaterMediaType = null;
 let theaterObjectUrl = null;
 let theaterRoundedEdges = localStorage.getItem('idleTheaterRoundedEdges') !== '0';
@@ -4886,9 +5042,11 @@ function setTheaterLayout(modeName, btnEl) {
   overlay.classList.remove('mode-floating', 'mode-landscape', 'mode-fullscreen');
   overlay.classList.add('mode-' + modeName);
   applyTheaterDim();
+  refreshTheaterDimAvailability();
 }
 function setTheaterDimLevel(val) {
   theaterDimLevel = parseInt(val, 10);
+  localStorage.setItem('idleTheaterDim', String(theaterDimLevel));
   document.getElementById('theaterDimValue').textContent = theaterDimLevel + '%';
   applyTheaterDim();
 }
@@ -4896,6 +5054,20 @@ function applyTheaterDim() {
   const backdrop = document.getElementById('theaterBackdrop');
   if (!backdrop) return;
   backdrop.style.opacity = theaterLayoutMode === 'floating' ? '0' : (theaterDimLevel / 100);
+}
+/* Dimming is meaningless in Floating mode - that layout is a small picture-in-picture
+   window and the point is that the dashboard behind it stays visible and usable, so
+   applyTheaterDim() pins the backdrop to 0 there. The slider used to stay fully
+   enabled anyway, updating its % label while having no possible effect, which read
+   as a broken control. It is now disabled with an explanation in that mode. */
+function refreshTheaterDimAvailability() {
+  const slider = document.getElementById('theaterDimSlider');
+  const note = document.getElementById('theaterDimNote');
+  const row = document.getElementById('theaterDimRow');
+  const floating = theaterLayoutMode === 'floating';
+  if (slider) slider.disabled = floating;
+  if (row) row.style.opacity = floating ? '0.45' : '1';
+  if (note) note.style.display = floating ? 'block' : 'none';
 }
 function theaterBackdropClick(e) {
   if (e.target !== e.currentTarget) return;
@@ -5609,7 +5781,9 @@ Object.entries(themes).forEach(([key, colors]) => {
   const dot = document.createElement("div");
   dot.className = `theme-dot`;
   dot.dataset.key = key;
-  dot.style.background = `linear-gradient(135deg, ${colors.start}, ${colors.end})`;
+  // backgroundImage, not the `background` shorthand - the shorthand would reset
+  // background-origin back to padding-box and reintroduce the square-seam artefact.
+  dot.style.backgroundImage = `linear-gradient(135deg, ${colors.start}, ${colors.end})`;
   dot.setAttribute('role', 'button');
   dot.setAttribute('tabindex', '0');
   dot.setAttribute('aria-label', `${key.charAt(0).toUpperCase()}${key.slice(1)} theme`);
@@ -5701,6 +5875,14 @@ fetchCryptoPrices();
 fetchRssFeed();
 applyTheaterRoundedEdges();
 refreshErrorCountBadge();
+setClockFace(clockFaceMode, null);
+setClockSize(clockSizePercent);
+document.getElementById('theaterDimSlider').value = theaterDimLevel;
+document.getElementById('theaterDimValue').textContent = theaterDimLevel + '%';
+refreshTheaterDimAvailability();
+document.getElementById('clockSizeSlider').value = clockSizePercent;
+document.getElementById('displayTitleAutoHideToggle').checked = displayTitleAutoHide;
+scheduleDisplayTitleHide();
 document.getElementById('theaterRoundedToggle').checked = theaterRoundedEdges;
 document.getElementById('azanReminderToggle').checked = azanReminderEnabled;
 
