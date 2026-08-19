@@ -1,0 +1,528 @@
+/* ============================================================
+   DayFlow — design system + views
+   Layered on top of style.css. Reuses the existing --accent /
+   --text-primary tokens so the seven user themes and light mode
+   keep working across every DayFlow screen.
+   See design-research.md for the reasoning behind these values.
+   ============================================================ */
+
+:root {
+  --df-bg: #0B0C0E;
+  --df-surface: #131519;
+  --df-surface-2: #1A1D22;
+  --df-border: #23262C;
+  --df-text: #F2F4F7;
+  --df-text-dim: #9BA1AC;
+  --df-text-faint: #6B7280;
+  --df-success: #2ED573;
+  --df-warn: #FFA502;
+  --df-danger: #FF4757;
+
+  --df-cat-deep: #6C8CFF;
+  --df-cat-meet: #F0A94B;
+  --df-cat-exercise: #3FCF8E;
+  --df-cat-personal: #C77DFF;
+  --df-cat-study: #4FD1E0;
+  --df-cat-admin: #8A919C;
+
+  --df-r-sm: 8px;
+  --df-r-md: 14px;
+  --df-r-lg: 20px;
+  --df-r-full: 999px;
+
+  --df-shadow-pop: 0 4px 16px rgba(0, 0, 0, 0.28);
+  --df-shadow-modal: 0 24px 60px rgba(0, 0, 0, 0.45);
+
+  --df-t-fast: 120ms ease-out;
+  --df-t-base: 200ms cubic-bezier(.2, .7, .3, 1);
+  --df-t-slow: 360ms cubic-bezier(.2, .7, .3, 1);
+
+  --df-rail: 232px;
+}
+
+body.light-mode {
+  --df-bg: #F7F8FA;
+  --df-surface: #FFFFFF;
+  --df-surface-2: #F1F3F6;
+  --df-border: #E3E6EB;
+  --df-text: #12141A;
+  --df-text-dim: #5C636E;
+  --df-text-faint: #8A919C;
+}
+
+/* Motion is a clarity tool, not decoration - drop all of it when asked. */
+@media (prefers-reduced-motion: reduce) {
+  .df-root *, .df-root *::before, .df-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Entry point from the ambient clock. Sits beside the existing Focus Mode toggle
+   and disappears once a DayFlow view is open (the nav takes over from there). */
+.df-launch {
+  position: fixed; bottom: 24px; inset-inline-end: 76px;
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-contrast);
+  border: none; cursor: pointer; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--df-shadow-pop);
+  transition: transform var(--df-t-fast), filter var(--df-t-fast);
+}
+.df-launch:hover { transform: scale(1.08); filter: brightness(1.08); }
+.df-launch .icon-svg { width: 18px; height: 18px; }
+body.df-active .df-launch, body.focus-mode .df-launch { display: none; }
+@media (hover: none) { .df-launch { width: 46px; height: 46px; } }
+@media (max-width: 760px) { .df-launch { bottom: 12px; inset-inline-end: 58px; } }
+
+/* ---------- shell ---------- */
+/* The DayFlow root is hidden while the Ambient view is active, so the original
+   dashboard renders exactly as it always has with nothing overlaying it. */
+.df-root {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: none;
+  background: var(--df-bg);
+  color: var(--df-text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+body.df-active .df-root { display: flex; }
+/* Ambient's own fixed furniture must not sit on top of DayFlow views. */
+body.df-active .left-panel,
+body.df-active .left-panel-fade,
+body.df-active .timeline-container,
+body.df-active .quote-bar,
+body.df-active .container,
+body.df-active .side-panel,
+body.df-active .horizon-scoreboard,
+body.df-active .zen-toggle,
+body.df-active .dev-toggle { display: none !important; }
+
+.df-nav {
+  width: var(--df-rail);
+  flex-shrink: 0;
+  border-right: 1px solid var(--df-border);
+  background: var(--df-surface);
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+body[dir="rtl"] .df-nav { border-right: none; border-left: 1px solid var(--df-border); }
+
+.df-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 4px 10px 18px 10px;
+  font-size: 17px; font-weight: 700; letter-spacing: -0.01em;
+  color: var(--df-text);
+}
+.df-brand-mark {
+  width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent-contrast);
+}
+.df-brand-mark .icon-svg { width: 15px; height: 15px; }
+
+.df-nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 12px;
+  border-radius: var(--df-r-md);
+  color: var(--df-text-dim);
+  font-size: 14px; font-weight: 550;
+  cursor: pointer; border: none; background: none; width: 100%;
+  text-align: start;
+  transition: background var(--df-t-fast), color var(--df-t-fast);
+}
+.df-nav-item .icon-svg { width: 18px; height: 18px; flex-shrink: 0; }
+.df-nav-item:hover { background: var(--df-surface-2); color: var(--df-text); }
+.df-nav-item.active { background: var(--df-surface-2); color: var(--df-text); }
+.df-nav-item.active .icon-svg { color: var(--accent); }
+.df-nav-spacer { flex: 1; }
+.df-nav-sep { height: 1px; background: var(--df-border); margin: 10px 6px; }
+/* Only ever a bottom-tab-bar affordance; the desktop rail lists everything already. */
+.df-nav-item.more-tab { display: none; }
+
+/* Day strip for the single-column planner on narrow screens. */
+.df-daystrip { display: none; gap: 6px; margin-bottom: 12px; }
+.df-daystrip button {
+  flex: 1; padding: 9px 0; border-radius: var(--df-r-sm); border: 1px solid var(--df-border);
+  background: var(--df-surface); color: var(--df-text-dim); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all var(--df-t-fast);
+}
+.df-daystrip button.active { background: color-mix(in srgb, var(--accent) 16%, var(--df-surface)); border-color: var(--accent); color: var(--accent); }
+@media (max-width: 760px) { .df-daystrip { display: flex; } }
+
+.df-main { flex: 1; overflow-y: auto; overflow-x: hidden; }
+.df-view { display: none; padding: 32px 40px 72px; max-width: 1180px; margin: 0 auto; }
+.df-view.active { display: block; animation: dfViewIn var(--df-t-slow) both; }
+@keyframes dfViewIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- typography ---------- */
+.df-h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.df-h2 { font-size: 20px; font-weight: 650; letter-spacing: -0.005em; margin: 0; }
+.df-section { font-size: 15px; font-weight: 600; margin: 0; }
+.df-body { font-size: 14px; line-height: 1.5; color: var(--df-text-dim); }
+.df-meta { font-size: 12.5px; font-weight: 500; color: var(--df-text-faint); }
+.df-micro { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--df-text-faint); }
+.df-metric-xl { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+.df-metric-l { font-size: 30px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+
+.df-view-head { margin-bottom: 28px; }
+.df-view-head .df-body { margin-top: 6px; }
+.df-row-between { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+
+/* ---------- surfaces ---------- */
+.df-card {
+  background: var(--df-surface);
+  border: 1px solid var(--df-border);
+  border-radius: var(--df-r-md);
+  padding: 20px;
+}
+.df-card + .df-card { margin-top: 16px; }
+.df-grid { display: grid; gap: 16px; }
+.df-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.df-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.df-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.df-stack-24 > * + * { margin-top: 24px; }
+.df-stack-16 > * + * { margin-top: 16px; }
+.df-stack-8 > * + * { margin-top: 8px; }
+
+/* ---------- controls ---------- */
+.df-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 11px 18px; border-radius: var(--df-r-md);
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  border: 1px solid transparent; background: var(--accent); color: var(--accent-contrast);
+  transition: filter var(--df-t-fast), transform var(--df-t-fast);
+  font-family: inherit;
+}
+.df-btn:hover { filter: brightness(1.08); }
+.df-btn:active { transform: scale(0.98); }
+.df-btn .icon-svg { width: 16px; height: 16px; }
+.df-btn.secondary { background: var(--df-surface-2); color: var(--df-text); border-color: var(--df-border); }
+.df-btn.ghost { background: transparent; color: var(--df-text-dim); }
+.df-btn.ghost:hover { background: var(--df-surface-2); color: var(--df-text); }
+.df-btn.danger { background: var(--df-danger); color: #fff; }
+.df-btn.sm { padding: 7px 12px; font-size: 13px; }
+.df-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.df-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--df-r-full);
+  font-size: 12.5px; font-weight: 600;
+  background: var(--df-surface-2); color: var(--df-text-dim);
+  border: 1px solid transparent; cursor: pointer;
+  transition: all var(--df-t-fast); font-family: inherit;
+}
+.df-chip:hover { color: var(--df-text); }
+.df-chip.active { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.df-chip.static { cursor: default; }
+
+.df-seg { display: inline-flex; background: var(--df-surface-2); border-radius: var(--df-r-full); padding: 3px; gap: 2px; }
+.df-seg button {
+  padding: 7px 16px; border-radius: var(--df-r-full); border: none; background: none;
+  color: var(--df-text-dim); font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all var(--df-t-fast); font-family: inherit;
+}
+.df-seg button.active { background: var(--df-surface); color: var(--df-text); box-shadow: var(--df-shadow-pop); }
+
+.df-input, .df-select, .df-textarea {
+  width: 100%; min-height: 44px;
+  background: var(--df-surface-2);
+  border: 1px solid var(--df-border);
+  border-radius: var(--df-r-sm);
+  color: var(--df-text);
+  padding: 11px 12px;
+  font-size: 14px; font-family: inherit;
+  outline: none;
+  transition: border-color var(--df-t-fast), box-shadow var(--df-t-fast);
+}
+.df-textarea { min-height: 88px; resize: vertical; }
+.df-input:focus, .df-select:focus, .df-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 28%, transparent);
+}
+.df-input::placeholder, .df-textarea::placeholder { color: var(--df-text-faint); }
+.df-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--df-text-dim); margin-bottom: 6px; }
+.df-field + .df-field { margin-top: 14px; }
+.df-error { font-size: 12.5px; color: var(--df-danger); margin-top: 5px; display: none; }
+.df-field.invalid .df-error { display: block; }
+.df-field.invalid .df-input, .df-field.invalid .df-select { border-color: var(--df-danger); }
+
+/* Visible focus on everything interactive - never rely on the browser default alone. */
+.df-root button:focus-visible,
+.df-root a:focus-visible,
+.df-root input:focus-visible,
+.df-root select:focus-visible,
+.df-root textarea:focus-visible,
+.df-root [tabindex]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--df-r-sm);
+}
+
+/* ---------- progress ---------- */
+.df-bar { height: 6px; border-radius: var(--df-r-full); background: var(--df-surface-2); overflow: hidden; }
+.df-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--accent); transition: width var(--df-t-slow); }
+.df-ring { transform: rotate(-90deg); }
+.df-ring circle { fill: none; stroke-linecap: round; }
+.df-ring .track { stroke: var(--df-surface-2); }
+.df-ring .val { stroke: var(--accent); transition: stroke-dashoffset var(--df-t-slow); }
+.df-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.df-ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+
+/* ---------- empty states ---------- */
+.df-empty { text-align: center; padding: 44px 20px; }
+.df-empty .icon-svg { width: 30px; height: 30px; color: var(--df-text-faint); margin-bottom: 12px; }
+.df-empty-title { font-size: 15px; font-weight: 600; color: var(--df-text); }
+.df-empty-body { font-size: 13.5px; color: var(--df-text-dim); margin-top: 5px; max-width: 340px; margin-inline: auto; line-height: 1.5; }
+.df-empty .df-btn { margin-top: 16px; }
+
+/* ---------- today ---------- */
+.df-score-card { display: flex; align-items: center; gap: 32px; flex-wrap: wrap; }
+/* Capped so the four bars stay readable as a group instead of stretching the full
+   width of the card, which made the breakdown read as four unrelated rules. */
+.df-score-break { flex: 1; min-width: 240px; max-width: 460px; display: flex; flex-direction: column; gap: 12px; }
+.df-score-row { display: grid; grid-template-columns: 92px 1fr 44px; align-items: center; gap: 12px; font-size: 13px; }
+.df-score-row .df-bar { height: 5px; }
+.df-score-row b { text-align: end; color: var(--df-text-dim); font-weight: 600; font-size: 12.5px; }
+
+.df-focusline {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--df-text-dim); font-size: 14px; margin-top: 6px;
+}
+.df-focusline .icon-svg { width: 16px; height: 16px; color: var(--accent); flex-shrink: 0; }
+
+/* ---------- list rows ---------- */
+.df-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--df-r-md);
+  background: var(--df-surface-2);
+  border: 1px solid transparent;
+  transition: border-color var(--df-t-fast), transform var(--df-t-fast);
+}
+.df-row:hover { border-color: var(--df-border); }
+.df-row + .df-row { margin-top: 8px; }
+.df-row-main { flex: 1; min-width: 0; }
+.df-row-title { font-size: 14px; font-weight: 550; color: var(--df-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.df-row-sub { font-size: 12.5px; color: var(--df-text-faint); margin-top: 2px; }
+.df-row.done .df-row-title { text-decoration: line-through; color: var(--df-text-faint); }
+
+.df-check {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid var(--df-border); background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  transition: all var(--df-t-base);
+}
+.df-check:hover { border-color: var(--accent); }
+.df-check .icon-svg { width: 12px; height: 12px; color: var(--accent-contrast); opacity: 0; transform: scale(.5); transition: all var(--df-t-base); }
+.df-check.on { background: var(--accent); border-color: var(--accent); }
+.df-check.on .icon-svg { opacity: 1; transform: none; }
+
+.df-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.df-prio { width: 3px; align-self: stretch; border-radius: var(--df-r-full); flex-shrink: 0; }
+.df-prio.high { background: var(--df-danger); }
+.df-prio.med { background: var(--df-warn); }
+.df-prio.low { background: var(--df-text-faint); }
+
+/* ---------- board ---------- */
+.df-board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.df-col { background: var(--df-surface); border: 1px solid var(--df-border); border-radius: var(--df-r-md); padding: 14px; min-height: 160px; }
+.df-col-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.df-col-count { font-size: 11.5px; font-weight: 700; color: var(--df-text-faint); background: var(--df-surface-2); padding: 2px 8px; border-radius: var(--df-r-full); }
+.df-col.drop { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, var(--df-surface)); }
+.df-tile {
+  background: var(--df-surface-2); border: 1px solid var(--df-border);
+  border-radius: var(--df-r-sm); padding: 11px 12px; cursor: grab;
+  display: flex; gap: 9px; align-items: flex-start;
+  transition: transform var(--df-t-fast), box-shadow var(--df-t-fast);
+}
+.df-tile + .df-tile { margin-top: 8px; }
+.df-tile:hover { box-shadow: var(--df-shadow-pop); }
+.df-tile.dragging { opacity: 0.4; }
+.df-tile-title { font-size: 13.5px; font-weight: 550; line-height: 1.35; }
+
+/* ---------- habits ---------- */
+.df-habit-grid { display: grid; grid-template-columns: 1fr repeat(7, 26px); gap: 8px; align-items: center; }
+.df-habit-grid.head { color: var(--df-text-faint); font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; text-align: center; }
+.df-cell {
+  width: 26px; height: 26px; border-radius: var(--df-r-sm);
+  background: var(--df-surface-2); border: 1px solid transparent;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; padding: 0; transition: all var(--df-t-base);
+}
+.df-cell.done { background: var(--accent); border-color: var(--accent); }
+.df-cell.done .icon-svg { width: 12px; height: 12px; color: var(--accent-contrast); }
+.df-cell.today { border-color: var(--accent); }
+.df-cell.off { opacity: .35; cursor: default; }
+.df-cell:disabled { cursor: not-allowed; }
+.df-streak {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11.5px; font-weight: 650; color: var(--df-warn);
+  background: color-mix(in srgb, var(--df-warn) 14%, transparent);
+  padding: 3px 9px; border-radius: var(--df-r-full);
+}
+
+/* ---------- goals ---------- */
+.df-goal-card { display: flex; gap: 16px; align-items: center; cursor: pointer; }
+.df-milestone { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid var(--df-border); }
+.df-milestone:last-child { border-bottom: none; }
+.df-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px 12px; }
+.df-stat { display: flex; align-items: flex-start; gap: 10px; }
+.df-stat .icon-svg { width: 17px; height: 17px; color: var(--df-text-faint); margin-top: 3px; flex-shrink: 0; }
+.df-stat-val { font-size: 18px; font-weight: 700; line-height: 1.2; }
+.df-stat-lbl { font-size: 12px; color: var(--df-text-faint); margin-top: 1px; }
+
+/* ---------- planner ---------- */
+.df-week { display: grid; grid-template-columns: 54px repeat(7, minmax(0, 1fr)); border: 1px solid var(--df-border); border-radius: var(--df-r-md); overflow: hidden; background: var(--df-surface); }
+.df-week-head { padding: 10px 6px; text-align: center; border-bottom: 1px solid var(--df-border); border-inline-start: 1px solid var(--df-border); }
+.df-week-head.gutter { border-inline-start: none; }
+.df-week-head.today { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.df-week-dow { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--df-text-faint); }
+.df-week-num { font-size: 16px; font-weight: 650; margin-top: 3px; }
+.df-week-head.today .df-week-num { color: var(--accent); }
+.df-week-body { position: relative; height: 620px; overflow-y: auto; grid-column: 1 / -1; }
+.df-week-inner { display: grid; grid-template-columns: 54px repeat(7, minmax(0, 1fr)); position: relative; }
+.df-hour { height: 46px; font-size: 10.5px; color: var(--df-text-faint); text-align: end; padding-inline-end: 7px; padding-top: 2px; border-top: 1px solid var(--df-border); }
+.df-daycol { position: relative; border-inline-start: 1px solid var(--df-border); cursor: pointer; }
+.df-daycol .slot { height: 46px; border-top: 1px solid var(--df-border); }
+.df-block {
+  position: absolute; inset-inline: 3px; border-radius: var(--df-r-sm);
+  padding: 5px 7px 5px 9px; overflow: hidden; cursor: pointer;
+  border-inline-start: 3px solid var(--cat, var(--accent));
+  background: color-mix(in srgb, var(--cat, var(--accent)) 18%, var(--df-surface));
+  transition: filter var(--df-t-fast);
+}
+.df-block:hover { filter: brightness(1.15); }
+.df-block-t { font-size: 11.5px; font-weight: 650; line-height: 1.25; }
+.df-block-time { font-size: 10.5px; color: var(--df-text-dim); margin-top: 1px; }
+.df-nowline { position: absolute; inset-inline: 0; height: 2px; background: var(--df-danger); z-index: 3; pointer-events: none; }
+.df-nowline::before { content: ''; position: absolute; inset-inline-start: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--df-danger); }
+
+/* ---------- focus ---------- */
+.df-focus-wrap { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 20px 0 40px; }
+.df-focus-time { font-size: 62px; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.df-focus-controls { display: flex; gap: 12px; align-items: center; }
+body.df-zen .df-nav, body.df-zen .df-view-head, body.df-zen .df-focus-side { display: none !important; }
+body.df-zen .df-view { padding-top: 8vh; }
+body.df-zen .df-focus-time { font-size: 92px; }
+
+/* ---------- charts ---------- */
+.df-chart { display: flex; align-items: flex-end; gap: 6px; height: 132px; padding-top: 8px; position: relative; }
+.df-chart-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; height: 100%; justify-content: flex-end; }
+.df-chart-bar { width: 100%; max-width: 26px; border-radius: var(--df-r-sm) var(--df-r-sm) 0 0; background: color-mix(in srgb, var(--accent) 85%, transparent); min-height: 2px; transition: height var(--df-t-slow); }
+.df-chart-col.dim .df-chart-bar { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+.df-chart-x { font-size: 10.5px; color: var(--df-text-faint); font-weight: 600; }
+.df-goalline { position: absolute; inset-inline: 0; border-top: 1px dashed var(--df-border); pointer-events: none; }
+.df-insight { display: flex; gap: 9px; align-items: flex-start; margin-top: 16px; font-size: 13.5px; color: var(--df-text-dim); line-height: 1.5; }
+.df-insight .icon-svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+.df-delta { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 650; padding: 3px 8px; border-radius: var(--df-r-full); }
+.df-delta.up { color: var(--df-success); background: color-mix(in srgb, var(--df-success) 14%, transparent); }
+.df-delta.down { color: var(--df-danger); background: color-mix(in srgb, var(--df-danger) 14%, transparent); }
+.df-delta.flat { color: var(--df-text-faint); background: var(--df-surface-2); }
+
+/* ---------- theme preview cards ---------- */
+.df-theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.df-theme-card { border: 1px solid var(--df-border); border-radius: var(--df-r-md); padding: 12px; cursor: pointer; background: var(--df-surface-2); text-align: center; transition: all var(--df-t-fast); }
+.df-theme-card.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.df-theme-prev { height: 58px; border-radius: var(--df-r-sm); overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 7px; margin-bottom: 9px; }
+.df-theme-prev i { display: block; height: 7px; border-radius: 3px; }
+.df-theme-name { font-size: 12.5px; font-weight: 600; }
+.df-theme-desc { font-size: 11px; color: var(--df-text-faint); margin-top: 2px; }
+
+/* ---------- modal / panel ---------- */
+.df-modal { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(0, 0, 0, .55); }
+.df-modal.active { display: flex; animation: dfFade var(--df-t-base) both; }
+@keyframes dfFade { from { opacity: 0; } to { opacity: 1; } }
+.df-modal-box { background: var(--df-surface); border: 1px solid var(--df-border); border-radius: var(--df-r-lg); box-shadow: var(--df-shadow-modal); width: 100%; max-width: 470px; max-height: 88vh; overflow-y: auto; padding: 24px; animation: dfPop var(--df-t-base) both; }
+.df-modal-box.wide { max-width: 620px; }
+@keyframes dfPop { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+.df-modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.df-modal-foot { display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px; }
+
+/* ---------- onboarding ---------- */
+.df-onb { position: fixed; inset: 0; z-index: 300; display: none; background: var(--df-bg); color: var(--df-text); }
+.df-onb.active { display: flex; flex-direction: column; }
+.df-onb-bar { height: 3px; background: var(--df-surface-2); }
+.df-onb-bar > i { display: block; height: 100%; background: var(--accent); transition: width var(--df-t-slow); }
+.df-onb-top { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; }
+.df-onb-body { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 520px; margin: 0 auto; width: 100%; padding: 0 20px 40px; }
+.df-onb-q { font-size: 27px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.df-onb-help { font-size: 14px; color: var(--df-text-dim); margin-top: 9px; line-height: 1.5; }
+.df-onb-opts { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
+.df-opt {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 15px 16px; border-radius: var(--df-r-md);
+  background: var(--df-surface); border: 1px solid var(--df-border);
+  color: var(--df-text); font-size: 14.5px; font-weight: 550; cursor: pointer;
+  text-align: start; transition: all var(--df-t-fast); font-family: inherit;
+}
+.df-opt:hover { border-color: color-mix(in srgb, var(--accent) 50%, transparent); }
+.df-opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--df-surface)); }
+.df-opt .icon-svg { width: 19px; height: 19px; color: var(--df-text-faint); flex-shrink: 0; }
+.df-opt.sel .icon-svg { color: var(--accent); }
+.df-opt-check { margin-inline-start: auto; width: 19px; height: 19px; border-radius: 50%; border: 2px solid var(--df-border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.df-opt.sel .df-opt-check { background: var(--accent); border-color: var(--accent); }
+.df-opt.sel .df-opt-check .icon-svg { width: 11px; height: 11px; color: var(--accent-contrast); }
+.df-onb-foot { display: flex; gap: 12px; margin-top: 28px; }
+.df-onb-foot .df-btn { flex: 1; }
+
+/* ---------- toast ---------- */
+.df-toast-wrap { position: fixed; bottom: 24px; inset-inline-end: 24px; z-index: 400; display: flex; flex-direction: column; gap: 8px; align-items: flex-end; }
+.df-toast {
+  background: var(--df-surface); border: 1px solid var(--df-border);
+  border-radius: var(--df-r-md); padding: 12px 16px; font-size: 13.5px; font-weight: 550;
+  box-shadow: var(--df-shadow-pop); display: flex; align-items: center; gap: 9px;
+  animation: dfToastIn var(--df-t-base) both;
+}
+.df-toast .icon-svg { width: 15px; height: 15px; color: var(--df-success); }
+@keyframes dfToastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ---------- responsive ---------- */
+@media (max-width: 1000px) {
+  .df-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .df-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .df-view { padding: 26px 24px 80px; }
+}
+@media (max-width: 760px) {
+  .df-root { flex-direction: column; }
+  /* Rail becomes a bottom tab bar - 5 primary destinations, the rest under More. */
+  .df-nav {
+    width: 100%; order: 2; flex-direction: row; border: none;
+    border-top: 1px solid var(--df-border);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+    gap: 0; overflow-x: auto; overflow-y: hidden;
+  }
+  body[dir="rtl"] .df-nav { border-left: none; border-top: 1px solid var(--df-border); }
+  .df-brand, .df-nav-sep, .df-nav-spacer { display: none; }
+  .df-nav-item {
+    flex-direction: column; gap: 4px; padding: 8px 4px; font-size: 10.5px;
+    min-width: 60px; min-height: 56px; flex: 1; justify-content: center; text-align: center;
+    border-radius: var(--df-r-sm);
+  }
+    .df-nav-item.secondary { display: none; }
+  .df-nav-item.more-tab { display: flex; }
+  .df-main { order: 1; flex: 1; }
+  .df-view { padding: 20px 16px 32px; }
+  .df-h1 { font-size: 25px; }
+  .df-grid-2, .df-grid-3, .df-grid-4, .df-board { grid-template-columns: minmax(0, 1fr); }
+  .df-stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .df-theme-grid { grid-template-columns: 1fr; }
+  .df-score-card { gap: 20px; }
+  .df-week { grid-template-columns: 44px minmax(0, 1fr); }
+  .df-week-inner { grid-template-columns: 44px minmax(0, 1fr); }
+  .df-week-head.hide-sm { display: none; }
+  .df-focus-time { font-size: 50px; }
+  .df-modal-box { max-width: 100%; border-radius: var(--df-r-lg); }
+  .df-toast-wrap { inset-inline: 16px; bottom: 84px; align-items: stretch; }
+}
+@media (max-width: 440px) {
+  .df-habit-grid { grid-template-columns: 1fr repeat(7, 20px); gap: 5px; }
+  .df-cell { width: 20px; height: 20px; }
+  .df-metric-xl { font-size: 36px; }
+}

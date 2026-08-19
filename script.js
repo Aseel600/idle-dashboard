@@ -210,6 +210,8 @@ const translations = {
     tutPrayerBody: "Prayer times for your city, with a countdown to the next one and an optional ambient glow when it arrives.",
     tutQuickLinksTitle: "Quick Links",
     tutQuickLinksBody: "Keep the sites you open most within one click. Add and remove them from the widget's gear icon.",
+    tutDayFlowTitle: "DayFlow",
+    tutDayFlowBody: "Open DayFlow for the productivity side of the app - today's plan, tasks, habits, goals, a weekly planner, focus sessions and analytics. Your ambient clock stays exactly as it is.",
     chimePomodoroComplete: "Focus Timer",
     acctLoggedOutBlurb: "Sign in to sync tasks, countdowns, and settings across your devices.",
     acctGoToLogin: "Sign In / Sign Up →",
@@ -519,6 +521,8 @@ const translations = {
     tutPrayerBody: "أوقات الصلاة لمدينتك، مع عدّ تنازلي للصلاة القادمة وتوهّج اختياري عند دخول الوقت.",
     tutQuickLinksTitle: "روابط سريعة",
     tutQuickLinksBody: "أبقِ المواقع التي تفتحها كثيراً على بُعد نقرة واحدة. أضفها أو احذفها من أيقونة إعدادات الأداة.",
+    tutDayFlowTitle: "DayFlow",
+    tutDayFlowBody: "افتح DayFlow للجانب الإنتاجي من التطبيق - خطة اليوم والمهام والعادات والأهداف والمخطط الأسبوعي وجلسات التركيز والتحليلات. ساعتك تبقى كما هي تماماً.",
     chimePomodoroComplete: "مؤقت التركيز",
     acctLoggedOutBlurb: "سجّل الدخول لمزامنة المهام والعدّادات والإعدادات عبر أجهزتك.",
     acctGoToLogin: "تسجيل الدخول / إنشاء حساب ←",
@@ -2192,6 +2196,9 @@ function setLanguage(selectedLang) {
   refreshAllSliderFills();
   const dimValEl = document.getElementById('theaterDimValue');
   if (dimValEl) dimValEl.textContent = toNum(theaterDimLevel + '%');
+  // DayFlow renders its own strings at draw time, so it re-renders rather than
+  // being walked for [data-i18n] like the static markup above.
+  if (window.DF && typeof window.DF.onLangChange === 'function') window.DF.onLangChange();
   refreshDayBubbleLetters();
   if (document.getElementById('taskModal').classList.contains('active')) {
     document.getElementById('modalHeaderTitle').textContent = editingTaskId ? translations[lang].editEvent : translations[lang].newEvent;
@@ -4185,7 +4192,10 @@ TUTORIAL_STEPS.splice(TUTORIAL_STEPS.length - 1, 0,
   { target: '#wgSpotify', placement: 'right', titleKey: 'tutSpotifyTitle', bodyKey: 'tutSpotifyBody' },
   { target: '#wgPomodoro', placement: 'right', titleKey: 'tutPomodoroTitle', bodyKey: 'tutPomodoroBody' },
   { target: '#wgPrayer', placement: 'right', titleKey: 'tutPrayerTitle', bodyKey: 'tutPrayerBody' },
-  { target: '#wgLinks', placement: 'right', titleKey: 'tutQuickLinksTitle', bodyKey: 'tutQuickLinksBody' }
+  { target: '#wgLinks', placement: 'right', titleKey: 'tutQuickLinksTitle', bodyKey: 'tutQuickLinksBody' },
+  // DayFlow has its own five-step onboarding, so the ambient tour only needs to make
+  // the entry point discoverable rather than re-explaining all eight views.
+  { target: '#dfLaunch', placement: 'left', titleKey: 'tutDayFlowTitle', bodyKey: 'tutDayFlowBody' }
 );
 let tutorialStepIndex = 0;
 let tutorialForcedPanelOpen = false;
@@ -4781,7 +4791,9 @@ const CLOUD_SYNC_KEYS = ['idleTasksV4', 'idleGoals', 'idleCountdowns', 'idleVisi
   'quoteRotationActive', 'chimeSound_timerEnd', 'chimeSound_eventStart', 'chimeSound_eventEnd', 'chimeSound_alert',
   'idlePomodoroSettings', 'idlePomodoroStats', 'idleHabits', 'idleCryptoCoins', 'idleRssFeedUrl', 'chimeSound_pomodoroComplete',
   'idleTheaterRoundedEdges', 'idleAzanReminderEnabled',
-  'spotify_token', 'spotify_token_expiry', 'spotify_refresh_token', 'idleQuickLinks'];
+  'spotify_token', 'spotify_token_expiry', 'spotify_refresh_token', 'idleQuickLinks',
+  // DayFlow: same sync treatment as everything else the user creates.
+  'dfProfile', 'dfTasks', 'dfGoals', 'dfSessions', 'dfBlocks'];
 
 function collectCloudSnapshot() {
   const snap = {};
