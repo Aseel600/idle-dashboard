@@ -349,7 +349,11 @@ select option, .modal-select option { background: var(--bg-color-main); color: v
 .icon-suggest-chip .icon-svg { width: 16px; height: 16px; }
 
 .mini-clock-container { width: 100%; display: flex; flex-direction: column; align-items: center; position: relative; }
-.mini-clock-svg { width: 180px; height: 180px; overflow: visible; }
+/* touch-action:none on both dials so dragging a handle never doubles as a page pan or
+   pinch-zoom. Applied unconditionally rather than under (hover: none), since touch
+   laptops report hover but still deliver touch gestures. */
+.mini-clock-svg { width: 180px; height: 180px; overflow: visible; touch-action: none; }
+#clock { touch-action: none; }
 .mini-bg { fill: var(--clock-inner); stroke: var(--input-border); stroke-width: 2; }
 .mini-arc { fill: none; stroke-width: 6; stroke-linecap: round; }
 .mini-handle { cursor: grab; stroke: white; stroke-width: 2; }
@@ -614,6 +618,36 @@ svg { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 3
 
 .container:hover .idle-clock-element, .container.timer-active .idle-clock-element { opacity: 0; }
 .container:hover .timer-ui-element, .container.timer-active .timer-ui-element { opacity: 1; pointer-events: auto; }
+
+/* ---- Touch devices ----
+   Everything below exists because a tablet or phone never fires :hover, and several
+   controls were reachable only that way. */
+@media (hover: none) {
+  /* The drag handle is a .timer-ui-element, so on a touch device it stayed fully
+     transparent with pointer-events:none - meaning a timer could not be started at
+     all unless one was already running. It is now always present and grabbable.
+     pointer-events:all plus a wide transparent stroke widens the hit target well
+     past the 8-unit dot without changing how it looks. */
+  #endHandle {
+    opacity: 1;
+    pointer-events: all;
+    stroke: transparent;
+    stroke-width: 24;
+    paint-order: stroke;
+  }
+  #startHandle { opacity: 0.5; }
+  /* In landscape/fullscreen the header - which holds the only close button - was
+     revealed on hover, so on a tablet there was no visible way out of theater mode. */
+  .theater-overlay.mode-landscape .theater-header,
+  .theater-overlay.mode-fullscreen .theater-header { opacity: 1; background: rgba(0, 0, 0, 0.75); }
+  /* Comfortable touch targets for the small circular controls. */
+  .zen-toggle, .dev-toggle { width: 46px; height: 46px; }
+  .panel-tab { padding: 18px 10px; font-size: 28px; }
+  .quote-toggle-btn { width: 30px; height: 30px; }
+  .widget-settings-btn { padding: 6px; }
+  .sp-btn { min-width: 40px; min-height: 40px; }
+  .sp-art-dot { width: 12px; height: 12px; }
+}
 
 .drag-string { fill: none; stroke: rgba(255, 255, 255, 0.3); stroke-width: 2.5; stroke-linecap: round; opacity: 0; transition: opacity 0.2s; }
 .ball-trail { opacity: 0; pointer-events: none; filter: drop-shadow(0 0 6px rgba(120, 120, 120, 0.4)); }

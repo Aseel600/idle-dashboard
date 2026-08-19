@@ -1599,24 +1599,45 @@ function updateMiniClock() {
   document.getElementById('miniArc').setAttribute('stroke', selectedTaskColor);
 }
 
+/* The task time picker was mouse-only, so its start/end handles could not be moved at
+   all on a tablet or phone. Touch events are handled alongside the mouse ones, reading
+   the coordinates from whichever kind of event arrived. */
 const miniSvg = document.getElementById('miniClock');
-miniSvg.addEventListener('mousedown', e => {
-  if (e.target.id === 'miniStartH') miniDragging = 'start';
-  else if (e.target.id === 'miniEndH') miniDragging = 'end';
-});
-window.addEventListener('mousemove', e => {
+function miniPointerPos(e) {
+  const t = e.touches && e.touches[0];
+  return { clientX: t ? t.clientX : e.clientX, clientY: t ? t.clientY : e.clientY };
+}
+function miniStartDrag(e) {
+  const target = e.touches ? document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY) : e.target;
+  if (!target) return;
+  if (target.id === 'miniStartH') miniDragging = 'start';
+  else if (target.id === 'miniEndH') miniDragging = 'end';
+  if (miniDragging && e.cancelable) e.preventDefault();
+}
+function miniMoveDrag(e) {
   if (!miniDragging) return;
-  e.preventDefault();
+  if (e.cancelable) e.preventDefault();
+  const { clientX, clientY } = miniPointerPos(e);
   const rect = miniSvg.getBoundingClientRect();
-  const x = e.clientX - rect.left - mcx, y = e.clientY - rect.top - mcy;
+  // The SVG is scaled to fit its box, so screen pixels have to be converted back into
+  // the 200x200 viewBox units that mcx/mcy are expressed in.
+  const scale = 200 / rect.width;
+  const x = (clientX - rect.left) * scale - mcx, y = (clientY - rect.top) * scale - mcy;
   let ang = Math.atan2(y, x) * (180 / Math.PI) + 90;
   if (ang < 0) ang += 360;
   let mins = Math.round((ang / 360) * 1440 / 15) * 15;
   if (mins === 1440) mins = 0;
   if (miniDragging === 'start') miniStartMins = mins; else miniEndMins = mins;
   updateMiniClock();
-});
-window.addEventListener('mouseup', () => miniDragging = null);
+}
+function miniEndDrag() { miniDragging = null; }
+miniSvg.addEventListener('mousedown', miniStartDrag);
+miniSvg.addEventListener('touchstart', miniStartDrag, { passive: false });
+window.addEventListener('mousemove', miniMoveDrag);
+window.addEventListener('touchmove', miniMoveDrag, { passive: false });
+window.addEventListener('mouseup', miniEndDrag);
+window.addEventListener('touchend', miniEndDrag);
+window.addEventListener('touchcancel', miniEndDrag);
 
 async function saveScheduledTask() {
   const name = document.getElementById('newTaskName').value;
@@ -2902,10 +2923,16 @@ function updateLiveTimer() {
       timeValueText.classList.remove('paused');
     }
 
+    /* Round the remaining time up while counting down. timerEndTime is stamped at
+       release, so by the time the first frame renders a few milliseconds have already
+       gone and flooring would show 04:59 for a timer that was just set to 5:00 - which
+       reads as the snap being off by a second. Counting up past zero still floors, so
+       overtime starts at 00:00 rather than jumping straight to 00:01. */
     const absDiff = Math.abs(diffMs);
-    const hNum = Math.floor(absDiff / 3600000);
-    const mNum = Math.floor((absDiff % 3600000) / 60000);
-    const sNum = Math.floor((absDiff % 60000) / 1000);
+    const totalSec = diffMs >= 0 ? Math.ceil(absDiff / 1000) : Math.floor(absDiff / 1000);
+    const hNum = Math.floor(totalSec / 3600);
+    const mNum = Math.floor((totalSec % 3600) / 60);
+    const sNum = totalSec % 60;
     const hStr = hNum.toString().padStart(2, '0');
     const mStr = mNum.toString().padStart(2, '0');
     const sStr = sNum.toString().padStart(2, '0');
@@ -3094,7 +3121,13 @@ function onPointerMove(e) {
 
   let displayDuration = rawTimerDurationMs;
   if (displayDuration < 0) displayDuration = 0;
-  if (dist < radius - 5) {
+  /* Snap to 5-minute steps by default, and only hand over free/fine control when the
+     handle is deliberately pulled well outside the dial. The old test was
+     `dist < radius - 5`, but the handle sits on the rim at ~160 and radius is 162 - so
+     dragging it the natural way, around the rim, was always in the non-snapping branch
+     and produced arbitrary values like 5:01:23. Snapping was only reachable inside a
+     ~3-unit band, which is effectively unhittable. */
+  if (dist <= radius + 55) {
     const snapMs = 5 * 60 * 1000;
     timerDurationMs = Math.round(displayDuration / snapMs) * snapMs;
   } else {

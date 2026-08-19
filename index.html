@@ -54,7 +54,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V7.21)</title>
+  <title>Ambient OS | Dashboard (V7.22)</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -167,7 +167,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v7.21</span>
+      <span class="dev-version">v7.22</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -180,15 +180,17 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.21 RTL FIXES + CLASSIC TEXT SIZE</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V7.22 TIMER SNAP + TOUCH DEVICES</div>
 
-    <label class="qa-item"><input type="checkbox"> Arabic: Slider Fill Now Runs From the Correct Side (Was Filling Opposite the Thumb)</label>
-    <label class="qa-item"><input type="checkbox"> Clock Size and Dim Level Sliders Now Actually Repaint Their Fill (Were Frozen at 50%)</label>
-    <label class="qa-item"><input type="checkbox"> Arabic: Settings Panel No Longer Runs Under the Focus Mode Button - Bottom Padding Restored to 90px</label>
-    <label class="qa-item"><input type="checkbox"> Toggle Button Icons Stay Aligned When an Arabic Label Wraps to Two Lines</label>
-    <label class="qa-item"><input type="checkbox"> Dim Level Label and Value Sit at Opposite Ends Instead of a Stray Colon Floating in RTL</label>
-    <label class="qa-item"><input type="checkbox"> New: Classic Text Size Slider Appears Only When the Classic Face Is Selected</label>
-    <label class="qa-item"><input type="checkbox"> Classic Text Size Scales the Readout in Place and Persists Across Reloads</label>
+    <label class="qa-item"><input type="checkbox"> Dragging the Timer Ball Now Snaps to Clean 5-Minute Steps Instead of Landing on 5:01 / 5:06</label>
+    <label class="qa-item"><input type="checkbox"> Pull the Handle Well Outside the Dial for Free/Fine Control</label>
+    <label class="qa-item"><input type="checkbox"> A Timer Set to 5:00 Reads 5:00 on the First Frame, Not 4:59</label>
+    <label class="qa-item"><input type="checkbox"> Tablet/Phone: the Timer Handle Is Visible and Draggable (Previously Impossible Without Hover)</label>
+    <label class="qa-item"><input type="checkbox"> Tablet/Phone: Task Start/End Handles in the Mini Clock Respond to Touch</label>
+    <label class="qa-item"><input type="checkbox"> Mini Clock Angles Are Accurate (Centre Was Off by 10px From Mixing Screen Pixels With viewBox Units)</label>
+    <label class="qa-item"><input type="checkbox"> Tablet/Phone: Theater Header Stays Visible in Landscape/Fullscreen So the Close Button Is Reachable</label>
+    <label class="qa-item"><input type="checkbox"> Dragging a Dial No Longer Pans or Pinch-Zooms the Page</label>
+    <label class="qa-item"><input type="checkbox"> Larger Touch Targets for Focus Mode, Panel Tab, Spotify Controls and Art Dots</label>
     </div>
   </div>
 
