@@ -1644,7 +1644,10 @@ window.addEventListener('touchend', miniEndDrag);
 window.addEventListener('touchcancel', miniEndDrag);
 
 async function saveScheduledTask() {
-  const name = document.getElementById('newTaskName').value;
+  // Trimmed before the validity check below: a whitespace-only string is truthy, so
+  // the untrimmed version accepted "   " and created a schedule entry with a blank
+  // title that could not be identified or searched for afterwards.
+  const name = document.getElementById('newTaskName').value.trim();
   const isRoutine = document.getElementById('taskIsRoutine').checked;
   const dateVal = document.getElementById('newTaskDate').value;
   if (!name || (!isRoutine && !dateVal)) { await customAlert(lang === 'en' ? "Please fill name and date." : "الرجاء تعبئة الاسم والتاريخ.", lang === 'en' ? 'Missing Info' : 'معلومات ناقصة'); return; }
@@ -1697,7 +1700,9 @@ async function deleteCurrentTask() {
 }
 
 function addDailyGoal() {
-  const name = document.getElementById('newGoalName').value;
+  // Trimmed before validating: "   " is a truthy string, so an untrimmed check let a
+  // whitespace-only goal through and rendered as a blank, unclickable row.
+  const name = document.getElementById('newGoalName').value.trim();
   if (!name) return;
   dailyGoals.push({ id: generateEntityId(), name, completed: false });
   localStorage.setItem('idleGoals', JSON.stringify(dailyGoals));

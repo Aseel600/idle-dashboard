@@ -54,7 +54,7 @@
   <meta name="description" content="Ambient OS — a personal ambient dashboard with a live SVG clock, weather, prayer times, tasks, routines, and Spotify integration." />
   <meta name="theme-color" content="#050505" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='9' fill='none' stroke='%2300c6ff' stroke-width='2'/%3E%3Cline x1='12' y1='12' x2='12' y2='6' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='12' y1='12' x2='16' y2='14' stroke='%2300c6ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E" />
-  <title>Ambient OS | Dashboard (V8.0)</title>
+  <title>Ambient OS | Dashboard (V8.1)</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="dayflow.css">
 </head>
@@ -173,7 +173,7 @@
   <div class="dev-menu" id="devMenu">
     <div class="dev-header" id="devHeader">
       <span>QA Tools</span>
-      <span class="dev-version">v8.0</span>
+      <span class="dev-version">v8.1</span>
     </div>
     <div class="dev-btn-grid">
       <button class="dev-btn" onclick="triggerShootingStar()"><svg class="icon-svg"><use href="#icon-star"></use></svg><span>Shooting Star</span></button>
@@ -186,20 +186,16 @@
 
     <div class="dev-checklist-history">
     <hr style="border: 1px solid rgba(46, 213, 115, 0.3); margin: 5px 0;">
-    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V8.0 DAYFLOW</div>
+    <div style="font-size:0.7rem; color:#2ed573; font-weight:bold; text-align:center; margin-bottom: 5px;">V8.1 TEST SUITE + VALIDATION FIXES</div>
 
-    <label class="qa-item"><input type="checkbox"> Ambient Clock Dashboard Is Untouched - Every Existing Feature Still Works From the Ambient View</label>
-    <label class="qa-item"><input type="checkbox"> Onboarding: 5 Questions, Skippable, Repeatable From Settings, and It Actually Creates a Goal, Habits and Starter Tasks</label>
-    <label class="qa-item"><input type="checkbox"> Today: Score Ring With a 4-Part Breakdown, Focus Line, Tasks, Habits, Goals and Quick-Start Focus</label>
-    <label class="qa-item"><input type="checkbox"> Tasks: List + Board Views, 4 Statuses, Drag and Drop, Filters, Search, Detail Panel</label>
-    <label class="qa-item"><input type="checkbox"> Habits: Weekly 7-Column Grid, Streaks, Detail View - Shares Data With the Ambient Habits Widget</label>
-    <label class="qa-item"><input type="checkbox"> Goals: Milestones Drive Progress Automatically, With Derived Pacing Advice</label>
-    <label class="qa-item"><input type="checkbox"> Planner: Week Grid, Category Colours, Current-Time Line, Day Strip on Mobile</label>
-    <label class="qa-item"><input type="checkbox"> Focus: 25/45/60 Presets, Task Linking, Distraction-Free Mode, Sessions Recorded</label>
-    <label class="qa-item"><input type="checkbox"> Analytics: 7/30-Day Charts With Insight Sentences, Delta Chips and an Insufficient-Data State</label>
-    <label class="qa-item"><input type="checkbox"> Settings: Theme Preview Cards, Profile, JSON Export and Validated Import, Reset Demo Data</label>
-    <label class="qa-item"><input type="checkbox"> Mobile: Bottom Tab Bar + More Sheet - Every View Reachable, No Horizontal Overflow</label>
-    <label class="qa-item"><input type="checkbox"> Arabic/RTL Works Across All 8 DayFlow Views; Light Mode Too</label>
+    <label class="qa-item"><input type="checkbox"> Whitespace-Only Schedule Title Is Now Rejected (Was Accepted - "   " Is Truthy)</label>
+    <label class="qa-item"><input type="checkbox"> Whitespace-Only Daily Goal Is Now Rejected; Both Titles Store Trimmed</label>
+    <label class="qa-item"><input type="checkbox"> DF.__test Surface Exposes Pure Date/Streak/Scoring Logic for Unit Testing</label>
+    <label class="qa-item"><input type="checkbox"> Playwright Suite: 5 Specs, 9 Device Projects Including 2K WQXGA and Ultrawide</label>
+    <label class="qa-item"><input type="checkbox"> Vitest Suite: Chronology and Input-Safety Logic Against the Real Files in jsdom</label>
+    <label class="qa-item"><input type="checkbox"> Console Scripts Run With No Install - AOS.all() and WFZ.all()</label>
+    <label class="qa-item"><input type="checkbox"> Security Scan Executed: 149 Hostile Payloads, Zero Executed, Prototype Intact</label>
+    <label class="qa-item"><input type="checkbox"> Security Checklist Documents 26 Unlabelled Form Controls as an Open Finding</label>
     </div>
   </div>
 

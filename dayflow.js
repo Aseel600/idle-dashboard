@@ -1503,6 +1503,24 @@
     DF.ready = true;
   }
 
+  /* Testing surface. These are pure functions living inside this IIFE, so without an
+     explicit handle a unit test can only reach them through the DOM. Exposing them is
+     inert in production - it adds one object reference and no behaviour - and lets the
+     date, streak and scoring logic be tested directly instead of inferred from pixels. */
+  DF.__test = {
+    dayKey, addDays, startOfWeek, pct, clamp, hhmm, uid,
+    habitScheduledOn, habitStreak, habitBest,
+    goalProgress, focusMinutesOn, todayScore,
+    normaliseHabits, seed,
+    // Re-exported from script.js's shared global lexical scope so one import covers
+    // everything a logic test needs.
+    toNum: (typeof toNum === 'function' ? toNum : null),
+    CATS, STATUSES, KEYS, EXPORT_KEYS,
+    // Lets a test drive time without waiting on wall-clock.
+    _setState: (patch) => { Object.assign(DF.state, patch); },
+    _reload: load
+  };
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();

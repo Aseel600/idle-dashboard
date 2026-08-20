@@ -1,0 +1,24 @@
+{
+  "name": "ambient-os-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Test suite for Ambient OS Dashboard / DayFlow. Dev-only - the app itself stays buildless and ships without any of this.",
+  "type": "module",
+  "scripts": {
+    "serve": "npx --yes serve .. -l 5173",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:soak": "playwright test e2e/memory-soak.spec.js --project=chromium-desktop",
+    "test:all": "npm run test:unit && npm run test:e2e",
+    "install:browsers": "playwright install chromium firefox webkit"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "vitest": "^2.1.0",
+    "jsdom": "^25.0.0",
+    "serve": "^14.2.0"
+  }
+}
